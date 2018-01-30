@@ -20,7 +20,7 @@
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 // #define TIMER_IDX   0        
 // #define TIMER_AUTO_RELOAD 1
-#define CONTROL_LOOP_FREQUENCY   (.005)   // control loop period for timer group 0 timer 0 in seconds
+#define CONTROL_LOOP_FREQUENCY   (.001)   // control loop period for timer group 0 timer 0 in seconds
 #define PROGRAM_LENGTH 10 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
@@ -43,7 +43,6 @@ SemaphoreHandle_t killSemaphore = NULL;
 //interrupt flag container
 typedef struct {
     int ctrl_intr;
-    int end_intr;
 } timer_event_t;
 
 xQueueHandle ctrl_queue;
@@ -61,7 +60,6 @@ void IRAM_ATTR timer_group0_isr(void *para) {
     } 
     if ((intr_status & BIT(1))) { //if alarm is true, set interrupt flag 
         TIMERG0.int_clr_timers.t1 = 1; //clear timer interrupt bit
-        evt.end_intr = 1; //set flag
         xSemaphoreGiveFromISR(killSemaphore,NULL); //GIVE SEMAPHORE
     }
     TIMERG0.hw_timer[0].config.alarm_en = TIMER_ALARM_EN; //re-enable timer for timer 0 which is timing control loop
@@ -84,7 +82,7 @@ static void timer_setup(int timer_idx,bool auto_reload, double timer_interval_se
 
     /* Timer's counter will initially start from value below.
        Also, if auto_reload is set, this value will be automatically reload on alarm */
-    timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x00000000ULL);
+    timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x0);
 
     /* Configure the alarm value and the interrupt on alarm. */
     timer_set_alarm_value(TIMER_GROUP_0, timer_idx, timer_interval_sec * TIMER_SCALE);
@@ -145,7 +143,7 @@ void add_int_to_buffer (char buf[],int i_to_add) {
 void control() {
     gpio_set_level(GPIO_NUM_4, level);
     level = !level;
-    int val_0 = adc1_get_voltage(ADC1_CHANNEL_6); //* ADC_SCALE
+    int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
     add_int_to_buffer(f_buf,val_0);
     // printf("%03x\n",val_0);
 
@@ -163,14 +161,15 @@ static void control_thread_function()
         { 
             evt.ctrl_intr = 0;
             control();
-            // if (evt.end_intr == 1) //end program after dumping to file
-            // { 
-            //     dump_to_file(f_buf); 
-            //     printf("reset me bb\n");
-            //     vTaskSuspend(NULL);
-            // }
         }
     }
+}
+
+
+void gpio_kill(int pin)
+{
+    gpio_set_level(pin, 0);
+    gpio_set_direction(pin, GPIO_MODE_INPUT);  
 }
 
 //blocks until semaphore is given from program timer ISR
@@ -178,12 +177,16 @@ static void end_program(void* task) {
     // (TaskHandle_t*) task;
     if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE)
     {
+        vTaskSuspend((TaskHandle_t*) task);
+        vTaskDelay(100); //delay for .1s
         //end program after dumping to file
         // dump_to_file(f_buf); 
-        printf("reset me bb\n");
-        vTaskSuspend((TaskHandle_t*) task);
-        vTaskSuspend(NULL);
         
+        gpio_kill(GPIO_NUM_4); //disable GPIO
+        
+        printf("reset me bb\n");
+        
+        vTaskSuspend(NULL);
     }
 }
 
