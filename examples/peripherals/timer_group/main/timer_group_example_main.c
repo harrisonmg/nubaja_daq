@@ -1,26 +1,37 @@
+//standard c shite
 #include <stdio.h>
 #include <stdlib.h>
-#include "esp_types.h"
+#include <string.h>
+
+//kernel
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
-#include "soc/timer_group_struct.h"
+
+//esp
+#include "esp_types.h"
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_system.h"
 #include "esp_adc_cal.h"
-// #include <errno.h>
-#include <string.h>
+#include "esp_vfs_fat.h"
+#include "driver/sdmmc_host.h"
+#include "driver/sdspi_host.h"
+#include "sdmmc_cmd.h"
+#include <sys/unistd.h>
+#include <sys/stat.h>
+#include "esp_err.h"
+#include "esp_log.h"
+#include "driver/i2c.h"
+#include "soc/timer_group_struct.h"
 
 //TIMER CONFIGS
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-// #define TIMER_IDX   0        
-// #define TIMER_AUTO_RELOAD 1
-#define CONTROL_LOOP_FREQUENCY   (.001)   // control loop period for timer group 0 timer 0 in seconds
+#define CONTROL_LOOP_FREQUENCY   (1)   // control loop period for timer group 0 timer 0 in seconds
 #define PROGRAM_LENGTH 10 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
@@ -34,10 +45,33 @@
 #define HEX 16
 char f_buf[SIZE];
 
+//sad card spi config
+#define PIN_NUM_MISO 2
+#define PIN_NUM_MOSI 15
+#define PIN_NUM_CLK  14
+#define PIN_NUM_CS   13
+
+//I2C CONFIG
+#define I2C_EXAMPLE_MASTER_SCL_IO          19               /*!< gpio number for I2C master clock */
+#define I2C_EXAMPLE_MASTER_SDA_IO          18               /*!< gpio number for I2C master data  */
+#define I2C_EXAMPLE_MASTER_NUM             I2C_NUM_1        /*!< I2C port number for master dev */
+#define I2C_EXAMPLE_MASTER_TX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
+#define I2C_EXAMPLE_MASTER_RX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
+#define I2C_EXAMPLE_MASTER_FREQ_HZ         400000           /*!< I2C master clock frequency */
+#define SLAVE_ADDR                         0x69             /*!< slave address for SOME SENSOR */
+#define WRITE_BIT                          I2C_MASTER_WRITE /*!< I2C master write */
+#define READ_BIT                           I2C_MASTER_READ  /*!< I2C master read */
+#define ACK_CHECK_EN                       0x1              /*!< I2C master will check ack from slave*/
+#define ACK_CHECK_DIS                      0x0              /*!< I2C master will not check ack from slave */
+#define ACK_VAL                            0x0              /*!< I2C ack value */
+#define NACK_VAL                           0x1              /*!< I2C nack value */
+#define DATA_LENGTH 2                                       //in bytes
+
 //global vars
 int level = 0;
 int tic = 0;
 SemaphoreHandle_t killSemaphore = NULL;
+static const char *TAG = "bois";
 // extern int errno; 
 
 //interrupt flag container
@@ -93,8 +127,102 @@ static void timer_setup(int timer_idx,bool auto_reload, double timer_interval_se
     timer_start(TIMER_GROUP_0, timer_idx);
 }
 
+static void i2c_master_config() {
+    int i2c_master_port = I2C_EXAMPLE_MASTER_NUM;
+    i2c_config_t conf;
+    conf.mode = I2C_MODE_MASTER;
+    conf.sda_io_num = I2C_EXAMPLE_MASTER_SDA_IO;
+    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.scl_io_num = I2C_EXAMPLE_MASTER_SCL_IO;
+    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.master.clk_speed = I2C_EXAMPLE_MASTER_FREQ_HZ;
+    i2c_param_config(i2c_master_port, &conf);
+    i2c_driver_install(i2c_master_port, conf.mode,
+                       I2C_EXAMPLE_MASTER_RX_BUF_DISABLE,
+                       I2C_EXAMPLE_MASTER_TX_BUF_DISABLE, 0);
+}
+
+//uint8_t* data_wr = (uint8_t*) malloc(DATA_LENGTH);
+static esp_err_t i2c_master_write_slave(i2c_port_t i2c_num, uint8_t* data_wr, size_t size)
+{
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( SLAVE_ADDR << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+static esp_err_t i2c_master_read_slave(i2c_port_t i2c_num, uint8_t* data_rd, size_t size)
+{
+    if (size == 0) {
+        return ESP_OK;
+    }
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( SLAVE_ADDR << 1 ) | READ_BIT, ACK_CHECK_EN);
+    if (size > 1) {
+        i2c_master_read(cmd, data_rd, size - 1, ACK_VAL);
+    }
+    i2c_master_read_byte(cmd, data_rd + size - 1, NACK_VAL);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+static void i2c_test() {
+    uint8_t* data_wr = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t* data_rd = (uint8_t*) malloc(DATA_LENGTH);
+    for (i = 0; i < DATA_LENGTH; ++ijh) {
+        data_wr[i] = 0xf; //change this accordingly
+    }
+
+    //read who_am_i register of sensor asdf
+
+
+}
+
+static void sd_config() 
+{
+    ESP_LOGI(TAG, "sd_config");
+    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
+    slot_config.gpio_miso = PIN_NUM_MISO;
+    slot_config.gpio_mosi = PIN_NUM_MOSI;
+    slot_config.gpio_sck  = PIN_NUM_CLK;
+    slot_config.gpio_cs   = PIN_NUM_CS;    
+    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+        .format_if_mount_failed = false,
+        .max_files = 5
+    };
+
+    // Use settings defined above to initialize SD card and mount FAT filesystem.
+    // Note: esp_vfs_fat_sdmmc_mount is an all-in-one convenience function.
+    // Please check its source code and implement error recovery when developing
+    // production applications.
+    sdmmc_card_t* card;
+    esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount filesystem; suspending task");
+            vTaskSuspend(NULL);
+            // ESP_LOGE(TAG, "Failed to mount filesystem. "
+            //     "If you want the card to be formatted, set format_if_mount_failed = true.");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize the card");
+            vTaskSuspend(NULL);
+        }
+        return;
+    }
+}
+
 //configures necessary modules for proper operation
 void config() {
+    ESP_LOGI(TAG, "config");
     //adc config
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
@@ -113,26 +241,26 @@ void config() {
 
 
 /*
-* THIS SHIT BROKE
 */
 void dump_to_file(char buf[]) {
+    ESP_LOGI(TAG, "dump_to_file");
     char nullstr[] = "\0";
     strcpy(buf,nullstr);
     FILE *fp;
-    fp = fopen("test.txt", "a");
+    fp = fopen("/sdcard/test.txt", "a");
     if (fp == NULL)
     {
-        printf("Error opening file!\n");
+        ESP_LOGE(TAG, "error opening file, suspending task");
         vTaskSuspend(NULL);
     }   
-    fputs(buf, fp); // this is preferable
-    // fprintf(fp, "%s", buf);
-    printf("dumped\n");
+    fputs(buf, fp);
+    ESP_LOGI(TAG, "dumped");
     fclose(fp);
-    // return(1); //success
+    esp_vfs_fat_sdmmc_unmount();
 }
 
 void add_int_to_buffer (char buf[],int i_to_add) {
+    // ESP_LOGI(TAG, "add_int_to_buffer");
     char str_to_add [sizeof(int)*8+1];
     itoa(i_to_add,str_to_add,HEX);
     printf("%s\n",str_to_add);
@@ -141,12 +269,11 @@ void add_int_to_buffer (char buf[],int i_to_add) {
 
 //function executed each time ctrl_intr is set 
 void control() {
+    // ESP_LOGI(TAG, "control");
     gpio_set_level(GPIO_NUM_4, level);
     level = !level;
     int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
     add_int_to_buffer(f_buf,val_0);
-    // printf("%03x\n",val_0);
-
 }
 
 /*
@@ -168,24 +295,21 @@ static void control_thread_function()
 
 void gpio_kill(int pin)
 {
+    ESP_LOGI(TAG, "gpio_kill");
     gpio_set_level(pin, 0);
     gpio_set_direction(pin, GPIO_MODE_INPUT);  
 }
 
 //blocks until semaphore is given from program timer ISR
-static void end_program(void* task) {
-    // (TaskHandle_t*) task;
-    if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE)
+static void end_program(void* task) {    
+    if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE) //end program after dumping to file
     {
+        ESP_LOGI(TAG, "end_program");
         vTaskSuspend((TaskHandle_t*) task);
         vTaskDelay(100); //delay for .1s
-        //end program after dumping to file
         // dump_to_file(f_buf); 
-        
         gpio_kill(GPIO_NUM_4); //disable GPIO
-        
-        printf("reset me bb\n");
-        
+        ESP_LOGI(TAG, "suspending task");
         vTaskSuspend(NULL);
     }
 }
