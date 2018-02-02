@@ -31,8 +31,8 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_FREQUENCY   (1)   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH 10 // program length for timer group 0 timer 1 in seconds
+#define CONTROL_LOOP_FREQUENCY   (2)   // control loop period for timer group 0 timer 0 in seconds
+#define PROGRAM_LENGTH 30 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
 #define V_REF   1000
@@ -52,20 +52,20 @@ char f_buf[SIZE];
 #define PIN_NUM_CS   13
 
 //I2C CONFIG
-#define I2C_EXAMPLE_MASTER_SCL_IO          19               /*!< gpio number for I2C master clock */
-#define I2C_EXAMPLE_MASTER_SDA_IO          18               /*!< gpio number for I2C master data  */
-#define I2C_EXAMPLE_MASTER_NUM             I2C_NUM_1        /*!< I2C port number for master dev */
+#define I2C_EXAMPLE_MASTER_SCL_IO          22               /*!< gpio number for I2C master clock */
+#define I2C_EXAMPLE_MASTER_SDA_IO          23               /*!< gpio number for I2C master data  */
+#define I2C_NUM                            I2C_NUM_0        /*!< I2C port number for master dev */
 #define I2C_EXAMPLE_MASTER_TX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
 #define I2C_EXAMPLE_MASTER_RX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
-#define I2C_EXAMPLE_MASTER_FREQ_HZ         400000           /*!< I2C master clock frequency */
-#define SLAVE_ADDR                         0x69             /*!< slave address for SOME SENSOR */
+#define I2C_EXAMPLE_MASTER_FREQ_HZ         100000           /*!< I2C master clock frequency */
 #define WRITE_BIT                          I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT                           I2C_MASTER_READ  /*!< I2C master read */
 #define ACK_CHECK_EN                       0x1              /*!< I2C master will check ack from slave*/
 #define ACK_CHECK_DIS                      0x0              /*!< I2C master will not check ack from slave */
 #define ACK_VAL                            0x0              /*!< I2C ack value */
 #define NACK_VAL                           0x1              /*!< I2C nack value */
-#define DATA_LENGTH 2                                       //in bytes
+#define DATA_LENGTH                        2                //in bytes
+#define I2C_TASK_LENGTH                    500              //in ms
 
 //global vars
 int level = 0;
@@ -128,13 +128,14 @@ static void timer_setup(int timer_idx,bool auto_reload, double timer_interval_se
 }
 
 static void i2c_master_config() {
-    int i2c_master_port = I2C_EXAMPLE_MASTER_NUM;
+    ESP_LOGI(TAG, "i2c_master_config");
+    int i2c_master_port = I2C_NUM;
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
     conf.sda_io_num = I2C_EXAMPLE_MASTER_SDA_IO;
-    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.sda_pullup_en = GPIO_PULLUP_DISABLE;//
     conf.scl_io_num = I2C_EXAMPLE_MASTER_SCL_IO;
-    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;//
     conf.master.clk_speed = I2C_EXAMPLE_MASTER_FREQ_HZ;
     i2c_param_config(i2c_master_port, &conf);
     i2c_driver_install(i2c_master_port, conf.mode,
@@ -142,47 +143,66 @@ static void i2c_master_config() {
                        I2C_EXAMPLE_MASTER_TX_BUF_DISABLE, 0);
 }
 
-//uint8_t* data_wr = (uint8_t*) malloc(DATA_LENGTH);
-static esp_err_t i2c_master_write_slave(i2c_port_t i2c_num, uint8_t* data_wr, size_t size)
+
+// static void i2c_write(uint8_t slave_addr, uint8_t* data_wr, size_t data_len)
+// {
+//     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+//     i2c_master_start(cmd);
+//     i2c_master_write_byte(cmd, ( slave_addr << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+//     i2c_master_write(cmd, data_wr, data_len, ACK_CHECK_EN);
+//     i2c_master_stop(cmd);
+//     i2c_master_cmd_begin(I2C_NUM, cmd, 1000 / portTICK_RATE_MS); //esp_err_t ret = 
+//     i2c_cmd_link_delete(cmd);
+// }
+
+// static void i2c_read(uint8_t slave_addr, uint8_t* data_rd, size_t data_len)
+// {
+//     // if (data_len == 0) {
+//     //     return ESP_OK;
+//     // }
+//     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+//     i2c_master_start(cmd);
+//     i2c_master_write_byte(cmd, ( slave_addr << 1 ) | READ_BIT, ACK_CHECK_EN);
+//     if (data_len > 1) {
+//         i2c_master_read(cmd, data_rd, data_len - 1, ACK_VAL);
+//     }
+//     i2c_master_read_byte(cmd, data_rd + data_len - 1, NACK_VAL);
+//     i2c_master_stop(cmd);
+//     i2c_master_cmd_begin(I2C_NUM, cmd, 1000 / portTICK_RATE_MS); //    esp_err_t ret = 
+//     i2c_cmd_link_delete(cmd);
+//     // return ret;
+// }
+
+//reads who_am_i register of sensor and configures it
+static void itg_test() 
 {
+    ESP_LOGI(TAG, "itg_test");
+    int ret;
+    // uint8_t* data_wr = (uint8_t*) malloc(DATA_LENGTH);
+    // uint8_t* data_rd = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t* who_am_i = (uint8_t*) malloc(1);
+    uint8_t gyro_slave_address = 0x69; //general call 
+    // for (int i = 0; i < DATA_LENGTH; ++i) {
+    //     data_wr[i] = 0xf; //change this accordingly
+    // }
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, 0x0, ACK_VAL); //register 0
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, ( SLAVE_ADDR << 1 ) | WRITE_BIT, ACK_CHECK_EN);
-    i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_read_byte(cmd, who_am_i, NACK_VAL);
     i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
-    i2c_cmd_link_delete(cmd);
-    return ret;
-}
-
-static esp_err_t i2c_master_read_slave(i2c_port_t i2c_num, uint8_t* data_rd, size_t size)
-{
-    if (size == 0) {
-        return ESP_OK;
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); //how long does this take?
+    i2c_cmd_link_delete(cmd);  
+    if (ret != ESP_OK) {
+        printf("i2c read failed\n");
+    } else if (ret == ESP_ERR_INVALID_ARG) {
+        printf("parameter error\n");
     }
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, ( SLAVE_ADDR << 1 ) | READ_BIT, ACK_CHECK_EN);
-    if (size > 1) {
-        i2c_master_read(cmd, data_rd, size - 1, ACK_VAL);
+    else {  
+    printf("itg addr daddyyyyyy: %02x\n", *who_am_i);
     }
-    i2c_master_read_byte(cmd, data_rd + size - 1, NACK_VAL);
-    i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
-    i2c_cmd_link_delete(cmd);
-    return ret;
-}
-
-static void i2c_test() {
-    uint8_t* data_wr = (uint8_t*) malloc(DATA_LENGTH);
-    uint8_t* data_rd = (uint8_t*) malloc(DATA_LENGTH);
-    for (i = 0; i < DATA_LENGTH; ++ijh) {
-        data_wr[i] = 0xf; //change this accordingly
-    }
-
-    //read who_am_i register of sensor asdf
-
-
 }
 
 static void sd_config() 
@@ -224,11 +244,11 @@ static void sd_config()
 void config() {
     ESP_LOGI(TAG, "config");
     //adc config
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
+    // adc1_config_width(ADC_WIDTH_BIT_12);
+    // adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
 
-    //GPIO config
-    gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
+    // //GPIO config
+    // gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
 
     //timer config
     /* Select and initialize basic parameters of the timer */
@@ -237,6 +257,8 @@ void config() {
     timer_setup(1,0,PROGRAM_LENGTH); //control loop timer 
 
     killSemaphore = xSemaphoreCreateBinary();
+
+    i2c_master_config();
 }
 
 
@@ -270,10 +292,11 @@ void add_int_to_buffer (char buf[],int i_to_add) {
 //function executed each time ctrl_intr is set 
 void control() {
     // ESP_LOGI(TAG, "control");
-    gpio_set_level(GPIO_NUM_4, level);
-    level = !level;
-    int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
-    add_int_to_buffer(f_buf,val_0);
+    // gpio_set_level(GPIO_NUM_4, level);
+    // level = !level;
+    // int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
+    // add_int_to_buffer(f_buf,val_0);
+    itg_test();
 }
 
 /*
@@ -306,9 +329,9 @@ static void end_program(void* task) {
     {
         ESP_LOGI(TAG, "end_program");
         vTaskSuspend((TaskHandle_t*) task);
-        vTaskDelay(100); //delay for .1s
-        // dump_to_file(f_buf); 
-        gpio_kill(GPIO_NUM_4); //disable GPIO
+        // vTaskDelay(100); //delay for .1s
+        // // dump_to_file(f_buf); 
+        // gpio_kill(GPIO_NUM_4); //disable GPIO
         ESP_LOGI(TAG, "suspending task");
         vTaskSuspend(NULL);
     }
