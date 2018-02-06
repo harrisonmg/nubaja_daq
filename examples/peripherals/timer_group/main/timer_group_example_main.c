@@ -1,4 +1,4 @@
-//standard c shite
+    //standard c shite
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,7 +31,7 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_FREQUENCY   (2)   // control loop period for timer group 0 timer 0 in seconds
+#define CONTROL_LOOP_FREQUENCY   (1)   // control loop period for timer group 0 timer 0 in seconds
 #define PROGRAM_LENGTH 30 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
@@ -43,7 +43,6 @@
 //buffer config
 #define SIZE 1000
 #define HEX 16
-char f_buf[SIZE];
 
 //sad card spi config
 #define PIN_NUM_MISO 2
@@ -57,33 +56,33 @@ char f_buf[SIZE];
 #define I2C_NUM                            I2C_NUM_0        /*!< I2C port number for master dev */
 #define I2C_EXAMPLE_MASTER_TX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
 #define I2C_EXAMPLE_MASTER_RX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
-#define I2C_EXAMPLE_MASTER_FREQ_HZ         100000           /*!< I2C master clock frequency */
+#define I2C_EXAMPLE_MASTER_FREQ_HZ         400000           /*!< I2C master clock frequency */
 #define WRITE_BIT                          I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT                           I2C_MASTER_READ  /*!< I2C master read */
 #define ACK_CHECK_EN                       0x1              /*!< I2C master will check ack from slave*/
 #define ACK_CHECK_DIS                      0x0              /*!< I2C master will not check ack from slave */
-#define ACK_VAL                            0x0              /*!< I2C ack value */
-#define NACK_VAL                           0x1              /*!< I2C nack value */
-#define DATA_LENGTH                        2                //in bytes
+#define ACK                                0x0              /*!< I2C ack value */
+#define NACK                               0x1              /*!< I2C nack value */
+#define DATA_LENGTH                        1                //in bytes
 #define I2C_TASK_LENGTH                    500              //in ms
 
 //global vars
 int level = 0;
 int tic = 0;
 SemaphoreHandle_t killSemaphore = NULL;
+xQueueHandle ctrl_queue;
 static const char *TAG = "bois";
-// extern int errno; 
+char f_buf[SIZE];
 
 //interrupt flag container
 typedef struct {
     int ctrl_intr;
 } timer_event_t;
 
-xQueueHandle ctrl_queue;
-
 /*
  * Timer group0 ISR handler
  * sets ctrl_intr flag high each time alarm occurs, re-enables alarm and sends data to main program task
+ * also unblocks end_program task at appropriate time decided by PROGRAM_LENGTH
  */
 void IRAM_ATTR timer_group0_isr(void *para) {
     uint32_t intr_status = TIMERG0.int_st_timers.val;
@@ -102,6 +101,11 @@ void IRAM_ATTR timer_group0_isr(void *para) {
     xQueueSendFromISR(ctrl_queue, &evt, NULL);
 }
 
+/*
+ * sets up timer group 0 timers 0 and 1
+ * timer 0 times the control loop, set up for auto reload upon alarm
+ * timer 1 times the entire program, does not reload on alarm
+ */
 static void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 {
     /* Select and initialize basic parameters of the timer */
@@ -127,6 +131,9 @@ static void timer_setup(int timer_idx,bool auto_reload, double timer_interval_se
     timer_start(TIMER_GROUP_0, timer_idx);
 }
 
+/*
+ * configures one i2c module for operation as an i2c master with internal pullups disabled
+ */
 static void i2c_master_config() {
     ESP_LOGI(TAG, "i2c_master_config");
     int i2c_master_port = I2C_NUM;
@@ -143,68 +150,10 @@ static void i2c_master_config() {
                        I2C_EXAMPLE_MASTER_TX_BUF_DISABLE, 0);
 }
 
-
-// static void i2c_write(uint8_t slave_addr, uint8_t* data_wr, size_t data_len)
-// {
-//     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-//     i2c_master_start(cmd);
-//     i2c_master_write_byte(cmd, ( slave_addr << 1 ) | WRITE_BIT, ACK_CHECK_EN);
-//     i2c_master_write(cmd, data_wr, data_len, ACK_CHECK_EN);
-//     i2c_master_stop(cmd);
-//     i2c_master_cmd_begin(I2C_NUM, cmd, 1000 / portTICK_RATE_MS); //esp_err_t ret = 
-//     i2c_cmd_link_delete(cmd);
-// }
-
-// static void i2c_read(uint8_t slave_addr, uint8_t* data_rd, size_t data_len)
-// {
-//     // if (data_len == 0) {
-//     //     return ESP_OK;
-//     // }
-//     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-//     i2c_master_start(cmd);
-//     i2c_master_write_byte(cmd, ( slave_addr << 1 ) | READ_BIT, ACK_CHECK_EN);
-//     if (data_len > 1) {
-//         i2c_master_read(cmd, data_rd, data_len - 1, ACK_VAL);
-//     }
-//     i2c_master_read_byte(cmd, data_rd + data_len - 1, NACK_VAL);
-//     i2c_master_stop(cmd);
-//     i2c_master_cmd_begin(I2C_NUM, cmd, 1000 / portTICK_RATE_MS); //    esp_err_t ret = 
-//     i2c_cmd_link_delete(cmd);
-//     // return ret;
-// }
-
-//reads who_am_i register of sensor and configures it
-static void itg_test() 
-{
-    ESP_LOGI(TAG, "itg_test");
-    int ret;
-    // uint8_t* data_wr = (uint8_t*) malloc(DATA_LENGTH);
-    // uint8_t* data_rd = (uint8_t*) malloc(DATA_LENGTH);
-    uint8_t* who_am_i = (uint8_t*) malloc(1);
-    uint8_t gyro_slave_address = 0x69; //general call 
-    // for (int i = 0; i < DATA_LENGTH; ++i) {
-    //     data_wr[i] = 0xf; //change this accordingly
-    // }
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);    
-    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
-    i2c_master_write_byte(cmd, 0x0, ACK_VAL); //register 0
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
-    i2c_master_read_byte(cmd, who_am_i, NACK_VAL);
-    i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); //how long does this take?
-    i2c_cmd_link_delete(cmd);  
-    if (ret != ESP_OK) {
-        printf("i2c read failed\n");
-    } else if (ret == ESP_ERR_INVALID_ARG) {
-        printf("parameter error\n");
-    }
-    else {  
-    printf("itg addr daddyyyyyy: %02x\n", *who_am_i);
-    }
-}
-
+/*
+ * mounts SD card
+ * configures SPI bus for SD card comms
+ */
 static void sd_config() 
 {
     ESP_LOGI(TAG, "sd_config");
@@ -240,7 +189,9 @@ static void sd_config()
     }
 }
 
-//configures necessary modules for proper operation
+/*
+ * configures all necessary modules using respective config functions
+ */
 void config() {
     ESP_LOGI(TAG, "config");
     //adc config
@@ -248,7 +199,7 @@ void config() {
     // adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
 
     // //GPIO config
-    // gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
 
     //timer config
     /* Select and initialize basic parameters of the timer */
@@ -263,13 +214,14 @@ void config() {
 
 
 /*
-*/
+ * writes data buffer to a file on SD card
+ */
 void dump_to_file(char buf[]) {
     ESP_LOGI(TAG, "dump_to_file");
     char nullstr[] = "\0";
     strcpy(buf,nullstr);
     FILE *fp;
-    fp = fopen("/sdcard/test.txt", "a");
+    fp = fopen("/sdcard/data.txt", "a");
     if (fp == NULL)
     {
         ESP_LOGE(TAG, "error opening file, suspending task");
@@ -281,26 +233,71 @@ void dump_to_file(char buf[]) {
     esp_vfs_fat_sdmmc_unmount();
 }
 
+/*
+ * appends integer to the end of the buffer
+ */
 void add_int_to_buffer (char buf[],int i_to_add) {
     // ESP_LOGI(TAG, "add_int_to_buffer");
     char str_to_add [sizeof(int)*8+1];
     itoa(i_to_add,str_to_add,HEX);
-    printf("%s\n",str_to_add);
+    // printf("%s\n",str_to_add);
     strcpy(buf,str_to_add);
 }
 
-//function executed each time ctrl_intr is set 
+//takes around 500us @100kHz
+/*
+ * reads a register from an I2C device
+ * can be configured to read an 8bit or 16bit register 
+ * automatically adds result to the buffer
+ */
+static void itg_read(int reg) 
+{
+    // gpio_set_level(GPIO_NUM_4, 1);//start timer
+    int ret;
+    uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t gyro_slave_address = 0x69; 
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
+    i2c_master_read_byte(cmd, data_l, NACK);
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd);  
+    int data = (*data_h << 8 | *data_l); //comment out for one byte read
+    add_int_to_buffer(f_buf,data);
+    // gpio_set_level(GPIO_NUM_4, 0); //end timer 
+    // if (ret != ESP_OK) {
+    //     printf("i2c read failed\n");
+    // } else if (ret == ESP_ERR_INVALID_ARG) {
+    //     printf("parameter error\n");
+    // }
+    // else {  
+    // printf("itg addr: %04x\n", *data_l);
+    // }
+}
+
+
+/*
+ * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
+ * This function contains all functions to read data from any & all sensors
+ */
 void control() {
     // ESP_LOGI(TAG, "control");
     // gpio_set_level(GPIO_NUM_4, level);
     // level = !level;
     // int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
     // add_int_to_buffer(f_buf,val_0);
-    itg_test();
+    itg_read(0x0);
 }
 
 /*
- * The main task of this example program
+ * Resets interrupt and calls control function to interface sensors
  */
 static void control_thread_function() 
 {
@@ -315,7 +312,9 @@ static void control_thread_function()
     }
 }
 
-
+/*
+ * Turns off all GPIO pins
+ */
 void gpio_kill(int pin)
 {
     ESP_LOGI(TAG, "gpio_kill");
@@ -323,13 +322,19 @@ void gpio_kill(int pin)
     gpio_set_direction(pin, GPIO_MODE_INPUT);  
 }
 
-//blocks until semaphore is given from program timer ISR
+
+/*
+ * Ends the task passed in as an argument and then ends itself
+ * Task blocks until semaphore is given from program timer 1 ISR
+ */
 static void end_program(void* task) {    
     if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE) //end program after dumping to file
     {
         ESP_LOGI(TAG, "end_program");
-        vTaskSuspend((TaskHandle_t*) task);
-        // vTaskDelay(100); //delay for .1s
+        for (int n=0;n<5;n++) {
+            vTaskSuspend((TaskHandle_t*) task);
+        }
+        vTaskDelay(500); //delay for .1s
         // // dump_to_file(f_buf); 
         // gpio_kill(GPIO_NUM_4); //disable GPIO
         ESP_LOGI(TAG, "suspending task");
@@ -337,6 +342,9 @@ static void end_program(void* task) {
     }
 }
 
+/*
+* creates tasks
+*/
 void app_main() { 
     config();
     TaskHandle_t ctrlHandle = NULL;
