@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 //kernel
 #include "freertos/FreeRTOS.h"
@@ -24,6 +25,7 @@
 #include <sys/unistd.h>
 #include <sys/stat.h>
 #include "esp_err.h"
+#include "esp_task_wdt.h"
 #include "esp_log.h"
 #include "driver/i2c.h"
 #include "soc/timer_group_struct.h"
@@ -31,8 +33,8 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_FREQUENCY   (1)   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH 30 // program length for timer group 0 timer 1 in seconds
+#define CONTROL_LOOP_FREQUENCY   (0.5   )   // control loop period for timer group 0 timer 0 in seconds
+#define PROGRAM_LENGTH 10 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
 #define V_REF   1000
@@ -64,7 +66,7 @@
 #define ACK                                0x0              /*!< I2C ack value */
 #define NACK                               0x1              /*!< I2C nack value */
 #define DATA_LENGTH                        1                //in bytes
-#define I2C_TASK_LENGTH                    500              //in ms
+#define I2C_TASK_LENGTH                    10              //in ms
 
 //global vars
 int level = 0;
@@ -272,28 +274,40 @@ static void itg_read(int reg)
     int data = (*data_h << 8 | *data_l); //comment out for one byte read
     add_int_to_buffer(f_buf,data);
     // gpio_set_level(GPIO_NUM_4, 0); //end timer 
-    // if (ret != ESP_OK) {
-    //     printf("i2c read failed\n");
-    // } else if (ret == ESP_ERR_INVALID_ARG) {
-    //     printf("parameter error\n");
-    // }
+    if (ret != ESP_OK) {
+        printf("i2c read failed\n");
+    } else if (ret == ESP_ERR_INVALID_ARG) {
+        printf("parameter error\n");
+    }
     // else {  
     // printf("itg addr: %04x\n", *data_l);
     // }
 }
 
+void read_adc(int channel,...) 
+{
+    va_list valist;
+    va_start(valist, channel);
+    for (int i = 0; i < channel; i++) {
+        int val_0 = adc1_get_raw(channel); //* ADC_SCALE
+        add_int_to_buffer(f_buf,val_0);        
+    }    
+
+}
 
 /*
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
  * This function contains all functions to read data from any & all sensors
  */
 void control() {
-    // ESP_LOGI(TAG, "control");
+    ESP_LOGI(TAG, "control");
     // gpio_set_level(GPIO_NUM_4, level);
     // level = !level;
     // int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
     // add_int_to_buffer(f_buf,val_0);
+    read_adc(ADC1_CHANNEL_6);
     itg_read(0x0);
+    // esp_task_wdt_feed();
 }
 
 /*
@@ -302,6 +316,7 @@ void control() {
 static void control_thread_function() 
 {
     timer_event_t evt;
+    // esp_task_wdt_feed();
     while (1) 
     {
         if (xQueueReceive(ctrl_queue, &evt, 1/portTICK_PERIOD_MS)) //1 khz control loop operation
@@ -322,23 +337,26 @@ void gpio_kill(int pin)
     gpio_set_direction(pin, GPIO_MODE_INPUT);  
 }
 
-
 /*
  * Ends the task passed in as an argument and then ends itself
  * Task blocks until semaphore is given from program timer 1 ISR
  */
 static void end_program(void* task) {    
-    if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE) //end program after dumping to file
-    {
-        ESP_LOGI(TAG, "end_program");
-        for (int n=0;n<5;n++) {
-            vTaskSuspend((TaskHandle_t*) task);
+    // esp_task_wdt_reset();
+    while(1) {
+        // esp_task_wdt_feed();
+        if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE) //end program after dumping to file
+        {
+            ESP_LOGI(TAG, "end_program");
+            for (int n=0;n<5;n++) {
+                vTaskSuspend((TaskHandle_t*) task);
+            }
+            vTaskDelay(500); //delay for .1s
+            // // dump_to_file(f_buf); 
+            // gpio_kill(GPIO_NUM_4); //disable GPIO
+            ESP_LOGI(TAG, "suspending task");
+            vTaskSuspend(NULL);
         }
-        vTaskDelay(500); //delay for .1s
-        // // dump_to_file(f_buf); 
-        // gpio_kill(GPIO_NUM_4); //disable GPIO
-        ESP_LOGI(TAG, "suspending task");
-        vTaskSuspend(NULL);
     }
 }
 
@@ -348,8 +366,9 @@ static void end_program(void* task) {
 void app_main() { 
     config();
     TaskHandle_t ctrlHandle = NULL;
+    TaskHandle_t endHandle = NULL;
     ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
-    xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
-    xTaskCreate(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),NULL);
+    xTaskCreatePinnedToCore(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle,0);
+    xTaskCreatePinnedToCore(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle,1);
 }
 
