@@ -68,13 +68,19 @@
 #define DATA_LENGTH                        1                //in bytes
 #define I2C_TASK_LENGTH                    10              //in ms
 
+
+//errors
+#define SUCCESS 0
+#define I2C_READ_FAILED 1
+#define FILE_DUMP_ERROR 2
+
 //global vars
 int level = 0;
-int tic = 0;
 SemaphoreHandle_t killSemaphore = NULL;
 xQueueHandle ctrl_queue;
 static const char *TAG = "bois";
 char f_buf[SIZE];
+char err_buf[SIZE];
 
 //interrupt flag container
 typedef struct {
@@ -103,12 +109,34 @@ void IRAM_ATTR timer_group0_isr(void *para) {
     xQueueSendFromISR(ctrl_queue, &evt, NULL);
 }
 
+void record_error(char err_buffer[], char err_msg[]) {
+    strcpy(err_buffer,err_msg);
+}
+
+void ERROR_HANDLE_ME(int err_num) {
+    char msg[50];
+    switch (err_num) {
+        case 0: //no error
+            break;  
+        case 1: //i2c read error
+            strcpy(msg,"i2c read error\n");
+            record_error(err_buf,msg);
+            break;    
+        case 2: //file dump error
+            strcpy(msg, "file dump error\n");
+            record_error(err_buf,msg);
+            break; 
+        default: 
+            NULL;
+    }
+}
+
 /*
  * sets up timer group 0 timers 0 and 1
  * timer 0 times the control loop, set up for auto reload upon alarm
  * timer 1 times the entire program, does not reload on alarm
  */
-static void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
+void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 {
     /* Select and initialize basic parameters of the timer */
     timer_config_t config;
@@ -136,7 +164,7 @@ static void timer_setup(int timer_idx,bool auto_reload, double timer_interval_se
 /*
  * configures one i2c module for operation as an i2c master with internal pullups disabled
  */
-static void i2c_master_config() {
+ void i2c_master_config() {
     ESP_LOGI(TAG, "i2c_master_config");
     int i2c_master_port = I2C_NUM;
     i2c_config_t conf;
@@ -156,7 +184,7 @@ static void i2c_master_config() {
  * mounts SD card
  * configures SPI bus for SD card comms
  */
-static void sd_config() 
+void sd_config() 
 {
     ESP_LOGI(TAG, "sd_config");
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
@@ -195,7 +223,6 @@ static void sd_config()
  * configures all necessary modules using respective config functions
  */
 void config() {
-    ESP_LOGI(TAG, "config");
     //adc config
     // adc1_config_width(ADC_WIDTH_BIT_12);
     // adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
@@ -218,31 +245,29 @@ void config() {
 /*
  * writes data buffer to a file on SD card
  */
-void dump_to_file(char buf[]) {
-    ESP_LOGI(TAG, "dump_to_file");
+int dump_to_file(char buffer[],char err_buffer[]) {
     char nullstr[] = "\0";
-    strcpy(buf,nullstr);
+    strcpy(buffer,nullstr);
     FILE *fp;
     fp = fopen("/sdcard/data.txt", "a");
     if (fp == NULL)
     {
-        ESP_LOGE(TAG, "error opening file, suspending task");
-        vTaskSuspend(NULL);
+        return FILE_DUMP_ERROR;
     }   
-    fputs(buf, fp);
+    fputs(buffer, fp);
+    fputs(err_buffer, fp);
     ESP_LOGI(TAG, "dumped");
     fclose(fp);
     esp_vfs_fat_sdmmc_unmount();
+    return SUCCESS;
 }
 
 /*
  * appends integer to the end of the buffer
  */
 void add_int_to_buffer (char buf[],int i_to_add) {
-    // ESP_LOGI(TAG, "add_int_to_buffer");
     char str_to_add [sizeof(int)*8+1];
     itoa(i_to_add,str_to_add,HEX);
-    // printf("%s\n",str_to_add);
     strcpy(buf,str_to_add);
 }
 
@@ -252,7 +277,7 @@ void add_int_to_buffer (char buf[],int i_to_add) {
  * can be configured to read an 8bit or 16bit register 
  * automatically adds result to the buffer
  */
-static void itg_read(int reg) 
+int itg_read(int reg) 
 {
     // gpio_set_level(GPIO_NUM_4, 1);//start timer
     int ret;
@@ -276,12 +301,10 @@ static void itg_read(int reg)
     // gpio_set_level(GPIO_NUM_4, 0); //end timer 
     if (ret != ESP_OK) {
         printf("i2c read failed\n");
-    } else if (ret == ESP_ERR_INVALID_ARG) {
-        printf("parameter error\n");
+        return I2C_READ_FAILED; //dead sensor
+    } else {
+        return SUCCESS;
     }
-    // else {  
-    // printf("itg addr: %04x\n", *data_l);
-    // }
 }
 
 void read_adc(int channel,...) 
@@ -300,14 +323,12 @@ void read_adc(int channel,...)
  * This function contains all functions to read data from any & all sensors
  */
 void control() {
-    ESP_LOGI(TAG, "control");
     // gpio_set_level(GPIO_NUM_4, level);
     // level = !level;
     // int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
     // add_int_to_buffer(f_buf,val_0);
     read_adc(ADC1_CHANNEL_6);
-    itg_read(0x0);
-    // esp_task_wdt_feed();
+    ERROR_HANDLE_ME(itg_read(0x0));
 }
 
 /*
@@ -316,7 +337,6 @@ void control() {
 static void control_thread_function() 
 {
     timer_event_t evt;
-    // esp_task_wdt_feed();
     while (1) 
     {
         if (xQueueReceive(ctrl_queue, &evt, 1/portTICK_PERIOD_MS)) //1 khz control loop operation
@@ -341,10 +361,8 @@ void gpio_kill(int pin)
  * Ends the task passed in as an argument and then ends itself
  * Task blocks until semaphore is given from program timer 1 ISR
  */
-static void end_program(void* task) {    
-    // esp_task_wdt_reset();
+static void end_program(void* task) {   
     while(1) {
-        // esp_task_wdt_feed();
         if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE) //end program after dumping to file
         {
             ESP_LOGI(TAG, "end_program");
@@ -352,7 +370,7 @@ static void end_program(void* task) {
                 vTaskSuspend((TaskHandle_t*) task);
             }
             vTaskDelay(500); //delay for .1s
-            // // dump_to_file(f_buf); 
+            // // ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf)); 
             // gpio_kill(GPIO_NUM_4); //disable GPIO
             ESP_LOGI(TAG, "suspending task");
             vTaskSuspend(NULL);
