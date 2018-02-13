@@ -31,26 +31,26 @@
 #include "soc/timer_group_struct.h"
 
 //TIMER CONFIGS
-#define TIMER_DIVIDER         16  //  Hardware timer clock divider
-#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_FREQUENCY   (0.5   )   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH 10 // program length for timer group 0 timer 1 in seconds
+#define TIMER_DIVIDER               16  //  Hardware timer clock divider
+#define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
+#define CONTROL_LOOP_FREQUENCY      1   // control loop period for timer group 0 timer 0 in seconds
+#define PROGRAM_LENGTH              10 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
-#define V_REF   1000
-#define V_FS 3.6 //change accordingly to ADC_ATTEN_xx_x
-#define ADC_SCALE (V_FS/4096)
-#define ATTENUATION ADC_ATTEN_11db
+#define V_REF               1000
+#define V_FS                3.6 //change accordingly to ADC_ATTEN_xx_x
+#define ADC_SCALE           (V_FS/4096)
+#define ATTENUATION         ADC_ATTEN_11db
 
 //buffer config
-#define SIZE 1000
-#define HEX 16
+#define SIZE    1000
+#define HEX     16
 
 //sad card spi config
-#define PIN_NUM_MISO 2
-#define PIN_NUM_MOSI 15
+#define PIN_NUM_MISO 18
+#define PIN_NUM_MOSI 19
 #define PIN_NUM_CLK  14
-#define PIN_NUM_CS   13
+#define PIN_NUM_CS   15
 
 //I2C CONFIG
 #define I2C_EXAMPLE_MASTER_SCL_IO          22               /*!< gpio number for I2C master clock */
@@ -70,7 +70,7 @@
 
 
 //errors
-#define SUCCESS 0
+#define SUCCESS         0
 #define I2C_READ_FAILED 1
 #define FILE_DUMP_ERROR 2
 
@@ -204,6 +204,7 @@ void sd_config()
     // production applications.
     sdmmc_card_t* card;
     esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+    sdmmc_card_print_info(stdout, card);
 
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {
@@ -226,6 +227,7 @@ void config() {
     //adc config
     // adc1_config_width(ADC_WIDTH_BIT_12);
     // adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
+    sd_config(); 
 
     // //GPIO config
     gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
@@ -249,9 +251,10 @@ int dump_to_file(char buffer[],char err_buffer[]) {
     char nullstr[] = "\0";
     strcpy(buffer,nullstr);
     FILE *fp;
-    fp = fopen("/sdcard/data.txt", "a");
+    fp = fopen("/sdcard/data.txt", "w");
     if (fp == NULL)
     {
+        ESP_LOGE(TAG, "Failed to open file for writing");
         return FILE_DUMP_ERROR;
     }   
     fputs(buffer, fp);
@@ -279,7 +282,6 @@ void add_int_to_buffer (char buf[],int i_to_add) {
  */
 int itg_read(int reg) 
 {
-    // gpio_set_level(GPIO_NUM_4, 1);//start timer
     int ret;
     uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH);
     uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
@@ -291,18 +293,18 @@ int itg_read(int reg)
     i2c_master_write_byte(cmd, reg, ACK); 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
-    i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
+    // i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
     i2c_master_read_byte(cmd, data_l, NACK);
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
-    int data = (*data_h << 8 | *data_l); //comment out for one byte read
-    add_int_to_buffer(f_buf,data);
-    // gpio_set_level(GPIO_NUM_4, 0); //end timer 
+    // int data = (*data_h << 8 | *data_l); //comment out for one byte read
+    // add_int_to_buffer(f_buf,data);
     if (ret != ESP_OK) {
         printf("i2c read failed\n");
         return I2C_READ_FAILED; //dead sensor
     } else {
+        printf("i am: %02x\n",*data_l); 
         return SUCCESS;
     }
 }
@@ -315,7 +317,6 @@ void read_adc(int channel,...)
         int val_0 = adc1_get_raw(channel); //* ADC_SCALE
         add_int_to_buffer(f_buf,val_0);        
     }    
-
 }
 
 /*
@@ -323,18 +324,16 @@ void read_adc(int channel,...)
  * This function contains all functions to read data from any & all sensors
  */
 void control() {
-    // gpio_set_level(GPIO_NUM_4, level);
-    // level = !level;
-    // int val_0 = adc1_get_raw(ADC1_CHANNEL_6); //* ADC_SCALE
-    // add_int_to_buffer(f_buf,val_0);
+    gpio_set_level(GPIO_NUM_4, 1);
     read_adc(ADC1_CHANNEL_6);
     ERROR_HANDLE_ME(itg_read(0x0));
+    gpio_set_level(GPIO_NUM_4, 0);
 }
 
 /*
  * Resets interrupt and calls control function to interface sensors
  */
-static void control_thread_function() 
+void control_thread_function() 
 {
     timer_event_t evt;
     while (1) 
@@ -361,13 +360,15 @@ void gpio_kill(int pin)
  * Ends the task passed in as an argument and then ends itself
  * Task blocks until semaphore is given from program timer 1 ISR
  */
-static void end_program(void* task) {   
+void end_program(void* task) {   
     while(1) {
         if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE) //end program after dumping to file
         {
             ESP_LOGI(TAG, "end_program");
+            vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
             for (int n=0;n<5;n++) {
                 vTaskSuspend((TaskHandle_t*) task);
+                vTaskDelay(10);
             }
             vTaskDelay(500); //delay for .1s
             // // ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf)); 
@@ -382,11 +383,13 @@ static void end_program(void* task) {
 * creates tasks
 */
 void app_main() { 
-    config();
+    config(); 
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
     ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
     xTaskCreatePinnedToCore(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle,0);
-    xTaskCreatePinnedToCore(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle,1);
+    xTaskCreatePinnedToCore(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-1),&endHandle,1);
+    // xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
+    // xTaskCreate(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
 }
 
