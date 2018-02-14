@@ -68,6 +68,13 @@
 #define DATA_LENGTH                        1                //in bytes
 #define I2C_TASK_LENGTH                    10              //in ms
 
+//ITG-3200 register mappings for gyroscope
+#define XH                                 0x1D
+#define XL                                 0x1E
+#define YH                                 0x1F
+#define YL                                 0x20
+#define ZH                                 0x21
+#define ZL                                 0x22
 
 //errors
 #define SUCCESS         0
@@ -181,8 +188,58 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 }
 
 /*
+ * writes a single byte of data to a particular register using I2C protocol 
+ */
+int itg_3200_write(uint8_t slave_address, uint8_t reg, uint8_t data) {
+    int ret; 
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_write_byte(cmd, data, ACK); 
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd);  
+    if (ret != ESP_OK) {
+        return I2C_READ_FAILED; //dead sensor
+    } else { 
+        return SUCCESS;
+    }
+}
+
+/*
+ * configures gyroscope with the following settings: 
+ * FS_SEL = 0x3 (+/-2000 degrees per second)
+ * DLPF_CFG = 0x1 (BW = 188Hz, internal sample rate = 1kHz)
+ * 
+ */
+void itg_3200_config() {
+    uint8_t SMPLRT_DIV_REG= 0x15;
+    uint8_t DLPF_FS_REG = 0x16;
+    uint8_t DLPF_CFG_0 = 0x1;
+    uint8_t DLPF_CFG_1 = 0x0; 
+    uint8_t DLPF_CFG_2 = 0x0; 
+    uint8_t DLPF_FS_SEL_0 = 0x8; 
+    uint8_t DLPF_FS_SEL_1 = 0x10; 
+    uint8_t gyro_slave_address = 0x69; 
+
+    uint8_t DLPF_CFG = (DLPF_CFG_2 | DLPF_CFG_1 | DLPF_CFG_0);
+    uint8_t DLPF_FS_SEL = (DLPF_FS_SEL_1 | DLPF_FS_SEL_0);
+    uint8_t DLPF = (DLPF_FS_SEL | DLPF_CFG);
+    uint8_t SMPLRT_DIV = 0x9; //100 hz
+
+    // # Configure the gyroscope
+    // # Set the gyroscope scale for the outputs to +/-2000 degrees per second
+    // itg.write8(DLPF_FS, (DLPF_FS_SEL_0|DLPF_FS_SEL_1|DLPF_CFG_0))
+    // itg.write8(SMPLRT_DIV, 9)
+    ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,SMPLRT_DIV_REG,SMPLRT_DIV));
+    ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,DLPF_FS_REG,DLPF));
+}
+
+/*
  * mounts SD card
  * configures SPI bus for SD card comms
+ * SPI lines need 10k pull-ups 
  */
 void sd_config() 
 {
@@ -206,6 +263,20 @@ void sd_config()
     esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
     sdmmc_card_print_info(stdout, card);
 
+    // char test[10];
+    // strcpy(test,"yeyeye");
+    // FILE *fp;
+    // fp = fopen("/sdcard/data.txt", "w");
+    // if (fp == NULL)
+    // {
+    //     ESP_LOGE(TAG, "Failed to open file for writing");
+    //     vTaskSuspend(NULL);
+    // }   
+    // fputs(test, fp);
+    // fclose(fp);
+
+
+
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {
             ESP_LOGE(TAG, "Failed to mount filesystem; suspending task");
@@ -218,6 +289,7 @@ void sd_config()
         }
         return;
     }
+    // esp_vfs_fat_sdmmc_unmount();
 }
 
 /*
@@ -239,8 +311,9 @@ void config() {
     timer_setup(1,0,PROGRAM_LENGTH); //control loop timer 
 
     killSemaphore = xSemaphoreCreateBinary();
-
+    //i2c and IMU config
     i2c_master_config();
+    // itg_3200_config();
 }
 
 
@@ -283,7 +356,7 @@ void add_int_to_buffer (char buf[],int i_to_add) {
 int itg_read(int reg) 
 {
     int ret;
-    uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
     uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
     uint8_t gyro_slave_address = 0x69; 
 
@@ -293,13 +366,13 @@ int itg_read(int reg)
     i2c_master_write_byte(cmd, reg, ACK); 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
-    // i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
+    i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
     i2c_master_read_byte(cmd, data_l, NACK);
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
-    // int data = (*data_h << 8 | *data_l); //comment out for one byte read
-    // add_int_to_buffer(f_buf,data);
+    int data = (*data_h << 8 | *data_l); //comment out for one byte read
+    add_int_to_buffer(f_buf,data);
     if (ret != ESP_OK) {
         printf("i2c read failed\n");
         return I2C_READ_FAILED; //dead sensor
