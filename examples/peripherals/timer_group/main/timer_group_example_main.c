@@ -32,9 +32,9 @@ void control_thread_function()
         if (xQueueReceive(ctrl_queue, &evt, 1/portTICK_PERIOD_MS)) //1 khz control loop operation
         { 
             evt.ctrl_intr = 0;
-            gpio_set_level(GPIO_NUM_4, 1);
+            // gpio_set_level(GPIO_NUM_4, 1);
             control();
-            gpio_set_level(GPIO_NUM_4, 0);
+            // gpio_set_level(GPIO_NUM_4, 0);
         }
     }
 }

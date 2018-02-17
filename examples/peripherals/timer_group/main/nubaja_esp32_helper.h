@@ -55,7 +55,7 @@
 #define ACK                                 0x0              /*!< I2C ack value */
 #define NACK                                0x1              /*!< I2C nack value */
 #define DATA_LENGTH                         1                //in bytes
-#define I2C_TASK_LENGTH                     10              //in ms
+#define I2C_TASK_LENGTH                     1              //in ms
 
 //errors
 #define SUCCESS                             0
@@ -77,13 +77,13 @@
 #define ZL                                  0x22
 
 //buffer config
-#define SIZE                                100
+#define SIZE                                1000
 
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_FREQUENCY      1   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH              10 // program length for timer group 0 timer 1 in seconds
+#define CONTROL_LOOP_FREQUENCY      .003   // control loop period for timer group 0 timer 0 in seconds
+#define PROGRAM_LENGTH              30 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
 #define V_REF               1000
@@ -156,7 +156,7 @@ int dump_to_file(char buffer[],char err_buffer[],bool unmount) {
         return FILE_DUMP_ERROR;
     }   
     fputs(buffer, fp);
-    printf("final buffer: %s\n",buffer);
+    // printf("final buffer: %s\n",buffer);
     // fputs(err_buffer, fp);
     // printf("err buffer: %s\n",err_buffer);
         
@@ -274,6 +274,7 @@ int itg_read(int reg)
     if (ret != ESP_OK) {
         ESP_LOGE(TAG,"i2c read failed");
         return I2C_READ_FAILED; //dead sensor
+        vTaskSuspend(NULL);
     } else {
         return SUCCESS;
     }
