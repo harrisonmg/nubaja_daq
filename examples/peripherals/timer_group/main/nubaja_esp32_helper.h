@@ -1,0 +1,362 @@
+#ifndef NUBAJA_ESP32_HELPER
+#define NUBAJA_ESP32_HELPER
+
+/* 
+* includes
+*/ 
+
+//standard c shite
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+//kernel
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "freertos/semphr.h"
+
+//esp
+#include "esp_types.h"
+#include "driver/periph_ctrl.h"
+#include "driver/timer.h"
+#include "driver/gpio.h"
+#include "driver/adc.h"
+#include "esp_system.h"
+#include "esp_adc_cal.h"
+#include "esp_vfs_fat.h"
+#include "driver/sdmmc_host.h"
+#include "driver/sdspi_host.h"
+#include "sdmmc_cmd.h"
+#include <sys/unistd.h>
+#include <sys/stat.h>
+#include "esp_err.h"
+#include "esp_task_wdt.h"
+#include "esp_log.h"
+#include "driver/i2c.h"
+#include "soc/timer_group_struct.h"
+
+/* 
+* defines
+*/ 
+
+//I2C CONFIG
+#define I2C_EXAMPLE_MASTER_SCL_IO          22               /*!< gpio number for I2C master clock */
+#define I2C_EXAMPLE_MASTER_SDA_IO          23               /*!< gpio number for I2C master data  */
+#define I2C_NUM                            I2C_NUM_0        /*!< I2C port number for master dev */
+#define I2C_EXAMPLE_MASTER_TX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
+#define I2C_EXAMPLE_MASTER_RX_BUF_DISABLE  0                /*!< I2C master do not need buffer */
+#define I2C_EXAMPLE_MASTER_FREQ_HZ         400000           /*!< I2C master clock frequency */
+#define WRITE_BIT                          I2C_MASTER_WRITE /*!< I2C master write */
+#define READ_BIT                           I2C_MASTER_READ  /*!< I2C master read */
+#define ACK_CHECK_EN                       0x1              /*!< I2C master will check ack from slave*/
+#define ACK_CHECK_DIS                      0x0              /*!< I2C master will not check ack from slave */
+#define ACK                                0x0              /*!< I2C ack value */
+#define NACK                               0x1              /*!< I2C nack value */
+#define DATA_LENGTH                        1                //in bytes
+#define I2C_TASK_LENGTH                    10              //in ms
+
+//errors
+#define SUCCESS         0
+#define I2C_READ_FAILED 1
+#define FILE_DUMP_ERROR 2
+
+//sad card spi config
+#define PIN_NUM_MISO 18
+#define PIN_NUM_MOSI 19
+#define PIN_NUM_CLK  14
+#define PIN_NUM_CS   15
+
+//ITG-3200 register mappings for gyroscope
+#define XH                                 0x1D
+#define XL                                 0x1E
+#define YH                                 0x1F
+#define YL                                 0x20
+#define ZH                                 0x21
+#define ZL                                 0x22
+
+//buffer config
+#define SIZE    100
+#define HEX     16
+
+/* 
+* globals
+*/ 
+extern const char *TAG;
+extern char f_buf[SIZE];
+extern char err_buf[SIZE];
+
+/* HELPER FUNCTIONS
+* these functions do not interface with sensors
+* but rather they perform certain operations 
+* necessary to streamline and simplify operations 
+*
+*/
+
+/*
+ * appends integer to the end of the buffer
+ */
+void add_int_to_buffer (char buf[],int i_to_add) {
+    char formatted_string [sizeof(int)*8+1];
+    sprintf(formatted_string,"%04x",i_to_add);
+    strcat(buf,formatted_string);
+    printf("running buffer: %s\n",buf);
+}
+
+void record_error(char err_buffer[], char err_msg[]) {
+    strcpy(err_buffer,err_msg);
+}
+
+/* CONTROL FLOW FUNCTIONS
+* these functions still do not interface with sensors but 
+* provide more functionality than manipulating data types, etc.
+*  
+*
+*/
+void ERROR_HANDLE_ME(int err_num) {
+    char msg[50];
+    switch (err_num) {
+        case 0: //no error
+            break;  
+        case 1: //i2c read error
+            strcpy(msg,"i2c read error\n");
+            record_error(err_buf,msg);
+            break;    
+        case 2: //file dump error
+            strcpy(msg, "file dump error\n");
+            record_error(err_buf,msg);
+            break; 
+        default: 
+            NULL;
+    }
+}
+
+/*
+ * writes data buffer to a file on SD card
+ */
+int dump_to_file(char buffer[],char err_buffer[]) {
+    // char nullstr[] = "\0";
+    // strcpy(buffer,nullstr);
+    FILE *fp;
+    fp = fopen("/sdcard/test.txt", "w");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return FILE_DUMP_ERROR;
+    }   
+    fputs(buffer, fp);
+    // fputs(err_buffer, fp);
+        
+    ESP_LOGI(TAG, "dumped");
+    fclose(fp);
+    esp_vfs_fat_sdmmc_unmount();
+    return SUCCESS;
+}
+
+/* SENSOR INTERFACE FUNCTIONS
+* these functions interface with sensors  
+* in order to read and record data 
+*  
+*
+*/
+
+/*
+ * writes a single byte of data to a particular register using I2C protocol 
+ */
+int itg_3200_write(uint8_t slave_address, uint8_t reg, uint8_t data) {
+    int ret; 
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_write_byte(cmd, data, ACK); 
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd);  
+    if (ret != ESP_OK) {
+        return I2C_READ_FAILED; //dead sensor
+    } else { 
+        return SUCCESS;
+    }
+}
+
+
+
+//takes around 500us @100kHz
+/*
+ * reads a register from an I2C device
+ * can be configured to read an 8bit or 16bit register 
+ * automatically adds result to the buffer
+ */
+int itg_read(int reg) 
+{
+    int ret;
+    // uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
+    uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t gyro_slave_address = 0x69; 
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    // i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
+    i2c_master_read_byte(cmd, data_l, NACK);
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd);  
+    // int data = (*data_h << 8 | *data_l); //comment out for one byte read
+    int data = *data_l;
+    add_int_to_buffer(f_buf,data);
+    if (ret != ESP_OK) {
+        printf("i2c read failed\n");
+        return I2C_READ_FAILED; //dead sensor
+    } else {
+        // printf("data: %04x\n",*data_l); 
+        return SUCCESS;
+    }
+}
+
+/*
+ * Turns off all GPIO pins
+ */
+void gpio_kill(int pin)
+{
+    // ESP_LOGI(TAG, "gpio_kill");
+    gpio_set_level(pin, 0);
+    gpio_set_direction(pin, GPIO_MODE_INPUT);  
+}
+
+void read_adc(int num,...) 
+{  
+    va_list valist;
+
+    /* initialize valist for num number of arguments */
+    va_start(valist, num);
+
+    /* access all the arguments assigned to valist */
+    for (int i = 0; i < num; i++) {
+        int val_0 = adc1_get_raw(va_arg(valist, int));
+        printf("val: %x\n",val_0);
+        add_int_to_buffer(f_buf,val_0);        
+    }
+
+    /* clean memory reserved for valist */
+    va_end(valist);    
+}
+
+
+/* SENSOR OR MODULE CONFIGURATION FUNCTIONS
+* these functions take care of the configuration of either
+* ESP32 hardware modules or sensors the ESP32 is interfacing with
+* for example the I2C modules and subsequent I2C slave devices 
+*
+*/
+
+/*
+ * configures gyroscope with the following settings: 
+ * FS_SEL = 0x3 (+/-2000 degrees per second)
+ * DLPF_CFG = 0x1 (BW = 188Hz, internal sample rate = 1kHz)
+ * 
+ */
+void itg_3200_config() {
+    uint8_t SMPLRT_DIV_REG= 0x15;
+    uint8_t DLPF_FS_REG = 0x16;
+    uint8_t DLPF_CFG_0 = 0x1;
+    uint8_t DLPF_CFG_1 = 0x0; 
+    uint8_t DLPF_CFG_2 = 0x0; 
+    uint8_t DLPF_FS_SEL_0 = 0x8; 
+    uint8_t DLPF_FS_SEL_1 = 0x10; 
+    uint8_t gyro_slave_address = 0x69; 
+
+    uint8_t DLPF_CFG = (DLPF_CFG_2 | DLPF_CFG_1 | DLPF_CFG_0);
+    uint8_t DLPF_FS_SEL = (DLPF_FS_SEL_1 | DLPF_FS_SEL_0);
+    uint8_t DLPF = (DLPF_FS_SEL | DLPF_CFG);
+    uint8_t SMPLRT_DIV = 0x9; //100 hz
+
+    // # Configure the gyroscope
+    // # Set the gyroscope scale for the outputs to +/-2000 degrees per second
+    // itg.write8(DLPF_FS, (DLPF_FS_SEL_0|DLPF_FS_SEL_1|DLPF_CFG_0))
+    // itg.write8(SMPLRT_DIV, 9)
+    ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,SMPLRT_DIV_REG,SMPLRT_DIV));
+    ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,DLPF_FS_REG,DLPF));
+}
+
+/*
+ * configures one i2c module for operation as an i2c master with internal pullups disabled
+ */
+ void i2c_master_config() {
+    // ESP_LOGI(TAG, "i2c_master_config");
+    int i2c_master_port = I2C_NUM;
+    i2c_config_t conf;
+    conf.mode = I2C_MODE_MASTER;
+    conf.sda_io_num = I2C_EXAMPLE_MASTER_SDA_IO;
+    conf.sda_pullup_en = GPIO_PULLUP_DISABLE;//
+    conf.scl_io_num = I2C_EXAMPLE_MASTER_SCL_IO;
+    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;//
+    conf.master.clk_speed = I2C_EXAMPLE_MASTER_FREQ_HZ;
+    i2c_param_config(i2c_master_port, &conf);
+    i2c_driver_install(i2c_master_port, conf.mode,
+                       I2C_EXAMPLE_MASTER_RX_BUF_DISABLE,
+                       I2C_EXAMPLE_MASTER_TX_BUF_DISABLE, 0);
+}
+
+/*
+ * mounts SD card
+ * configures SPI bus for SD card comms
+ * SPI lines need 10k pull-ups 
+ */
+void sd_config() 
+{
+    ESP_LOGI(TAG, "sd_config");
+    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
+    slot_config.gpio_miso = PIN_NUM_MISO;
+    slot_config.gpio_mosi = PIN_NUM_MOSI;
+    slot_config.gpio_sck  = PIN_NUM_CLK;
+    slot_config.gpio_cs   = PIN_NUM_CS;    
+    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+        .format_if_mount_failed = false,
+        .max_files = 5
+    };
+
+    // Use settings defined above to initialize SD card and mount FAT filesystem.
+    // Note: esp_vfs_fat_sdmmc_mount is an all-in-one convenience function.
+    // Please check its source code and implement error recovery when developing
+    // production applications.
+    sdmmc_card_t* card;
+    esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+    // sdmmc_card_print_info(stdout, card);
+
+    // char test[10];
+    // strcpy(test,"yeyeye");
+    // FILE *fp;
+    // fp = fopen("/sdcard/data.txt", "w");
+    // if (fp == NULL)
+    // {
+    //     ESP_LOGE(TAG, "Failed to open file for writing");
+    //     vTaskSuspend(NULL);
+    // }   
+    // fputs(test, fp);
+    // fclose(fp);
+
+
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount filesystem; suspending task");
+            vTaskSuspend(NULL);
+            // ESP_LOGE(TAG, "Failed to mount filesystem. "
+            //     "If you want the card to be formatted, set format_if_mount_failed = true.");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize the card");
+            vTaskSuspend(NULL);
+        }
+        return;
+    }
+    // esp_vfs_fat_sdmmc_unmount();
+}
+
+#endif

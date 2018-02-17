@@ -1,5 +1,6 @@
 timer_group_example_main.o: \
  /home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./timer_group_example_main.c \
+ /home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./nubaja_esp32_helper.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdio.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/sparky/esp/esp-idf/components/newlib/include/newlib.h \
@@ -123,6 +124,8 @@ timer_group_example_main.o: \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_task_wdt.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/i2c.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/ringbuf.h
+
+/home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./nubaja_esp32_helper.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdio.h:
 
