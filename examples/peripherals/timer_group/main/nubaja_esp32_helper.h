@@ -77,7 +77,7 @@
 #define ZL                                  0x22
 
 //buffer config
-#define SIZE                                50
+#define SIZE                                100
 
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
@@ -253,7 +253,7 @@ int itg_3200_write(uint8_t slave_address, uint8_t reg, uint8_t data) {
 int itg_read(int reg) 
 {
     int ret;
-    // uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
+    uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
     uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
     uint8_t gyro_slave_address = 0x69; 
 
@@ -263,13 +263,13 @@ int itg_read(int reg)
     i2c_master_write_byte(cmd, reg, ACK); 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
-    // i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
+    i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
     i2c_master_read_byte(cmd, data_l, NACK);
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
-    // uint16_t data = (*data_h << 8 | *data_l); //comment out for one byte read
-    uint16_t data = *data_l;
+    uint16_t data = (*data_h << 8 | *data_l); //comment out for one byte read
+    // uint16_t data = *data_l;
     add_16b_to_buffer(f_buf,data);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG,"i2c read failed");
@@ -303,7 +303,6 @@ void gpio_kill(int num,...)
 * the raw value is from 0-4095 (12b resolution)
 * the raw value is then added to the buffer appropriately
 */
-
 void read_adc(int num,...) 
 {  
     va_list valist;
@@ -315,7 +314,6 @@ void read_adc(int num,...)
     /* access all the arguments assigned to valist */
     for (int i = 0; i < num; i++) {
         val_0 = adc1_get_raw(va_arg(valist, int));
-        // printf("val %d: %x\n",i,val_0);
         add_12b_to_buffer(f_buf,val_0);        
     }
 
@@ -401,27 +399,9 @@ void sd_config()
         .max_files = 5
     };
 
-    // Use settings defined above to initialize SD card and mount FAT filesystem.
-    // Note: esp_vfs_fat_sdmmc_mount is an all-in-one convenience function.
-    // Please check its source code and implement error recovery when developing
-    // production applications.
     sdmmc_card_t* card;
     esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
     // sdmmc_card_print_info(stdout, card);
-
-    // char test[10];
-    // strcpy(test,"yeyeye");
-    // FILE *fp;
-    // fp = fopen("/sdcard/data.txt", "w");
-    // if (fp == NULL)
-    // {
-    //     ESP_LOGE(TAG, "Failed to open file for writing");
-    //     vTaskSuspend(NULL);
-    // }   
-    // fputs(test, fp);
-    // fclose(fp);
-
-
 
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {

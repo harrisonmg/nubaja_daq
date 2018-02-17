@@ -15,10 +15,10 @@ int buffer_idx = 0;
  */
 void control() {
     ESP_LOGI(TAG, "ctrl");
-    // gpio_set_level(GPIO_NUM_4, 1);
-    read_adc(2,ADC1_CHANNEL_6,ADC1_CHANNEL_3); //first argument is number of arguments
-    ERROR_HANDLE_ME(itg_read(0x0));
-    // gpio_set_level(GPIO_NUM_4, 0);
+    read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
+    ERROR_HANDLE_ME(itg_read(XH));
+    ERROR_HANDLE_ME(itg_read(YH));
+    ERROR_HANDLE_ME(itg_read(ZH));
 }
 
 /*
@@ -32,7 +32,9 @@ void control_thread_function()
         if (xQueueReceive(ctrl_queue, &evt, 1/portTICK_PERIOD_MS)) //1 khz control loop operation
         { 
             evt.ctrl_intr = 0;
+            gpio_set_level(GPIO_NUM_4, 1);
             control();
+            gpio_set_level(GPIO_NUM_4, 0);
         }
     }
 }
@@ -84,14 +86,14 @@ void config() {
     
     //i2c and IMU config
     i2c_master_config();
-    // itg_3200_config();`
+    itg_3200_config();
 }
 
 /*
 * creates tasks
 */
 void app_main() { 
-    config(); 
+    config();   
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
     ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
