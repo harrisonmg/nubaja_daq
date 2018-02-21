@@ -8,6 +8,7 @@ const char *TAG = "ESP3";
 char f_buf[SIZE];
 char err_buf[SIZE];
 int buffer_idx = 0;
+// i2c_cmd_handle_t command;
 
 /*
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
@@ -16,9 +17,11 @@ int buffer_idx = 0;
 void control() {
     ESP_LOGI(TAG, "ctrl");
     read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
+    // cmd = i2c_cmd_link_create();
     ERROR_HANDLE_ME(itg_read(XH));
     ERROR_HANDLE_ME(itg_read(YH));
     ERROR_HANDLE_ME(itg_read(ZH));
+    // i2c_cmd_link_delete(cmd);  
 }
 
 /*
@@ -45,7 +48,7 @@ void control_thread_function()
  */
 void end_program(void* task) {   
     while(1) {
-        if (xSemaphoreTake( killSemaphore, portMAX_DELAY ) == pdTRUE) //end program after dumping to file
+        if (xSemaphoreTake(killSemaphore, portMAX_DELAY) == pdTRUE) //end program after dumping to file
         {
             ESP_LOGI(TAG, "end_program");
             vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
@@ -53,7 +56,9 @@ void end_program(void* task) {
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(10);
             }
-            vTaskDelay(500); 
+            vTaskDelay(500);
+            // i2c_cmd_link_delete(cmd); 
+            i2c_driver_delete(I2C_NUM);
             ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf,1)); 
             ESP_LOGI(TAG, "suspending task");
             vTaskSuspend(NULL);
@@ -78,15 +83,17 @@ void config() {
     //timer config
     /* Select and initialize basic parameters of the timer */
     //timer init args: timer index, auto reload, timer length
-    timer_setup(0,1,CONTROL_LOOP_FREQUENCY); //control loop timer
+    timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
     timer_setup(1,0,PROGRAM_LENGTH); //control loop timer 
     
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
     
     //i2c and IMU config
+    // cmd = i2c_cmd_link_create();
     i2c_master_config();
     itg_3200_config();
+    // i2c_cmd_link_delete(cmd);  
 }
 
 /*

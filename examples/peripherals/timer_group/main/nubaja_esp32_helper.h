@@ -82,8 +82,8 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_FREQUENCY      .003   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH              30 // program length for timer group 0 timer 1 in seconds
+#define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in seconds
+#define PROGRAM_LENGTH              1000 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
 #define V_REF               1000
@@ -105,6 +105,7 @@ extern char err_buf[];
 extern int buffer_idx;
 extern xQueueHandle ctrl_queue;
 extern SemaphoreHandle_t killSemaphore;
+
 
 //interrupt flag container
 typedef struct {
@@ -149,7 +150,7 @@ void ERROR_HANDLE_ME(int err_num) {
  */
 int dump_to_file(char buffer[],char err_buffer[],bool unmount) {
     FILE *fp;
-    fp = fopen("/sdcard/test.txt", "a");
+    fp = fopen("/sdcard/DAQME.txt", "a");
     if (fp == NULL)
     {
         ESP_LOGE(TAG, "Failed to open file for writing");
@@ -240,7 +241,7 @@ int itg_3200_write(uint8_t slave_address, uint8_t reg, uint8_t data) {
     } else { 
         return SUCCESS;
     }
-}
+}   
 
 
 
