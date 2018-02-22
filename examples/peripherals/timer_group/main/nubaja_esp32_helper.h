@@ -272,8 +272,12 @@ int itg_read(int reg)
     if (ret != ESP_OK) {
         ESP_LOGE(TAG,"i2c read failed");
         return I2C_READ_FAILED; //dead sensor
+        free(data_h);
+        free(data_l);
         vTaskSuspend(NULL);
     } else {
+        free(data_h);
+        free(data_l);
         return SUCCESS;
     }
 }
