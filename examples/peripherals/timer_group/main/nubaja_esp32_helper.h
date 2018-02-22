@@ -83,7 +83,7 @@
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH              1000 // program length for timer group 0 timer 1 in seconds
+#define PROGRAM_LENGTH              180 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
 #define V_REF               1000
@@ -212,9 +212,6 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
 
 /*****************************************************/
 
-
-
-
 /* SENSOR INTERFACE FUNCTIONS
 * these functions interface with sensors  
 * in order to read and record data 
@@ -285,17 +282,17 @@ int itg_read(int reg)
 * function designed with variable number of arguments
 * Turns off all GPIO pins passed in as arguments
 */
-void gpio_kill(int num,...)
-{
-    va_list valist;
-    va_start(valist, num);
+// void gpio_kill(int num,...)
+// {
+//     va_list valist;
+//     va_start(valist, num);
 
-    for (int i=0;i<num;i++) {
-        gpio_set_level(va_arg(valist, int), 0);
-        gpio_set_direction(va_arg(valist, int), GPIO_MODE_INPUT);          
-    }
-    va_end(valist);   
-}
+//     for (int i=0;i<num;i++) {
+//         gpio_set_level(va_arg(valist, int), 0);
+//         gpio_set_direction(va_arg(valist, int), GPIO_MODE_INPUT);          
+//     }
+//     va_end(valist);   
+// }
 
 /*
 * function designed with variable number of arguments

@@ -57,7 +57,6 @@ void end_program(void* task) {
                 vTaskDelay(10);
             }
             vTaskDelay(500);
-            // i2c_cmd_link_delete(cmd); 
             i2c_driver_delete(I2C_NUM);
             ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf,1)); 
             ESP_LOGI(TAG, "suspending task");
