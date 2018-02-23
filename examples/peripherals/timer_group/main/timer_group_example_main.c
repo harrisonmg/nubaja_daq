@@ -17,11 +17,10 @@ int buffer_idx = 0;
 void control() {
     ESP_LOGI(TAG, "ctrl");
     read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
-    // cmd = i2c_cmd_link_create();
-    ERROR_HANDLE_ME(itg_read(XH));
-    ERROR_HANDLE_ME(itg_read(YH));
-    ERROR_HANDLE_ME(itg_read(ZH));
-    // i2c_cmd_link_delete(cmd);  
+    // ERROR_HANDLE_ME(itg_read(XH));
+    // ERROR_HANDLE_ME(itg_read(YH));
+    // ERROR_HANDLE_ME(itg_read(ZH));
+    ERROR_HANDLE_ME(itg_read_3_reg(XH));
 }
 
 /*
@@ -93,6 +92,8 @@ void config() {
     i2c_master_config();
     itg_3200_config();
     // i2c_cmd_link_delete(cmd);  
+
+    ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
 }
 
 /*
@@ -102,7 +103,6 @@ void app_main() {
     config();   
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
-    ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
     xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
     xTaskCreate(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
 }

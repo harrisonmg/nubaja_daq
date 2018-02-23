@@ -42,8 +42,8 @@
 */ 
 
 //I2C CONFIG
-#define I2C_MASTER_SCL_IO                   22               /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO                   23               /*!< gpio number for I2C master data  */
+#define I2C_MASTER_SCL_IO                   22               /*!< gpio number for I2C master clock */
 #define I2C_NUM                             I2C_NUM_0        /*!< I2C port number for master dev */
 #define I2C_MASTER_TX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
@@ -83,7 +83,7 @@
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH              180 // program length for timer group 0 timer 1 in seconds
+#define PROGRAM_LENGTH              30 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS
 #define V_REF               1000
@@ -183,7 +183,8 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
     char formatted_string [17]; //number of bits + 1
     sprintf(formatted_string,"%04x",i_to_add);
     strcat(buf,formatted_string);
-    buffer_idx+=4;
+    strcat(buf," ");
+    buffer_idx+=5;
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
@@ -200,7 +201,8 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
     char formatted_string [13]; //number of bits + 1
     sprintf(formatted_string,"%03x",i_to_add);
     strcat(buf,formatted_string);
-    buffer_idx+=3;
+    strcat(buf," ");
+    buffer_idx+=4;
     if (buffer_idx >= SIZE) {
         buffer_idx = 0;
         ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
@@ -261,23 +263,86 @@ int itg_read(int reg)
     i2c_master_write_byte(cmd, reg, ACK); 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
-    i2c_master_read_byte(cmd, data_h, ACK); //comment out for one byte read
+    i2c_master_read_byte(cmd, data_h, ACK);    
     i2c_master_read_byte(cmd, data_l, NACK);
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
     uint16_t data = (*data_h << 8 | *data_l); //comment out for one byte read
-    // uint16_t data = *data_l;
+    //uint16_t data = *data_l; //uncomment for one byte read
     add_16b_to_buffer(f_buf,data);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG,"i2c read failed");
         return I2C_READ_FAILED; //dead sensor
-        free(data_h);
+        // free(data_h); //comment out for one byte read
         free(data_l);
         vTaskSuspend(NULL);
     } else {
-        free(data_h);
+        free(data_h); //comment out for one byte read
         free(data_l);
+        return SUCCESS;
+    }
+}
+
+/*
+* reads 3 registers as a burst read
+* should be faster than calling itg_read 3 times sequentially
+*/
+int itg_read_3_reg(int reg) 
+{
+    int ret;
+    uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_0 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_1 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_1 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_2 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_2 = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t gyro_slave_address = 0x69; 
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_read_byte(cmd, data_h_0, ACK);    
+    i2c_master_read_byte(cmd, data_h_0, ACK); 
+    
+    i2c_master_read_byte(cmd, data_h_1, ACK); 
+    i2c_master_read_byte(cmd, data_h_1, ACK); 
+
+    i2c_master_read_byte(cmd, data_h_2, ACK); 
+    i2c_master_read_byte(cmd, data_l_2, NACK);
+    
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd); 
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG,"i2c read failed");
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+        return I2C_READ_FAILED; //dead sensor            
+    } else {
+        uint16_t data_0 = (*data_h_0 << 8 | *data_l_0); 
+        uint16_t data_1 = (*data_h_1 << 8 | *data_l_1); 
+        uint16_t data_2 = (*data_h_2 << 8 | *data_l_2); 
+        
+        add_16b_to_buffer(f_buf,data_0);
+        add_16b_to_buffer(f_buf,data_1);
+        add_16b_to_buffer(f_buf,data_2);     
+           
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+
         return SUCCESS;
     }
 }
@@ -286,17 +351,17 @@ int itg_read(int reg)
 * function designed with variable number of arguments
 * Turns off all GPIO pins passed in as arguments
 */
-// void gpio_kill(int num,...)
-// {
-//     va_list valist;
-//     va_start(valist, num);
+void gpio_kill(int num,...)
+{
+    va_list valist;
+    va_start(valist, num);
 
-//     for (int i=0;i<num;i++) {
-//         gpio_set_level(va_arg(valist, int), 0);
-//         gpio_set_direction(va_arg(valist, int), GPIO_MODE_INPUT);          
-//     }
-//     va_end(valist);   
-// }
+    for (int i=0;i<num;i++) {
+        gpio_set_level(va_arg(valist, int), 0);
+        gpio_set_direction(va_arg(valist, int), GPIO_MODE_INPUT);          
+    }
+    va_end(valist);   
+}
 
 /*
 * function designed with variable number of arguments
@@ -356,10 +421,6 @@ void itg_3200_config() {
     uint8_t DLPF = (DLPF_FS_SEL | DLPF_CFG);
     uint8_t SMPLRT_DIV = 0x9; //100 hz
 
-    // # Configure the gyroscope
-    // # Set the gyroscope scale for the outputs to +/-2000 degrees per second
-    // itg.write8(DLPF_FS, (DLPF_FS_SEL_0|DLPF_FS_SEL_1|DLPF_CFG_0))
-    // itg.write8(SMPLRT_DIV, 9)
     ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,SMPLRT_DIV_REG,SMPLRT_DIV));
     ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,DLPF_FS_REG,DLPF));
 }
