@@ -82,7 +82,7 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in seconds
+#define CONTROL_LOOP_PERIOD         .001   // control loop period for timer group 0 timer 0 in seconds
 #define PROGRAM_LENGTH              30 // program length for timer group 0 timer 1 in seconds
 
 //ADC CONFIGS

@@ -8,7 +8,7 @@ const char *TAG = "ESP3";
 char f_buf[SIZE];
 char err_buf[SIZE];
 int buffer_idx = 0;
-// i2c_cmd_handle_t command;
+
 
 /*
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
@@ -31,12 +31,10 @@ void control_thread_function()
     timer_event_t evt;
     while (1) 
     {
-        if (xQueueReceive(ctrl_queue, &evt, 1/portTICK_PERIOD_MS)) //1 khz control loop operation
+        if ((xQueueReceive(ctrl_queue, &evt, 0)) == pdTRUE) 
         { 
             evt.ctrl_intr = 0;
-            // gpio_set_level(GPIO_NUM_4, 1);
             control();
-            // gpio_set_level(GPIO_NUM_4, 0);
         }
     }
 }
@@ -56,7 +54,6 @@ void end_program(void* task) {
                 vTaskDelay(10);
             }
             vTaskDelay(500);
-            i2c_driver_delete(I2C_NUM);
             ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf,1)); 
             ESP_LOGI(TAG, "suspending task");
             vTaskSuspend(NULL);
@@ -76,22 +73,18 @@ void config() {
     sd_config(); 
 
     //GPIO config
-    gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
+    // gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
 
     //timer config
-    /* Select and initialize basic parameters of the timer */
-    //timer init args: timer index, auto reload, timer length
     timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-    timer_setup(1,0,PROGRAM_LENGTH); //control loop timer 
+    timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
     
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
     
     //i2c and IMU config
-    // cmd = i2c_cmd_link_create();
     i2c_master_config();
     itg_3200_config();
-    // i2c_cmd_link_delete(cmd);  
 
     ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
 }
@@ -101,6 +94,9 @@ void config() {
 */
 void app_main() { 
     config();   
+    for(int i=0;i<1000;i++) {
+        printf("waiting");
+    }
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
     xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
