@@ -9,18 +9,21 @@ char f_buf[SIZE];
 char err_buf[SIZE];
 int buffer_idx = 0;
 
+#define SENSOR_ENABLE 1 //0 or 1
 
 /*
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
  * This function contains all functions to read data from any & all sensors
  */
 void control() {
-    ESP_LOGI(TAG, "ctrl");
-    read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
-    // ERROR_HANDLE_ME(itg_read(XH));
-    // ERROR_HANDLE_ME(itg_read(YH));
-    // ERROR_HANDLE_ME(itg_read(ZH));
-    ERROR_HANDLE_ME(itg_read_3_reg(XH));
+    // ESP_LOGI(TAG, "ctrl");
+    if(SENSOR_ENABLE == 1) {
+        read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
+        // ERROR_HANDLE_ME(itg_read(XH));
+        // ERROR_HANDLE_ME(itg_read(YH));
+        // ERROR_HANDLE_ME(itg_read(ZH));
+        ERROR_HANDLE_ME(itg_read_3_reg(XH));
+    }
 }
 
 /*
@@ -49,11 +52,10 @@ void end_program(void* task) {
         {
             ESP_LOGI(TAG, "end_program");
             vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
-            for (int n=0;n<5;n++) {
+            for (int n=0;n<10;n++) {
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(10);
             }
-            vTaskDelay(500);
             ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf,1)); 
             ESP_LOGI(TAG, "suspending task");
             vTaskSuspend(NULL);
@@ -65,28 +67,36 @@ void end_program(void* task) {
  * configures all necessary modules using respective config functions
  */
 void config() {
-    //adc config
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
-    
-    //SD config 
-    sd_config(); 
-
-    //GPIO config
-    // gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
-
     //timer config
     timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
     timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
     
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
-    
-    //i2c and IMU config
-    i2c_master_config();
-    itg_3200_config();
 
     ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
+
+    memset(f_buf,0,strlen(f_buf));
+    memset(err_buf,0,strlen(err_buf));
+
+    if(SENSOR_ENABLE == 1) {
+        //adc config
+        adc1_config_width(ADC_WIDTH_BIT_12);
+        adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
+        
+        //SD config 
+        sd_config(); 
+
+        //GPIO config
+        // gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
+
+
+        
+        //i2c and IMU config
+        i2c_master_config();
+        itg_3200_config();
+    }
+    
 }
 
 /*
@@ -94,9 +104,6 @@ void config() {
 */
 void app_main() { 
     config();   
-    for(int i=0;i<1000;i++) {
-        printf("waiting");
-    }
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
     xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
