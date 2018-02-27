@@ -1,4 +1,6 @@
 #include "nubaja_esp32_helper.h" //all other includes located here
+#define SENSOR_ENABLE 1 //0 or 1
+
 
 //global vars
 int level = 0;
@@ -9,7 +11,7 @@ char f_buf[SIZE];
 char err_buf[SIZE];
 int buffer_idx = 0;
 
-#define SENSOR_ENABLE 1 //0 or 1
+
 
 /*
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
@@ -18,7 +20,7 @@ int buffer_idx = 0;
 void control() {
     // ESP_LOGI(TAG, "ctrl");
     if(SENSOR_ENABLE == 1) {
-        read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
+        // read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
         // ERROR_HANDLE_ME(itg_read(XH));
         // ERROR_HANDLE_ME(itg_read(YH));
         // ERROR_HANDLE_ME(itg_read(ZH));
@@ -54,10 +56,10 @@ void end_program(void* task) {
             vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
             for (int n=0;n<10;n++) {
                 vTaskSuspend((TaskHandle_t*) task);
-                vTaskDelay(10);
+                vTaskDelay(1);
             }
             ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf,1)); 
-            ESP_LOGI(TAG, "suspending task");
+            ESP_LOGI(TAG, "goodbye!");
             vTaskSuspend(NULL);
         }
     }
@@ -81,11 +83,11 @@ void config() {
 
     if(SENSOR_ENABLE == 1) {
         //adc config
-        adc1_config_width(ADC_WIDTH_BIT_12);
-        adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
+        // adc1_config_width(ADC_WIDTH_BIT_12);
+        // adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
         
         //SD config 
-        sd_config(); 
+        ERROR_HANDLE_ME(sd_config()); 
 
         //GPIO config
         // gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);

@@ -61,6 +61,7 @@
 #define SUCCESS                             0
 #define I2C_READ_FAILED                     1
 #define FILE_DUMP_ERROR                     2
+#define FILE_CREATE_ERROR                   3
 
 //sad card spi config
 #define PIN_NUM_MISO                        18
@@ -77,7 +78,7 @@
 #define ZL                                  0x22
 
 //buffer config
-#define SIZE                                1000
+#define SIZE                                2000
 
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
@@ -140,6 +141,10 @@ void ERROR_HANDLE_ME(int err_num) {
             strcpy(msg, "file dump error\n");
             record_error(err_buf,msg);
             break; 
+        case 3: //file dump error
+            strcpy(msg, "file create error\n");
+            record_error(err_buf,msg);
+            break;             
         default: 
             NULL;
     }
@@ -148,26 +153,28 @@ void ERROR_HANDLE_ME(int err_num) {
 /*
  * writes data buffer to a file on SD card
  */
-int dump_to_file(char buffer[],char err_buffer[],bool unmount) {
+int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     FILE *fp;
-    fp = fopen("/sdcard/DAQME.txt", "a");
+    fp = fopen("/sdcard/data.txt", "a");
     if (fp == NULL)
     {
         ESP_LOGE(TAG, "Failed to open file for writing");
         return FILE_DUMP_ERROR;
     }   
     fputs(buffer, fp);
-    // printf("final buffer: %s\n",buffer);
-    // fputs(err_buffer, fp);
-    // printf("err buffer: %s\n",err_buffer);
-        
+    // fputs(err_buffer, fp);        
     fclose(fp);
-    if (unmount) {
+
+    if (unmount == 1) {
+        fp = fopen("/sdcard/data.txt", "a");
+        fputs("ded\n", fp);  
+        fclose(fp);
         esp_vfs_fat_sdmmc_unmount();
-        ESP_LOGI(TAG, "umounted & buffer dumped");
+        ESP_LOGI(TAG, "umounted");
         return SUCCESS;
     }
 
+    
     ESP_LOGI(TAG, "buffer dumped");
     return SUCCESS;
 }
@@ -449,7 +456,7 @@ void itg_3200_config() {
  * configures SPI bus for SD card comms
  * SPI lines need 10k pull-ups 
  */
-void sd_config() 
+int sd_config() 
 {
     ESP_LOGI(TAG, "sd_config");
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
@@ -465,7 +472,16 @@ void sd_config()
 
     sdmmc_card_t* card;
     esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
-    // sdmmc_card_print_info(stdout, card);
+    
+    FILE *fp;
+    fp = fopen("/sdcard/data.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create file");
+        return FILE_CREATE_ERROR;
+    }   
+    fputs("ALIVE\n", fp); 
+    fclose(fp);   
 
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {
@@ -477,9 +493,9 @@ void sd_config()
             ESP_LOGE(TAG, "Failed to initialize the card");
             vTaskSuspend(NULL);
         }
-        return;
     }
-    // esp_vfs_fat_sdmmc_unmount();
+
+    return SUCCESS;
 }
 
 /*
