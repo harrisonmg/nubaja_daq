@@ -5,7 +5,7 @@
 //global vars
 int level = 0;
 SemaphoreHandle_t killSemaphore = NULL;
-// xQueueHandle ctrl_queue = NULL;
+xQueueHandle timer_queue = NULL;
 xQueueHandle gpio_queue = NULL;
 const char *TAG = "ESP_HUD";
 char f_buf[SIZE];
@@ -18,16 +18,19 @@ int buffer_idx = 0;
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
  * This function contains all functions to read data from any & all sensors
  */
-void control() {
+void control(timer_event_t evt) {
     // ESP_LOGI(TAG, "ctrl");
     if(SENSOR_ENABLE == 1) {
-        //get current time
-        //subtract current time from old time
-        //convert period to RPM and write to screen
-        //old time = current time
-        //read ADC (thermistor)
-        //convert ADC counts to temperature
-        //also write temperature to screen
+        uint32_t gpio_num;
+        if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) {
+            //get current time
+            //subtract current time from old time
+            //convert period (seconds/rev) to vehicle speed (mph) and write to screen
+            //old time = current time
+            //read ADC (thermistor)
+            //convert ADC counts to temperature
+            //also write temperature to screen
+        }
     }
 }
 
@@ -36,12 +39,12 @@ void control() {
  */
 void control_thread_function() 
 {
-    uint32_t gpio_num;
+    timer_event_t evt;
     while (1) 
     {
-        if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) //0 or port max delay? 
+        if ((xQueueReceive(timer_queue, &evt, 0)) == pdTRUE) //0 or port max delay? 
         { 
-            control();
+            control(evt);
         }
     }
 }

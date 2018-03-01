@@ -78,7 +78,7 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_PERIOD         .001   // control loop period for timer group 0 timer 0 in seconds
+#define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in seconds
 #define PROGRAM_LENGTH              30 // program length for timer group 0 timer 1 in seconds
 
 
@@ -101,7 +101,7 @@ extern SemaphoreHandle_t killSemaphore;
 
 //interrupt flag container
 typedef struct {
-    int ctrl_intr;
+    uint64_t timer_counts;
 } timer_event_t;
 
 /*****************************************************/
@@ -310,10 +310,17 @@ void gpio_config() {
  */
 void IRAM_ATTR timer_group0_isr(void *para) {
     uint32_t intr_status = TIMERG0.int_st_timers.val;
-    // timer_event_t evt;
+    timer_event_t evt;
+
+    TIMERG0.hw_timer[timer_idx].update = 1;
+    uint64_t timer_counter_value = 
+        ((uint64_t) TIMERG0.hw_timer[timer_idx].cnt_high) << 32
+        | TIMERG0.hw_timer[timer_idx].cnt_low;
+
+    evt.timer_counts = timer_counter_value;  
+
     if ((intr_status & BIT(0))) { //if alarm is true, set interrupt flag 
         TIMERG0.int_clr_timers.t0 = 1; //clear timer interrupt bit
-        // evt.ctrl_intr = 1; //set flag
     } 
     if ((intr_status & BIT(1))) { //if alarm is true, set interrupt flag 
         TIMERG0.int_clr_timers.t1 = 1; //clear timer interrupt bit
@@ -322,7 +329,7 @@ void IRAM_ATTR timer_group0_isr(void *para) {
     TIMERG0.hw_timer[0].config.alarm_en = TIMER_ALARM_EN; //re-enable timer for timer 0 which is timing control loop
 
     // send the event data back to the main program task
-    // xQueueSendFromISR(ctrl_queue, &evt, NULL);
+    xQueueSendFromISR(timer_queue, &evt, NULL);
 }
 
 
