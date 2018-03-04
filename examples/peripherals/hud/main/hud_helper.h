@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <inttypes.h>
+uint64_t t; //for printing uint64_t
 
 //kernel
 #include "freertos/FreeRTOS.h"
@@ -72,6 +74,12 @@
 #define ZH                                  0x21
 #define ZL                                  0x22
 
+//ADC CONFIGS
+#define V_REF               1000
+#define V_FS                3.6 //change accordingly to ADC_ATTEN_xx_x
+#define ADC_SCALE           (V_FS/4096)
+#define ATTENUATION         ADC_ATTEN_11db
+
 //buffer config
 #define SIZE                                2000
 
@@ -79,9 +87,9 @@
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in seconds
-#define PROGRAM_LENGTH              30 // program length for timer group 0 timer 1 in seconds
+#define PROGRAM_LENGTH              60 // program length for timer group 0 timer 1 in seconds
 
-
+#define PI                          3.14159265358979323846
 
 /*****************************************************/
 
@@ -94,7 +102,7 @@ extern const char *TAG;
 extern char f_buf[];
 extern char err_buf[];
 extern int buffer_idx;
-// extern xQueueHandle ctrl_queue;
+extern xQueueHandle timer_queue;
 extern xQueueHandle gpio_queue;
 extern SemaphoreHandle_t killSemaphore;
 
@@ -139,6 +147,13 @@ void ERROR_HANDLE_ME(int err_num) {
         default: 
             NULL;
     }
+}
+
+void print_timer_counter(uint64_t counter_value)
+{
+    printf("Counter: 0x%08x%08x\n", (uint32_t) (counter_value >> 32),
+                                    (uint32_t) (counter_value));
+    printf("Time   : %.8f s\n", (double) counter_value / TIMER_SCALE);
 }
 
 /*****************************************************/
@@ -290,12 +305,13 @@ static void IRAM_ATTR gpio_isr_handler(void* arg) {
     xQueueSendFromISR(gpio_queue, &gpio_num, NULL);
 }
 
-void gpio_config() {
+void config_gpio() {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_PIN_INTR_POSEDGE; //interrupt of rising edge
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL; //bit mask of the pins
     io_conf.mode = GPIO_MODE_INPUT;//set as input mode    
-    io_conf.pull_up_en = 1;//enable pull-up mode
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
 
@@ -309,18 +325,16 @@ void gpio_config() {
  * also unblocks end_program task at appropriate time decided by PROGRAM_LENGTH
  */
 void IRAM_ATTR timer_group0_isr(void *para) {
-    uint32_t intr_status = TIMERG0.int_st_timers.val;
     timer_event_t evt;
+    uint32_t intr_status = TIMERG0.int_st_timers.val;
 
-    TIMERG0.hw_timer[timer_idx].update = 1;
-    uint64_t timer_counter_value = 
-        ((uint64_t) TIMERG0.hw_timer[timer_idx].cnt_high) << 32
-        | TIMERG0.hw_timer[timer_idx].cnt_low;
-
-    evt.timer_counts = timer_counter_value;  
-
+    TIMERG0.hw_timer[1].update = 1;
+    uint64_t timer_counter_value = ((uint64_t) TIMERG0.hw_timer[1].cnt_high) 
+                                   << 32 | TIMERG0.hw_timer[1].cnt_low;
+    
     if ((intr_status & BIT(0))) { //if alarm is true, set interrupt flag 
         TIMERG0.int_clr_timers.t0 = 1; //clear timer interrupt bit
+        evt.timer_counts = timer_counter_value; 
     } 
     if ((intr_status & BIT(1))) { //if alarm is true, set interrupt flag 
         TIMERG0.int_clr_timers.t1 = 1; //clear timer interrupt bit
