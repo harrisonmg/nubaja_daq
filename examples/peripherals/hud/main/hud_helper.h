@@ -77,11 +77,16 @@ uint64_t t; //for printing uint64_t
 //ADC CONFIGS
 #define V_REF               1000
 #define V_FS                3.6 //change accordingly to ADC_ATTEN_xx_x
-#define ADC_SCALE           (V_FS/4096)
+#define ADC_SCALE           (V_FS / 4096)
 #define ATTENUATION         ADC_ATTEN_11db
 
+//THERMISTOR CONFIGS (y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
+#define THERM_M 0.024                    
+#define THERM_B -0.5371
+//thermistor pn: NTCALUG02A103F800
+
 //buffer config
-#define SIZE                                2000
+#define SIZE     2000
 
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider

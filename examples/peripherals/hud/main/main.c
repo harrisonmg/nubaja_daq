@@ -32,7 +32,8 @@ void control(timer_event_t evt) {
             
             
             uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
-            float temp = (float) adc_raw * 231321; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
+            float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
+            float temp = (adc_v - THERM_B) / THERM_M;
             //display_write(temp)        
         }
     }
