@@ -1,5 +1,5 @@
-#ifndef NUBAJA_ESP32_HELPER
-#define NUBAJA_ESP32_HELPER
+#ifndef HUD_HELPER
+#define HUD_HELPER
 
 /* 
 * includes
@@ -86,7 +86,7 @@ uint64_t t; //for printing uint64_t
 //TIMER CONFIGS
 #define TIMER_DIVIDER               16  //  Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in seconds
+#define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in secondss
 #define PROGRAM_LENGTH              60 // program length for timer group 0 timer 1 in seconds
 
 #define PI                          3.14159265358979323846

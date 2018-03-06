@@ -1,6 +1,6 @@
 #include "hud_helper.h"
+///home/sparky/esp/esp-idf/examples/peripherals/hud/main/
 #define SENSOR_ENABLE 1 //0 or 1
-
 
 //global vars
 int level = 0;
@@ -21,23 +21,19 @@ uint64_t old_time = 0;
 void control(timer_event_t evt) {
     if(SENSOR_ENABLE == 1) {
         uint32_t gpio_num;
-        if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) {
+        if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             uint64_t curr_time = evt.timer_counts;
-            // printf("current time   : %.8f s\n", (double) curr_time / TIMER_SCALE);
-            // printf("old time   : %.8f s\n", (double) old_time / TIMER_SCALE);
-            uint64_t period = curr_time - old_time;
-            double period_double = (double) period / TIMER_SCALE;
-            printf("period   : %.8f s\n", (double) period / TIMER_SCALE);
-            // uint64_t v_car = (23*3.14*3600)/(period*63360); //convert period (seconds/rev) to vehicle speed (mph) and write to screen
-            double v_car = (4.10)/(period_double);
-            printf("v_car: %lf mph\n", v_car);
-            //display_write(some number)
+            double period = (double) (curr_time - old_time) / TIMER_SCALE;
+            double v_car = 4.10 / period;
             old_time = curr_time; //old time = current time
+            //display_write(v_car)
+            // printf("period   : %.8f s\n", (double) period);
+            // printf("v_car: %lf mph\n", v_car);
+            
+            
             uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
-            int temp = adc_raw * 231321; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
-
-            //also write temperature to screen
-            //display_write(some number)uint64_t old_time = 0;
+            float temp = (float) adc_raw * 231321; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
+            //display_write(temp)        
         }
     }
 }
