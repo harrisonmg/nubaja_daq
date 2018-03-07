@@ -233,6 +233,10 @@ int i2c_read_2_byte(int reg)
     }
 }
 
+void AS1115_display_write(uint8_t slave_addr, uint8_t digit, uint8_t BCD_value) {
+    ERROR_HANDLE_ME(i2c_write_byte(slave_addr, digit, BCD_value));
+}
+
 /*
 * function designed with variable number of arguments
 * Turns off all GPIO pins passed in as arguments
@@ -303,6 +307,15 @@ void read_adc(int num,...)
     i2c_driver_install(i2c_master_port, conf.mode,
                        I2C_MASTER_RX_BUF_DISABLE,
                        I2C_MASTER_TX_BUF_DISABLE, 0);
+}
+
+void AS1115_config () {
+    ERROR_HANDLE_ME(i2c_write_byte(0x0,0x2d,0x01)); //enable self addressing setting the slave-addr to 0x03
+    uint8_t slave_address = 0x03;    
+    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0x9,0xff)); //decode mode enabled for all digits
+    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0xa,0x07)); //global intensity set to 50%
+    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0xb,0xff)); //scan limit set to only display 3 digits 
+    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0xe,0x0)); //sets features as desired
 }
 
 static void IRAM_ATTR gpio_isr_handler(void* arg) {
