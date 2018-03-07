@@ -23,18 +23,22 @@ void control(timer_event_t evt) {
         uint32_t gpio_num;
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             uint64_t curr_time = evt.timer_counts;
-            double period = (double) (curr_time - old_time) / TIMER_SCALE;
-            double v_car = 4.10 / period;
-            old_time = curr_time; //old time = current time
-            //display_write(v_car)
-            // printf("period   : %.8f s\n", (double) period);
-            // printf("v_car: %lf mph\n", v_car);
-            
-            
+            float period = (float) (curr_time - old_time) / TIMER_SCALE;
+            float v_car = 4.10 / period;
+            old_time = curr_time; 
+            // uint8_t v_car_l = (uint32_t) v_car % 10; 
+            // uint8_t v_car_h = ( (uint32_t) v_car/10) % 10; 
+            //AS1115_display_write(0x0,v_car_l);
+            //AS1115_display_write(0x1,v_car_h);
+            printf("period   : %.8f s\n", period);
+            printf("v_car: %u mph\n", (uint32_t) v_car);
+            // printf("v_car_l: %u\n", v_car_l);
+            // printf("v_car_h: %u\n", v_car_h);
+                        
             uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
             float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
             float temp = (adc_v - THERM_B) / THERM_M;
-            //display_write(temp)        
+            //AS1115_display_write(temp...)      
         }
     }
 }
