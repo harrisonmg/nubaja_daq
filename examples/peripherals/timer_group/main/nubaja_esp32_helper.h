@@ -161,14 +161,27 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         ESP_LOGE(TAG, "Failed to open file for writing");
         return FILE_DUMP_ERROR;
     }   
-    fputs(buffer, fp);
-    // fputs(err_buffer, fp);        
+    fputs(buffer, fp);    
     fclose(fp);
+
+    fp = fopen("/sdcard/error.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return FILE_DUMP_ERROR;
+    }   
+    fputs(err_buffer, fp);        
+    fclose(fp);     
 
     if (unmount == 1) {
         fp = fopen("/sdcard/data.txt", "a");
         fputs("ded\n", fp);  
         fclose(fp);
+
+        fp = fopen("/sdcard/error.txt", "a");
+        fputs("ded\n", fp);  
+        fclose(fp);
+
         esp_vfs_fat_sdmmc_unmount();
         ESP_LOGI(TAG, "umounted");
         return SUCCESS;
@@ -481,7 +494,16 @@ int sd_config()
         return FILE_CREATE_ERROR;
     }   
     fputs("ALIVE\n", fp); 
-    fclose(fp);   
+    fclose(fp);
+
+    fp = fopen("/sdcard/error.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create file");
+        return FILE_CREATE_ERROR;
+    }   
+    fputs("ALIVE\n", fp); 
+    fclose(fp);         
 
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {
