@@ -3,7 +3,6 @@
 #define SENSOR_ENABLE 1 //0 or 1
 
 //global vars
-int level = 0;
 SemaphoreHandle_t killSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
 xQueueHandle gpio_queue = NULL;
@@ -16,7 +15,10 @@ uint64_t old_time = 0;
 
 /*
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
- * This function contains all functions to read data from any & all sensors
+ * This function polls the GPIO interrupt. if the interrupt is set
+ * then the time since the last interrupt is calculated, and this is 
+ * subsequently used to calculate vehicle speed 
+ * Additionally, a thermistor is measured and its temperature display and recorded 
  */
 void control(timer_event_t evt) {
     if(SENSOR_ENABLE == 1) {
@@ -28,17 +30,20 @@ void control(timer_event_t evt) {
             old_time = curr_time; 
             // uint8_t v_car_l = (uint32_t) v_car % 10; 
             // uint8_t v_car_h = ( (uint32_t) v_car/10) % 10; 
-            //AS1115_display_write(0x0,v_car_l);
-            //AS1115_display_write(0x1,v_car_h);
-            printf("period   : %.8f s\n", period);
-            printf("v_car: %u mph\n", (uint32_t) v_car);
-            // printf("v_car_l: %u\n", v_car_l);
-            // printf("v_car_h: %u\n", v_car_h);
+            //AS1115_display_write(DIGIT_0,v_car_l);
+            //AS1115_display_write(DIGIT_1,v_car_h);
+            // printf("period   : %.8f s\n", period);
+            // printf("v_car: %u mph\n", (uint32_t) v_car);
+
                         
             uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
+            add_12b_to_buffer(f_buf,adc_raw); 
             float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
             float temp = (adc_v - THERM_B) / THERM_M;
-            //AS1115_display_write(temp...)      
+            // uint8_t temp_l = (uint32_t) temp % 10; 
+            // uint8_t temp_h = ( (uint32_t) temp/10) % 10; 
+            // AS1115_display_write(DIGIT_2,temp_l);
+            // AS1115_display_write(DIGIT_3,temp_h);    
         }
     }
 }
@@ -46,7 +51,7 @@ void control(timer_event_t evt) {
 /*
  * Resets interrupt and calls control function to interface sensors
  */
-void control_thread_function() 
+void control_thread() 
 {
     timer_event_t evt;
     while (1) 
@@ -62,11 +67,11 @@ void control_thread_function()
  * Ends the task passed in as an argument and then ends itself
  * Task blocks until semaphore is given from program timer 1 ISR
  */
-void end_program(void* task) {   
+void timeout_thread(void* task) {   
     while(1) {
         if (xSemaphoreTake(killSemaphore, portMAX_DELAY) == pdTRUE) //end program after dumping to file
         {
-            ESP_LOGI(TAG, "end_program");
+            ESP_LOGI(TAG, "program timeout expired");
             vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
             for (int n=0;n<10;n++) {
                 vTaskSuspend((TaskHandle_t*) task);
@@ -116,6 +121,6 @@ void app_main() {
     config();   
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
-    xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
-    xTaskCreate(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
+    xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
+    xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
 }

@@ -11,7 +11,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <inttypes.h>
-uint64_t t; //for printing uint64_t
 
 //kernel
 #include "freertos/FreeRTOS.h"
@@ -39,7 +38,7 @@ uint64_t t; //for printing uint64_t
 * defines
 */ 
 
-//I2C CONFIG
+//I2C MODULE
 #define I2C_MASTER_SDA_IO                   23               /*!< gpio number for I2C master data  */
 #define I2C_MASTER_SCL_IO                   22               /*!< gpio number for I2C master clock */
 #define I2C_NUM                             I2C_NUM_0        /*!< I2C port number for master dev */
@@ -55,10 +54,16 @@ uint64_t t; //for printing uint64_t
 #define DATA_LENGTH                         1                //in bytes
 #define I2C_TASK_LENGTH                     1              //in ms
 
-//GPIO config
+//GPIO 
 #define GPIO_INPUT_0                        4 //wheel spd hall effect in
 #define GPIO_INPUT_PIN_SEL                  (1ULL<<GPIO_INPUT_0)
 #define ESP_INTR_FLAG_DEFAULT               0
+
+//SD CARD
+#define PIN_NUM_MISO                        18
+#define PIN_NUM_MOSI                        19
+#define PIN_NUM_CLK                         14
+#define PIN_NUM_CS                          15
 
 //errors
 #define SUCCESS                             0
@@ -66,35 +71,32 @@ uint64_t t; //for printing uint64_t
 #define FILE_DUMP_ERROR                     2
 #define FILE_CREATE_ERROR                   3
 
-//ITG-3200 register mappings for gyroscope
-#define XH                                  0x1D
-#define XL                                  0x1E
-#define YH                                  0x1F
-#define YL                                  0x20
-#define ZH                                  0x21
-#define ZL                                  0x22
-
-//ADC CONFIGS
-#define V_REF               1000
-#define V_FS                3.6 //change accordingly to ADC_ATTEN_xx_x
-#define ADC_SCALE           (V_FS / 4096)
-#define ATTENUATION         ADC_ATTEN_11db
+//ADC 
+#define V_REF                               1000
+#define V_FS                                3.6 //change accordingly to ADC_ATTEN_xx_x
+#define ADC_SCALE                           (V_FS / 4096)
+#define ATTENUATION                         ADC_ATTEN_11db
 
 //THERMISTOR CONFIGS (y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
-#define THERM_M 0.024                    
-#define THERM_B -0.5371
+#define THERM_M                             0.024                    
+#define THERM_B                             -0.5371
 //thermistor pn: NTCALUG02A103F800
 
+//DISPLAY 
+#define DIGIT_0                             0x1 
+#define DIGIT_1                             0x2
+#define DIGIT_2                             0x3
+#define DIGIT_3                             0x4
+
 //buffer config
-#define SIZE     2000
+#define SIZE                                2000
 
 //TIMER CONFIGS
-#define TIMER_DIVIDER               16  //  Hardware timer clock divider
-#define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_PERIOD         .01   // control loop period for timer group 0 timer 0 in secondss
-#define PROGRAM_LENGTH              60 // program length for timer group 0 timer 1 in seconds
+#define TIMER_DIVIDER                       16  //  Hardware timer clock divider
+#define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
+#define CONTROL_LOOP_PERIOD                 .01   // control loop period for timer group 0 timer 0 in secondss
+#define PROGRAM_LENGTH                      60 // program length for timer group 0 timer 1 in seconds
 
-#define PI                          3.14159265358979323846
 
 /*****************************************************/
 
@@ -154,11 +156,51 @@ void ERROR_HANDLE_ME(int err_num) {
     }
 }
 
-void print_timer_counter(uint64_t counter_value)
-{
-    printf("Counter: 0x%08x%08x\n", (uint32_t) (counter_value >> 32),
-                                    (uint32_t) (counter_value));
-    printf("Time   : %.8f s\n", (double) counter_value / TIMER_SCALE);
+/*
+ * writes data buffer to a file on SD card
+ */
+int dump_to_file(char buffer[],char err_buffer[],int unmount) {
+    FILE *fp;
+    fp = fopen("/sdcard/data.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return FILE_DUMP_ERROR;
+    }   
+    fputs(buffer, fp);
+    // fputs(err_buffer, fp);        
+    fclose(fp);
+
+    if (unmount == 1) {
+        fp = fopen("/sdcard/data.txt", "a");
+        fputs("ded\n", fp);  
+        fclose(fp);
+        esp_vfs_fat_sdmmc_unmount();
+        ESP_LOGI(TAG, "umounted");
+        return SUCCESS;
+    }
+
+    
+    ESP_LOGI(TAG, "buffer dumped");
+    return SUCCESS;
+}
+
+/*
+ * appends 32b integer to the end of the buffer
+ * adds 3 hex digits to the end of the buffer
+ * designed with use case of adc read in mind (12b resolution)
+ */
+void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
+    char formatted_string [13]; //number of bits + 1
+    sprintf(formatted_string,"%03x",i_to_add);
+    strcat(buf,formatted_string);
+    strcat(buf," ");
+    buffer_idx+=4;
+    if (buffer_idx >= SIZE) {
+        buffer_idx = 0;
+        ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+        memset(buf,0,strlen(buf)); 
+    }   
 }
 
 /*****************************************************/
@@ -289,6 +331,53 @@ void read_adc(int num,...)
 * for example the I2C modules and subsequent I2C slave devices 
 *
 */
+
+/*
+ * mounts SD card
+ * configures SPI bus for SD card comms
+ * SPI lines need 10k pull-ups 
+ */
+int sd_config() 
+{
+    ESP_LOGI(TAG, "sd_config");
+    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
+    slot_config.gpio_miso = PIN_NUM_MISO;
+    slot_config.gpio_mosi = PIN_NUM_MOSI;
+    slot_config.gpio_sck  = PIN_NUM_CLK;
+    slot_config.gpio_cs   = PIN_NUM_CS;    
+    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+        .format_if_mount_failed = false,
+        .max_files = 5
+    };
+
+    sdmmc_card_t* card;
+    esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+    
+    FILE *fp;
+    fp = fopen("/sdcard/data.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create file");
+        return FILE_CREATE_ERROR;
+    }   
+    fputs("ALIVE\n", fp); 
+    fclose(fp);   
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount filesystem; suspending task");
+            vTaskSuspend(NULL);
+            // ESP_LOGE(TAG, "Failed to mount filesystem. "
+            //     "If you want the card to be formatted, set format_if_mount_failed = true.");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize the card");
+            vTaskSuspend(NULL);
+        }
+    }
+
+    return SUCCESS;
+}
 
 /*
  * configures one i2c module for operation as an i2c master with internal pullups disabled
