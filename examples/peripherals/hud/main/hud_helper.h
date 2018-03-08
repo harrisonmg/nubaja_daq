@@ -26,6 +26,10 @@
 #include "driver/adc.h"
 #include "esp_system.h"
 #include "esp_adc_cal.h"
+#include "esp_vfs_fat.h"
+#include "driver/sdmmc_host.h"
+#include "driver/sdspi_host.h"
+#include "sdmmc_cmd.h"
 #include <sys/unistd.h>
 #include <sys/stat.h>
 #include "esp_err.h"
@@ -87,6 +91,7 @@
 #define DIGIT_1                             0x2
 #define DIGIT_2                             0x3
 #define DIGIT_3                             0x4
+#define AS1115_SLAVE_ADDR                   0x3
 
 //buffer config
 #define SIZE                                2000
@@ -104,11 +109,11 @@
 /* 
 * globals
 */ 
-
 extern const char *TAG;
 extern char f_buf[];
 extern char err_buf[];
 extern int buffer_idx;
+extern int err_buffer_idx;
 extern xQueueHandle timer_queue;
 extern xQueueHandle gpio_queue;
 extern SemaphoreHandle_t killSemaphore;
@@ -130,8 +135,59 @@ typedef struct {
 *
 */
 
+/*
+ * writes data buffer to a file on SD card
+ */
+int dump_to_file(char buffer[],char err_buffer[],int unmount) {
+    FILE *fp;
+    fp = fopen("/sdcard/data.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open data file for writing");
+        return FILE_DUMP_ERROR;
+    }   
+    fputs(buffer, fp);        
+    fclose(fp);
+
+    fp = fopen("/sdcard/error.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open error file for writing");
+        return FILE_DUMP_ERROR;
+    }   
+    fputs(err_buffer, fp);        
+    fclose(fp);    
+
+    if (unmount == 1) {
+        fp = fopen("/sdcard/data.txt", "a");
+        fputs("ded\n", fp);  
+        fclose(fp);
+
+        fp = fopen("/sdcard/error.txt", "a");
+        fputs("ded\n", fp);  
+        fclose(fp);
+
+        esp_vfs_fat_sdmmc_unmount();
+        ESP_LOGI(TAG, "umounted");
+        return SUCCESS;
+    }
+
+    
+    ESP_LOGI(TAG, "buffers dumped");
+    return SUCCESS;
+}
+
 void record_error(char err_buffer[], char err_msg[]) {
-    strcpy(err_buffer,err_msg);
+    int length = strlen(err_msg);
+    strcat(err_buf,err_msg);
+    strcat(err_buf," \n");
+    err_buffer_idx+=length;
+    if (err_buffer_idx >= SIZE) {
+        err_buffer_idx = 0;
+        char null_buf[1];
+        dump_to_file(null_buf,err_buf,0);  
+        memset(err_buf,0,strlen(err_buf)); 
+    }     
 }
 
 void ERROR_HANDLE_ME(int err_num) {
@@ -157,36 +213,7 @@ void ERROR_HANDLE_ME(int err_num) {
 }
 
 /*
- * writes data buffer to a file on SD card
- */
-int dump_to_file(char buffer[],char err_buffer[],int unmount) {
-    FILE *fp;
-    fp = fopen("/sdcard/data.txt", "a");
-    if (fp == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to open file for writing");
-        return FILE_DUMP_ERROR;
-    }   
-    fputs(buffer, fp);
-    // fputs(err_buffer, fp);        
-    fclose(fp);
-
-    if (unmount == 1) {
-        fp = fopen("/sdcard/data.txt", "a");
-        fputs("ded\n", fp);  
-        fclose(fp);
-        esp_vfs_fat_sdmmc_unmount();
-        ESP_LOGI(TAG, "umounted");
-        return SUCCESS;
-    }
-
-    
-    ESP_LOGI(TAG, "buffer dumped");
-    return SUCCESS;
-}
-
-/*
- * appends 32b integer to the end of the buffer
+ * appends 12b integer to the end of the buffer
  * adds 3 hex digits to the end of the buffer
  * designed with use case of adc read in mind (12b resolution)
  */
@@ -201,6 +228,25 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
         ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
         memset(buf,0,strlen(buf)); 
     }   
+}
+
+/*
+ * appends 16b integer to the end of the buffer
+ * adds 2 hex digits to the end of the buffer
+ * designed for use with I2C reads of the itg-3200
+ * which has 16b registers
+ */
+void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
+    char formatted_string [17]; //number of bits + 1
+    sprintf(formatted_string,"%04x",i_to_add);
+    strcat(buf,formatted_string);
+    strcat(buf," ");
+    buffer_idx+=5;
+    if (buffer_idx >= SIZE) {
+       buffer_idx = 0;
+       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+       memset(buf,0,strlen(buf));
+    }    
 }
 
 /*****************************************************/
@@ -239,7 +285,7 @@ int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
 /*
  * reads a register from an I2C device
  * can be configured to read an 8bit or 16bit register 
- * automatically adds result to the buffer
+ * automatically adds result to the data buffer
  */
 int i2c_read_2_byte(int reg) 
 {
@@ -261,7 +307,8 @@ int i2c_read_2_byte(int reg)
     i2c_cmd_link_delete(cmd);  
     uint16_t data = (*data_h << 8 | *data_l); //comment out for one byte read
     //uint16_t data = *data_l; //uncomment for one byte read
-    
+    add_16b_to_buffer (f_buf, data);
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG,"i2c read failed");
         return I2C_READ_FAILED; //dead sensor
@@ -301,7 +348,7 @@ void gpio_kill(int num,...)
 * several repetitive function calls
 * function reads a single channel from the adc
 * the raw value is from 0-4095 (12b resolution)
-* the raw value is then added to the buffer appropriately
+* the raw value is then added to the data buffer appropriately
 */
 void read_adc(int num,...) 
 {  
@@ -314,7 +361,7 @@ void read_adc(int num,...)
     /* access all the arguments assigned to valist */
     for (int i = 0; i < num; i++) {
         val_0 = adc1_get_raw(va_arg(valist, int));
-        // add_12b_to_buffer(f_buf,val_0);        
+        add_12b_to_buffer(f_buf,val_0);        
     }
 
     /* clean memory reserved for valist */
@@ -362,7 +409,16 @@ int sd_config()
         return FILE_CREATE_ERROR;
     }   
     fputs("ALIVE\n", fp); 
-    fclose(fp);   
+    fclose(fp);
+
+    fp = fopen("/sdcard/error.txt", "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create file");
+        return FILE_CREATE_ERROR;
+    }   
+    fputs("ALIVE\n", fp); 
+    fclose(fp);    
 
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {

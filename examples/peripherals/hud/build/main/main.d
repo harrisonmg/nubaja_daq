@@ -94,13 +94,34 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
  /home/sparky/esp/esp-idf/components/driver/include/driver/adc.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/adc_channel.h \
  /home/sparky/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h \
+ /home/sparky/esp/esp-idf/components/fatfs/src/esp_vfs_fat.h \
+ /home/sparky/esp/esp-idf/components/driver/include/driver/sdmmc_types.h \
+ /home/sparky/esp/esp-idf/components/driver/include/driver/sdmmc_host.h \
+ /home/sparky/esp/esp-idf/components/driver/include/driver/sdmmc_types.h \
+ /home/sparky/esp/esp-idf/components/driver/include/driver/sdspi_host.h \
+ /home/sparky/esp/esp-idf/components/driver/include/driver/spi_master.h \
+ /home/sparky/esp/esp-idf/components/driver/include/driver/spi_common.h \
+ /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/spi_struct.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/rom/lldesc.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h \
+ /home/sparky/esp/esp-idf/components/fatfs/src/ff.h \
+ /home/sparky/esp/esp-idf/components/fatfs/src/integer.h \
+ /home/sparky/esp/esp-idf/components/fatfs/src/ffconf.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/sys/param.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/sys/syslimits.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/machine/endian.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/machine/param.h \
+ /home/sparky/esp/esp-idf/components/wear_levelling/include/wear_levelling.h \
+ /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
+ /home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h \
+ /home/sparky/esp/esp-idf/components/spi_flash/include/esp_partition.h \
+ /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h \
+ /home/sparky/esp/esp-idf/components/sdmmc/include/sdmmc_cmd.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/unistd.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stat.h \
  /home/sparky/esp/esp-idf/components/newlib/include/time.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/time.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_task_wdt.h \
- /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
- /home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/i2c.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/ringbuf.h
 
@@ -294,6 +315,52 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 
 /home/sparky/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h:
 
+/home/sparky/esp/esp-idf/components/fatfs/src/esp_vfs_fat.h:
+
+/home/sparky/esp/esp-idf/components/driver/include/driver/sdmmc_types.h:
+
+/home/sparky/esp/esp-idf/components/driver/include/driver/sdmmc_host.h:
+
+/home/sparky/esp/esp-idf/components/driver/include/driver/sdmmc_types.h:
+
+/home/sparky/esp/esp-idf/components/driver/include/driver/sdspi_host.h:
+
+/home/sparky/esp/esp-idf/components/driver/include/driver/spi_master.h:
+
+/home/sparky/esp/esp-idf/components/driver/include/driver/spi_common.h:
+
+/home/sparky/esp/esp-idf/components/soc/esp32/include/soc/spi_struct.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/rom/lldesc.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h:
+
+/home/sparky/esp/esp-idf/components/fatfs/src/ff.h:
+
+/home/sparky/esp/esp-idf/components/fatfs/src/integer.h:
+
+/home/sparky/esp/esp-idf/components/fatfs/src/ffconf.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/sys/param.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/sys/syslimits.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/machine/endian.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/machine/param.h:
+
+/home/sparky/esp/esp-idf/components/wear_levelling/include/wear_levelling.h:
+
+/home/sparky/esp/esp-idf/components/log/include/esp_log.h:
+
+/home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h:
+
+/home/sparky/esp/esp-idf/components/spi_flash/include/esp_partition.h:
+
+/home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h:
+
+/home/sparky/esp/esp-idf/components/sdmmc/include/sdmmc_cmd.h:
+
 /home/sparky/esp/esp-idf/components/newlib/include/sys/unistd.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/stat.h:
@@ -303,10 +370,6 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 /home/sparky/esp/esp-idf/components/newlib/include/machine/time.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_task_wdt.h:
-
-/home/sparky/esp/esp-idf/components/log/include/esp_log.h:
-
-/home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h:
 
 /home/sparky/esp/esp-idf/components/driver/include/driver/i2c.h:
 

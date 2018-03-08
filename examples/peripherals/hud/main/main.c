@@ -1,5 +1,4 @@
 #include "hud_helper.h"
-///home/sparky/esp/esp-idf/examples/peripherals/hud/main/
 #define SENSOR_ENABLE 1 //0 or 1
 
 //global vars
@@ -7,9 +6,10 @@ SemaphoreHandle_t killSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
 xQueueHandle gpio_queue = NULL;
 const char *TAG = "ESP_HUD";
-char f_buf[SIZE];
-char err_buf[SIZE];
+char f_buf[SIZE]; //DATA BUFFER
+char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
+int err_buffer_idx = 0;
 uint64_t old_time = 0;
 
 
@@ -28,22 +28,23 @@ void control(timer_event_t evt) {
             float period = (float) (curr_time - old_time) / TIMER_SCALE;
             float v_car = 4.10 / period;
             old_time = curr_time; 
-            // uint8_t v_car_l = (uint32_t) v_car % 10; 
-            // uint8_t v_car_h = ( (uint32_t) v_car/10) % 10; 
-            //AS1115_display_write(DIGIT_0,v_car_l);
-            //AS1115_display_write(DIGIT_1,v_car_h);
+            
+            uint8_t v_car_l = (uint32_t) v_car % 10; 
+            uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
+            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_0,v_car_l);
+            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_1,v_car_h);
             // printf("period   : %.8f s\n", period);
             // printf("v_car: %u mph\n", (uint32_t) v_car);
-
                         
             uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
             add_12b_to_buffer(f_buf,adc_raw); 
             float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
             float temp = (adc_v - THERM_B) / THERM_M;
-            // uint8_t temp_l = (uint32_t) temp % 10; 
-            // uint8_t temp_h = ( (uint32_t) temp/10) % 10; 
-            // AS1115_display_write(DIGIT_2,temp_l);
-            // AS1115_display_write(DIGIT_3,temp_h);    
+            
+            uint8_t temp_l = (uint32_t) temp % 10; 
+            uint8_t temp_h = ( (uint32_t) temp / 10) % 10; 
+            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,temp_l);
+            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,temp_h);    
         }
     }
 }
