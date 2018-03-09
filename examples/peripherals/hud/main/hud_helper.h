@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <inttypes.h>
+#include <errno.h>
 
 //kernel
 #include "freertos/FreeRTOS.h"
@@ -32,11 +32,15 @@
 #include "sdmmc_cmd.h"
 #include <sys/unistd.h>
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include "esp_err.h"
 #include "esp_task_wdt.h"
 #include "esp_log.h"
 #include "driver/i2c.h"
 #include "soc/timer_group_struct.h"
+#include "esp_spi_flash.h"
+#include "esp_wifi.h"
+#include "esp_event_loop.h"
 
 /* 
 * defines
@@ -81,9 +85,9 @@
 #define ADC_SCALE                           (V_FS / 4096)
 #define ATTENUATION                         ADC_ATTEN_11db
 
-//THERMISTOR CONFIGS (y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
+//THERMISTOR CONFIGS 
 #define THERM_M                             0.024                    
-#define THERM_B                             -0.5371
+#define THERM_B                             -0.5371 //(y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
 //thermistor pn: NTCALUG02A103F800
 
 //DISPLAY 
@@ -102,6 +106,14 @@
 #define CONTROL_LOOP_PERIOD                 .01   // control loop period for timer group 0 timer 0 in secondss
 #define PROGRAM_LENGTH                      60 // program length for timer group 0 timer 1 in seconds
 
+//CONTROL FLOW
+#define SENSOR_ENABLE                       1 
+#define LOGGING_ENABLE                      0     
+
+//WIFI
+#define PORT_NUMBER                         6789
+#define BUFLEN                              512
+
 
 /*****************************************************/
 
@@ -117,6 +129,8 @@ extern int err_buffer_idx;
 extern xQueueHandle timer_queue;
 extern xQueueHandle gpio_queue;
 extern SemaphoreHandle_t killSemaphore;
+extern const char* ssid;
+extern const char* password;
 
 
 //interrupt flag container
@@ -135,6 +149,97 @@ typedef struct {
 *
 */
 
+int get_socket_error_code(int socket)
+{
+    int result;
+    u32_t optlen = sizeof(int);
+    if(getsockopt(socket, SOL_SOCKET, SO_ERROR, &result, &optlen) == -1) {
+        ESP_LOGE(TAG, "getsockopt failed");
+        return -1;
+    }
+    return result;
+    
+}
+
+int show_socket_error_reason(int socket)
+{
+    int err = get_socket_error_code(socket);
+    ESP_LOGW(TAG, "socket error %d %s", err, strerror(err));
+    return err;
+}
+
+void close_socket(int socket)
+{
+    close(socket);
+}
+
+// UDP Listener
+esp_err_t udp_server()
+{
+    static char WIFI_tag[]="udpserver";
+    int mysocket;
+    struct sockaddr_in si_other;
+    
+    unsigned int slen = sizeof(si_other),recv_len;
+    char buf[BUFLEN];
+    
+    // bind to socket
+    ESP_LOGI(WIFI_tag, "bind_udp_server port:%d", PORT_NUMBER);
+    mysocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (mysocket < 0) {
+        show_socket_error_reason(mysocket);
+        return ESP_FAIL;
+    }
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(PORT_NUMBER);
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (bind(mysocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        show_socket_error_reason(mysocket);
+        close(mysocket);
+        return ESP_FAIL;
+    } else {
+        ESP_LOGI(WIFI_tag,"socket created without errors");
+        
+        while(1)
+        {
+            ESP_LOGI(WIFI_tag,"Waiting for incoming data");
+            memset(buf,0,BUFLEN);
+            
+            if ((recv_len = recvfrom(mysocket, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) == -1)
+            {
+                ESP_LOGE(WIFI_tag,"recvfrom");
+                break;
+            }
+            
+            ESP_LOGI(WIFI_tag,"Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
+            ESP_LOGI(WIFI_tag,"Data: %s -- %d\n" , buf, recv_len);
+            // Set the NULL byte to avoid garbage in the read buffer
+            if ((recv_len + 1) < BUFLEN)
+                buf[recv_len + 1] = '\0';
+                        
+            // Note: speed is inverse polarity
+            if ( memcmp( buf, "forward", recv_len) == 0) {
+                ESP_LOGI(WIFI_tag,"Inside Forward Case\n");
+
+                
+            } else if ( memcmp( buf, "reverse", recv_len) == 0) {
+                ESP_LOGI(WIFI_tag,"Inside Reverse Case\n");
+                
+            } 
+            else {
+                ESP_LOGE(WIFI_tag,"Command: %s\n", buf);
+            }
+        }
+        
+        close(mysocket);
+        return ESP_FAIL;
+    }
+    return ESP_OK;
+}
+
+
+
 /*
  * writes data buffer and error buffer to respective file on SD card
  */
@@ -143,7 +248,7 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     fp = fopen("/sdcard/data.txt", "a");
     if (fp == NULL)
     {
-        ESP_LOGE(TAG, "Failed to open data file for writing");s
+        ESP_LOGE(TAG, "Failed to open data file for writing");
         return FILE_DUMP_ERROR;
     }   
     fputs(buffer, fp);        
@@ -229,7 +334,7 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
     strcat(buf,formatted_string);
     strcat(buf," ");
     buffer_idx+=4;
-    if (buffer_idx >= SIZE) {
+    if ((buffer_idx >= SIZE) && (LOGGING_ENABLE == 1)) {
         buffer_idx = 0;
         ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
         memset(buf,0,strlen(buf)); 
@@ -248,7 +353,7 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
     strcat(buf,formatted_string);
     strcat(buf," ");
     buffer_idx+=5;
-    if (buffer_idx >= SIZE) {
+    if ((buffer_idx >= SIZE) && (LOGGING_ENABLE == 1)) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
        memset(buf,0,strlen(buf));
@@ -561,7 +666,63 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
     timer_start(TIMER_GROUP_0, timer_idx);
 }
 
+// Event Loop Handler
+esp_err_t event_handler(void *ctx, system_event_t *event)
+{
+    switch(event->event_id) {
+        case SYSTEM_EVENT_STA_START:
+            esp_wifi_connect();
+            break;
+        case SYSTEM_EVENT_STA_DISCONNECTED:
+            esp_wifi_connect();
+            break;
+        case SYSTEM_EVENT_STA_CONNECTED:
+            break;
+        case SYSTEM_EVENT_STA_GOT_IP:
+            ESP_LOGI(TAG, "event_handler:SYSTEM_EVENT_STA_GOT_IP!");
+            ESP_LOGI(TAG, "got ip:%s\n",
+                     ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+            // IP is availiable, start the UDP server
+            udp_server();
+            break;
+        case SYSTEM_EVENT_AP_STACONNECTED:
+            ESP_LOGI(TAG, "station:" MACSTR " join,AID=%d\n",
+                     MAC2STR(event->event_info.sta_connected.mac),
+                     event->event_info.sta_connected.aid);
+            break;
+        case SYSTEM_EVENT_AP_STADISCONNECTED:
+            ESP_LOGI(TAG, "station:" MACSTR "leave,AID=%d\n",
+                     MAC2STR(event->event_info.sta_disconnected.mac),
+                     event->event_info.sta_disconnected.aid);
+            break;
+        default:
+            break;
+    }
+    return ESP_OK;
+}
 
+void wifi_config () {
+    // Connect to the AP in STA mode
+    tcpip_adapter_init();
+    
+    // Set Event Handler
+    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL) );
+    
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    
+    wifi_config_t sta_config = { };
+    strcpy((char*)sta_config.sta.ssid, ssid);
+    strcpy((char*)sta_config.sta.password, password);
+    sta_config.sta.bssid_set = false;
+    
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &sta_config) );
+    ESP_ERROR_CHECK(esp_wifi_start() );
+    
+    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s \n",
+             ssid,password);    
+}
 /*****************************************************/
 
 #endif

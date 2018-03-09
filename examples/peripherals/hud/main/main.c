@@ -1,5 +1,4 @@
 #include "hud_helper.h"
-#define SENSOR_ENABLE 1 //0 or 1
 
 //global vars
 SemaphoreHandle_t killSemaphore = NULL;
@@ -11,7 +10,43 @@ char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
 uint64_t old_time = 0;
+const char* ssid = "DADS_ONLY";
+const char* password = "";
 
+/*
+ * configures all necessary modules using respective config functions
+ */
+void config() {
+    //timer config
+    timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
+    timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
+    
+    //semaphore that blocks end program task 
+    killSemaphore = xSemaphoreCreateBinary();
+
+    gpio_queue = xQueueCreate(10, sizeof(uint32_t));
+    timer_queue = xQueueCreate(10, sizeof(timer_event_t));
+
+    memset(f_buf,0,strlen(f_buf));
+    memset(err_buf,0,strlen(err_buf));
+
+    if (SENSOR_ENABLE == 1) {
+        //adc config
+        adc1_config_width(ADC_WIDTH_BIT_12);
+        adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
+        
+        //GPIO config
+        config_gpio();
+        
+        //i2c and IMU config
+        i2c_master_config();
+    }
+
+    if (LOGGING_ENABLE == 1) {
+        sd_config();
+    }
+    
+}
 
 /*
  * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
@@ -21,8 +56,8 @@ uint64_t old_time = 0;
  * Additionally, a thermistor is measured and its temperature display and recorded 
  */
 void control(timer_event_t evt) {
-    if(SENSOR_ENABLE == 1) {
-        uint32_t gpio_num;
+    uint32_t gpio_num;
+    if (SENSOR_ENABLE == 1) {
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             uint64_t curr_time = evt.timer_counts;
             float period = (float) (curr_time - old_time) / TIMER_SCALE;
@@ -85,40 +120,15 @@ void timeout_thread(void* task) {
 }
 
 /*
- * configures all necessary modules using respective config functions
- */
-void config() {
-    //timer config
-    timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-    timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
-    
-    //semaphore that blocks end program task 
-    killSemaphore = xSemaphoreCreateBinary();
-
-    gpio_queue = xQueueCreate(10, sizeof(uint32_t));
-    timer_queue = xQueueCreate(10, sizeof(timer_event_t));
-
-    memset(f_buf,0,strlen(f_buf));
-    memset(err_buf,0,strlen(err_buf));
-
-    if(SENSOR_ENABLE == 1) {
-        //adc config
-        adc1_config_width(ADC_WIDTH_BIT_12);
-        adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
-        
-        //GPIO config
-        config_gpio();
-        
-        //i2c and IMU config
-        i2c_master_config();
-    }
-    
-}
-
-/*
 * creates tasks
 */
 void app_main() { 
+    printf("File :%s\n", __FILE__ );
+    printf("Date :%s\n", __DATE__ );
+    printf("Time :%s\n", __TIME__ );
+    printf("Line :%d\n", __LINE__ );
+    printf("ANSI :%d\n", __STDC__ );
+
     config();   
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
