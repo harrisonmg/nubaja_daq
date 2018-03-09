@@ -131,6 +131,7 @@ extern xQueueHandle gpio_queue;
 extern SemaphoreHandle_t killSemaphore;
 extern const char* ssid;
 extern const char* password;
+extern int comms_en;
 
 
 //interrupt flag container
@@ -201,7 +202,7 @@ esp_err_t udp_server()
     } else {
         ESP_LOGI(WIFI_tag,"socket created without errors");
         
-        while(1)
+        while(comms_en == 1)
         {
             ESP_LOGI(WIFI_tag,"Waiting for incoming data");
             memset(buf,0,BUFLEN);
@@ -219,13 +220,13 @@ esp_err_t udp_server()
                 buf[recv_len + 1] = '\0';
                         
             // Note: speed is inverse polarity
-            if ( memcmp( buf, "forward", recv_len) == 0) {
-                ESP_LOGI(WIFI_tag,"Inside Forward Case\n");
-
+            if ( memcmp( buf, "begin recording", recv_len) == 0) {
+                ESP_LOGI(WIFI_tag,"Inside Start Case\n");
+                comms_en = 0; //exits while loop and program proceeds to task creation and normal operation
                 
-            } else if ( memcmp( buf, "reverse", recv_len) == 0) {
-                ESP_LOGI(WIFI_tag,"Inside Reverse Case\n");
-                
+            } else if ( memcmp( buf, "stop recording", recv_len) == 0) {
+                ESP_LOGI(WIFI_tag,"Inside Stop Case\n");
+                //not sure how to do this yet...
             } 
             else {
                 ESP_LOGE(WIFI_tag,"Command: %s\n", buf);

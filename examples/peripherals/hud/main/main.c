@@ -12,6 +12,7 @@ int err_buffer_idx = 0;
 uint64_t old_time = 0;
 const char* ssid = "DADS_ONLY";
 const char* password = "";
+int comms_en = 1; //initialise with UDP listening 
 
 /*
  * configures all necessary modules using respective config functions
@@ -45,7 +46,9 @@ void config() {
     if (LOGGING_ENABLE == 1) {
         sd_config();
     }
-    
+    if (comms_en == 1) {
+        wifi_connfig();     
+    }
 }
 
 /*
