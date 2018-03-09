@@ -176,7 +176,7 @@ void close_socket(int socket)
 
 // UDP Listener
 //expects packets delivered via the following, or equivalent: 
-//echo -n "start" | nc -4u -q1 localhost 6789
+//echo -n "start" | nc -4u -q5 IP_ADDR PORT
 esp_err_t udp_server()
 {
     static char WIFI_tag[]="udpserver";
