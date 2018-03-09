@@ -136,14 +136,14 @@ typedef struct {
 */
 
 /*
- * writes data buffer to a file on SD card
+ * writes data buffer and error buffer to respective file on SD card
  */
 int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     FILE *fp;
     fp = fopen("/sdcard/data.txt", "a");
     if (fp == NULL)
     {
-        ESP_LOGE(TAG, "Failed to open data file for writing");
+        ESP_LOGE(TAG, "Failed to open data file for writing");s
         return FILE_DUMP_ERROR;
     }   
     fputs(buffer, fp);        
@@ -177,6 +177,9 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     return SUCCESS;
 }
 
+/*
+* 
+*/
 void record_error(char err_buffer[], char err_msg[]) {
     int length = strlen(err_msg);
     strcat(err_buf,err_msg);
@@ -190,6 +193,9 @@ void record_error(char err_buffer[], char err_msg[]) {
     }     
 }
 
+/*
+* 
+*/
 void ERROR_HANDLE_ME(int err_num) {
     char msg[50];
     switch (err_num) {
@@ -259,7 +265,7 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
 */
 
 /*
- * writes a single byte of data to a particular register using I2C protocol 
+ * writes a single byte of data to a register using I2C protocol 
  */
 int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
     int ret; 
@@ -279,9 +285,6 @@ int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
     }
 }   
 
-
-
-//takes around 500us @100kHz
 /*
  * reads a register from an I2C device
  * can be configured to read an 8bit or 16bit register 
@@ -322,6 +325,12 @@ int i2c_read_2_byte(int reg)
     }
 }
 
+
+/*
+* writes to one of the 8 digit registers of the AS1115 with the desired value. 
+* the device is configured to use BCD encoding, meaning values of 0-9 and -,E,H,L,P are 
+* possible 
+*/
 void AS1115_display_write(uint8_t slave_addr, uint8_t digit, uint8_t BCD_value) {
     ERROR_HANDLE_ME(i2c_write_byte(slave_addr, digit, BCD_value));
 }
@@ -383,6 +392,8 @@ void read_adc(int num,...)
  * mounts SD card
  * configures SPI bus for SD card comms
  * SPI lines need 10k pull-ups 
+ * creates two files, one for data and one for errors
+ * suspends task if it fails - no point in running if no data can be recorded
  */
 int sd_config() 
 {
@@ -454,6 +465,9 @@ int sd_config()
                        I2C_MASTER_TX_BUF_DISABLE, 0);
 }
 
+/*
+* configures the AS1115 7-segment display driver 
+*/
 void AS1115_config () {
     ERROR_HANDLE_ME(i2c_write_byte(0x0,0x2d,0x01)); //enable self addressing setting the slave-addr to 0x03
     uint8_t slave_address = 0x03;    
@@ -463,11 +477,17 @@ void AS1115_config () {
     ERROR_HANDLE_ME(i2c_write_byte(slave_address,0xe,0x0)); //sets features as desired
 }
 
+/*
+* ISR for GPIO based interrupt. interrupt is configured via config_gpio
+*/
 static void IRAM_ATTR gpio_isr_handler(void* arg) {
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(gpio_queue, &gpio_num, NULL);
 }
 
+/*
+* configures a GPIO pin for an interrupt on a rising edge
+*/
 void config_gpio() {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_PIN_INTR_POSEDGE; //interrupt of rising edge
@@ -514,6 +534,7 @@ void IRAM_ATTR timer_group0_isr(void *para) {
  * sets up timer group 0 timers 0 and 1
  * timer 0 times the control loop, set up for auto reload upon alarm
  * timer 1 times the entire program, does not reload on alarm
+ * timer 1 also used to calculate vehicle speed via measurement of time between GPIO interrupts 
  */
 void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 {

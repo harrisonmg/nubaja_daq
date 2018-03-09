@@ -67,7 +67,7 @@ void control_thread()
 /*
  * Ends the task passed in as an argument and then ends itself
  * Task blocks until semaphore is given from program timer 1 ISR
- */
+*/
 void timeout_thread(void* task) {   
     while(1) {
         if (xSemaphoreTake(killSemaphore, portMAX_DELAY) == pdTRUE) //end program after dumping to file
