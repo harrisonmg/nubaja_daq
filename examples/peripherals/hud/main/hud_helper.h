@@ -175,6 +175,8 @@ void close_socket(int socket)
 }
 
 // UDP Listener
+//expects packets delivered via the following, or equivalent: 
+//echo -n "start" | nc -4u -q1 localhost 6789
 esp_err_t udp_server()
 {
     static char WIFI_tag[]="udpserver";
@@ -194,14 +196,15 @@ esp_err_t udp_server()
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT_NUMBER);
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    // server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_addr.sin_addr.s_addr = inet_addr("192.168.78.2"); //IP address
+
     if (bind(mysocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         show_socket_error_reason(mysocket);
         close(mysocket);
-        return ESP_FAIL;
+        
     } else {
         ESP_LOGI(WIFI_tag,"socket created without errors");
-        
         while(comms_en == 1)
         {
             ESP_LOGI(WIFI_tag,"Waiting for incoming data");
@@ -220,13 +223,14 @@ esp_err_t udp_server()
                 buf[recv_len + 1] = '\0';
                         
             // Note: speed is inverse polarity
-            if ( memcmp( buf, "begin recording", recv_len) == 0) {
-                ESP_LOGI(WIFI_tag,"Inside Start Case\n");
+            if ( memcmp( buf, "start", recv_len) == 0) {
+                ESP_LOGI(WIFI_tag,"Start Case\n");
                 comms_en = 0; //exits while loop and program proceeds to task creation and normal operation
                 
-            } else if ( memcmp( buf, "stop recording", recv_len) == 0) {
-                ESP_LOGI(WIFI_tag,"Inside Stop Case\n");
+            } else if ( memcmp( buf, "stop", recv_len) == 0) {
+                ESP_LOGI(WIFI_tag,"Stop Case\n");
                 //not sure how to do this yet...
+                xSemaphoreGive(killSemaphore); //GIVE SEMAPHORE
             } 
             else {
                 ESP_LOGE(WIFI_tag,"Command: %s\n", buf);

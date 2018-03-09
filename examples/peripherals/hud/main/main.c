@@ -47,7 +47,7 @@ void config() {
         sd_config();
     }
     if (comms_en == 1) {
-        wifi_connfig();     
+        wifi_config();     
     }
 }
 
