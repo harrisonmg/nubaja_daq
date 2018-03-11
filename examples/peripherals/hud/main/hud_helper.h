@@ -107,7 +107,7 @@
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD                 .01   // control loop period for timer group 0 timer 0 in secondss
-#define PROGRAM_LENGTH                      60 // program length for timer group 0 timer 1 in seconds
+#define PROGRAM_LENGTH                      30 // program length for timer group 0 timer 1 in seconds
 
 //CONTROL FLOW
 #define SENSOR_ENABLE                       0 //1 = enabled
@@ -132,9 +132,11 @@ extern int err_buffer_idx;
 extern xQueueHandle timer_queue;
 extern xQueueHandle gpio_queue;
 extern SemaphoreHandle_t killSemaphore;
+extern SemaphoreHandle_t commsSemaphore;
 extern const char* ssid;
 extern const char* password;
 extern int comms_en;
+extern int program_len;
 
 
 //interrupt flag container
@@ -180,6 +182,7 @@ void close_socket(int socket)
 /* UDP Listener
  * expects packets delivered via the following, or equivalent: 
  * echo -n "start" | nc -4u -q5 69.69.69.69 6789
+ * echo -n "60" | nc -4u -q5 69.69.69.69 6789
  */
 esp_err_t udp_server()
 {
@@ -205,12 +208,12 @@ esp_err_t udp_server()
 
     if (bind(mysocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         show_socket_error_reason(mysocket);
+        ESP_LOGI(WIFI_tag,"closing socket");
         close(mysocket);
         
     } else {
         ESP_LOGI(WIFI_tag,"socket created without errors");
-        while(comms_en == 1)
-        {
+         while(1) {
             ESP_LOGI(WIFI_tag,"Waiting for incoming data");
             memset(buf,0,BUFLEN);
             
@@ -223,27 +226,37 @@ esp_err_t udp_server()
             ESP_LOGI(WIFI_tag,"Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
             ESP_LOGI(WIFI_tag,"Data: %s -- %d\n" , buf, recv_len);
             // Set the NULL byte to avoid garbage in the read buffer
-            if ((recv_len + 1) < BUFLEN)
+            if ((recv_len + 1) < BUFLEN) {
                 buf[recv_len + 1] = '\0';
+            }
                         
-            // Note: speed is inverse polarity
             if ( memcmp( buf, "start", recv_len) == 0) {
                 ESP_LOGI(WIFI_tag,"Start Case\n");
-                comms_en = 0; //exits while loop and program proceeds to task creation and normal operation
-                
-            } else if ( memcmp( buf, "stop", recv_len) == 0) {
-                ESP_LOGI(WIFI_tag,"Stop Case\n");
-                //not sure how to do this yet...
-                xSemaphoreGive(killSemaphore); //GIVE SEMAPHORE
+                xSemaphoreGive(commsSemaphore);
+                ESP_LOGI(WIFI_tag,"break 1");
+                break; //exits while loop and program proceeds to task creation and normal operation
+            }
+            else if ( memcmp( "num", buf, recv_len) > 0) {
+                ESP_LOGI(WIFI_tag,"Number Case\n");                
+                // int dec = 0, i, len;
+                // len = strlen(buf);
+                // for(i=0; i<len; i++){
+                //     dec = dec * 10 + ( buf[i] - '0' );
+                // }                
+                // program_len = dec;
+                ESP_LOGI(WIFI_tag,"break 2");
+                break;
             } 
             else {
                 ESP_LOGE(WIFI_tag,"Command: %s\n", buf);
             }
         }
-        
+
+        ESP_LOGI(WIFI_tag,"closing socket");
         close(mysocket);
         return ESP_FAIL;
     }
+
     return ESP_OK;
 }
 
@@ -264,7 +277,6 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         fputs(buffer, fp);        
         fclose(fp);
         memset(buffer,0,strlen(buffer)); 
-
 
         fp = fopen("/sdcard/error.txt", "a");
         if (fp == NULL)
@@ -680,22 +692,41 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 // Event Loop Handler
 esp_err_t event_handler(void *ctx, system_event_t *event)
 {
+    ESP_LOGI(TAG, "event_handler");
+    esp_err_t ret;
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
-            esp_wifi_connect();
+            ESP_LOGI(TAG, "start");
+            ret = esp_wifi_connect();
+            if (ret != ESP_OK) {
+                ESP_LOGI(TAG, "connect failed");
+            }
+            if (ret == ESP_OK) {
+                ESP_LOGI(TAG, "connect successful");
+                udp_server();
+            }             
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            esp_wifi_connect();
+            ESP_LOGI(TAG, "disconnected");
+            ret = esp_wifi_connect();
+            if (ret != ESP_OK) {
+                ESP_LOGI(TAG, "connect failed");
+            }
+            if (ret == ESP_OK) {
+                ESP_LOGI(TAG, "connect successful");
+                udp_server();
+            }            
             break;
         case SYSTEM_EVENT_STA_CONNECTED:
+            ESP_LOGI(TAG, "connected");
             break;
-        case SYSTEM_EVENT_STA_GOT_IP:
-            ESP_LOGI(TAG, "event_handler:SYSTEM_EVENT_STA_GOT_IP!");
-            ESP_LOGI(TAG, "got ip:%s\n",
-                     ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
-            // IP is availiable, start the UDP server
-            udp_server();
-            break;
+        // case SYSTEM_EVENT_STA_GOT_IP:
+        //     ESP_LOGI(TAG, "event_handler:SYSTEM_EVENT_STA_GOT_IP!");
+        //     ESP_LOGI(TAG, "got ip:%s\n",
+        //              ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+        //     // IP is availiable, start the UDP server
+        //     udp_server();
+        //     break;
         case SYSTEM_EVENT_AP_STACONNECTED:
             ESP_LOGI(TAG, "station:" MACSTR " join,AID=%d\n",
                      MAC2STR(event->event_info.sta_connected.mac),

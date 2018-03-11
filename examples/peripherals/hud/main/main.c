@@ -2,6 +2,7 @@
 
 //global vars
 SemaphoreHandle_t killSemaphore = NULL;
+SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
 xQueueHandle gpio_queue = NULL;
 const char *TAG = "ESP_HUD";
@@ -11,8 +12,9 @@ int buffer_idx = 0;
 int err_buffer_idx = 0;
 uint64_t old_time = 0;
 const char* ssid = "DADS_ONLY";
-const char* password = "HELLOMOTO";
+const char* password = "";
 int comms_en = 1; //initialise with UDP listening 
+int program_len;
 
 /*
  * configures all necessary modules using respective config functions
@@ -24,6 +26,7 @@ void config() {
     
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
+    commsSemaphore = xSemaphoreCreateBinary();
 
     gpio_queue = xQueueCreate(10, sizeof(uint32_t));
     timer_queue = xQueueCreate(10, sizeof(timer_event_t));
@@ -133,10 +136,11 @@ void app_main() {
     // printf("ANSI :%d\n", __STDC__ );
 
     config();   
-    while (comms_en == 1) { ; } //wait for wifi commands
-    TaskHandle_t ctrlHandle = NULL;
-    TaskHandle_t endHandle = NULL;
-    ESP_LOGI(TAG, "Creating tasks");
-    xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
-    xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
+    if (xSemaphoreTake(commsSemaphore, portMAX_DELAY) == pdTRUE) {
+        TaskHandle_t ctrlHandle = NULL;
+        TaskHandle_t endHandle = NULL;
+        ESP_LOGI(TAG, "Creating tasks");
+        xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
+        xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
+    }
 }
