@@ -107,8 +107,8 @@
 #define PROGRAM_LENGTH                      60 // program length for timer group 0 timer 1 in seconds
 
 //CONTROL FLOW
-#define SENSOR_ENABLE                       1 
-#define LOGGING_ENABLE                      0     
+#define SENSOR_ENABLE                       0 //1 = enabled
+#define LOGGING_ENABLE                      0 //1 = enabled    
 
 //WIFI
 #define PORT_NUMBER                         6789
@@ -197,7 +197,7 @@ esp_err_t udp_server()
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT_NUMBER);
     // server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_addr.sin_addr.s_addr = inet_addr("192.168.78.2"); //IP address
+    server_addr.sin_addr.s_addr = inet_addr("69.69.69.69"); //IP address
 
     if (bind(mysocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         show_socket_error_reason(mysocket);
@@ -250,23 +250,28 @@ esp_err_t udp_server()
  */
 int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     FILE *fp;
-    fp = fopen("/sdcard/data.txt", "a");
-    if (fp == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to open data file for writing");
-        return FILE_DUMP_ERROR;
-    }   
-    fputs(buffer, fp);        
-    fclose(fp);
+    if(LOGGING_ENABLE == 1) {
+        fp = fopen("/sdcard/data.txt", "a");
+        if (fp == NULL)
+        {
+            ESP_LOGE(TAG, "Failed to open data file for writing");
+            return FILE_DUMP_ERROR;
+        }   
+        fputs(buffer, fp);        
+        fclose(fp);
+        memset(buffer,0,strlen(buffer)); 
 
-    fp = fopen("/sdcard/error.txt", "a");
-    if (fp == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to open error file for writing");
-        return FILE_DUMP_ERROR;
-    }   
-    fputs(err_buffer, fp);        
-    fclose(fp);    
+
+        fp = fopen("/sdcard/error.txt", "a");
+        if (fp == NULL)
+        {
+            ESP_LOGE(TAG, "Failed to open error file for writing");
+            return FILE_DUMP_ERROR;
+        }   
+        fputs(err_buffer, fp);        
+        fclose(fp);  
+        memset(err_buf,0,strlen(err_buf)); 
+    }  
 
     if (unmount == 1) {
         fp = fopen("/sdcard/data.txt", "a");
@@ -283,7 +288,7 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     }
 
     
-    ESP_LOGI(TAG, "buffers dumped");
+    ESP_LOGI(TAG, "buffers dumped");    
     return SUCCESS;
 }
 
@@ -299,7 +304,6 @@ void record_error(char err_buffer[], char err_msg[]) {
         err_buffer_idx = 0;
         char null_buf[1];
         dump_to_file(null_buf,err_buf,0);  
-        memset(err_buf,0,strlen(err_buf)); 
     }     
 }
 
@@ -339,10 +343,9 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
     strcat(buf,formatted_string);
     strcat(buf," ");
     buffer_idx+=4;
-    if ((buffer_idx >= SIZE) && (LOGGING_ENABLE == 1)) {
+    if (buffer_idx >= SIZE) {
         buffer_idx = 0;
         ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
-        memset(buf,0,strlen(buf)); 
     }   
 }
 
@@ -358,10 +361,9 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
     strcat(buf,formatted_string);
     strcat(buf," ");
     buffer_idx+=5;
-    if ((buffer_idx >= SIZE) && (LOGGING_ENABLE == 1)) {
+    if (buffer_idx >= SIZE) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
-       memset(buf,0,strlen(buf));
     }    
 }
 

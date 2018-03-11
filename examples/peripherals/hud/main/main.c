@@ -11,7 +11,7 @@ int buffer_idx = 0;
 int err_buffer_idx = 0;
 uint64_t old_time = 0;
 const char* ssid = "DADS_ONLY";
-const char* password = "";
+const char* password = "HELLOMOTO";
 int comms_en = 1; //initialise with UDP listening 
 
 /*
@@ -126,15 +126,16 @@ void timeout_thread(void* task) {
 * creates tasks
 */
 void app_main() { 
-    printf("File :%s\n", __FILE__ );
-    printf("Date :%s\n", __DATE__ );
-    printf("Time :%s\n", __TIME__ );
-    printf("Line :%d\n", __LINE__ );
-    printf("ANSI :%d\n", __STDC__ );
+    // printf("File :%s\n", __FILE__ );
+    // printf("Date :%s\n", __DATE__ );
+    // printf("Time :%s\n", __TIME__ );
+    // printf("Line :%d\n", __LINE__ );
+    // printf("ANSI :%d\n", __STDC__ );
 
     config();   
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
+    ESP_LOGI(TAG, "Creating tasks");
     xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
     xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
 }
