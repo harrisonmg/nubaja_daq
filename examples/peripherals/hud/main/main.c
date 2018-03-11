@@ -64,7 +64,7 @@ void control(timer_event_t evt) {
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             uint64_t curr_time = evt.timer_counts;
             float period = (float) (curr_time - old_time) / TIMER_SCALE;
-            float v_car = 4.10 / period;
+            float v_car = MPH_SCALE / period;
             old_time = curr_time; 
             
             uint8_t v_car_l = (uint32_t) v_car % 10; 
@@ -133,6 +133,7 @@ void app_main() {
     // printf("ANSI :%d\n", __STDC__ );
 
     config();   
+    while (comms_en == 1) { ; } //wait for wifi commands
     TaskHandle_t ctrlHandle = NULL;
     TaskHandle_t endHandle = NULL;
     ESP_LOGI(TAG, "Creating tasks");

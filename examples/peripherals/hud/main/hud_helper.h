@@ -67,6 +67,8 @@
 #define GPIO_INPUT_0                        4 //wheel spd hall effect in
 #define GPIO_INPUT_PIN_SEL                  (1ULL<<GPIO_INPUT_0)
 #define ESP_INTR_FLAG_DEFAULT               0
+#define MPH_SCALE                           4.10 //23*3.14159265358979323846*3600 / 63360 
+                                            // TIRE DIAMETER * PI * 3600 / 63360
 
 //SD CARD
 #define PIN_NUM_MISO                        18
@@ -175,9 +177,10 @@ void close_socket(int socket)
     close(socket);
 }
 
-// UDP Listener
-//expects packets delivered via the following, or equivalent: 
-//echo -n "start" | nc -4u -q5 IP_ADDR PORT
+/* UDP Listener
+ * expects packets delivered via the following, or equivalent: 
+ * echo -n "start" | nc -4u -q5 69.69.69.69 6789
+ */
 esp_err_t udp_server()
 {
     static char WIFI_tag[]="udpserver";
