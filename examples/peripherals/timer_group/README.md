@@ -1,33 +1,12 @@
-# Example: timer_group
+# PROJECT: IMU Datalogger
 
-This example uses the timer group driver to generate timer interrupts at two specified alarm intervals.
+This example uses timers, an SD card, and the I2C module to read a particular set of registers from an I2C IMU device in order to measure vehicle dynamics and record them and store them on the SD card. 
 
 ## Functionality Overview
 
-* Two timers are configured
-* Each timer is set with some sample alarm interval
-* On reaching the interval value each timer will generate an alarm
-* One of the timers is configured to automatically reload it's counter value on the alarm
-* The other timer is configured to keep incrementing and is reloaded by the application each time the alarm happens
-* Alarms trigger subsequent interrupts, that is tracked with messages printed on the terminal:
+* Two timers are configured. One timer sets the period of the control loop. The other time is used to determine timeout of the program. When the timeout expires, the program stops recording and suspends all tasks. 
+* The I2C module is configured as a master device as the IMU is a slave device. Several I2C writes are done upon startup to configure the IMU for proper operation. 
+* Each I2C read automatically adds the values to a buffer. When the buffer is full, it is emptied to the file. This serves to reduce the number of SD card accesses, as this time is orders of magnitude longer than the control loop period. 
 
-```
-    Example timer with auto reload
-Group[0], timer[1] alarm event
-------- EVENT TIME --------
-Counter: 0x000000000000000a
-Time   : 0.00000200 s
--------- TASK TIME --------
-Counter: 0x00000000000107ff
-Time   : 0.01351660 s
 
-    Example timer without reload
-Group[0], timer[0] alarm event
-------- EVENT TIME --------
-Counter: 0x00000000092ae316
-Time   : 30.76111800 s
--------- TASK TIME --------
-Counter: 0x00000000092bd535
-Time   : 30.77351460 s
 
-```
