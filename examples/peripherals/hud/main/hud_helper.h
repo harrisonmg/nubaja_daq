@@ -40,6 +40,7 @@
 #include "soc/timer_group_struct.h"
 #include "esp_spi_flash.h"
 #include "esp_wifi.h"
+#include "nvs_flash.h"
 #include "esp_event_loop.h"
 
 /* 
@@ -165,7 +166,7 @@ int get_socket_error_code(int socket)
 int show_socket_error_reason(int socket)
 {
     int err = get_socket_error_code(socket);
-    ESP_LOGW(TAG, "socket error %d %s", err, strerror(err));
+    ESP_LOGE(TAG, "socket error %d %s", err, strerror(err));
     return err;
 }
 
@@ -709,6 +710,8 @@ esp_err_t event_handler(void *ctx, system_event_t *event)
 }
 
 void wifi_config () {
+    ESP_ERROR_CHECK( nvs_flash_init() );
+
     // Connect to the AP in STA mode
     tcpip_adapter_init();
     

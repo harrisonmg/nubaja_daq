@@ -157,6 +157,8 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/apps/dhcpserver.h \
+ /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h \
+ /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_event_loop.h
 
 /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./hud_helper.h:
@@ -474,6 +476,10 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/apps/dhcpserver.h:
+
+/home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h:
+
+/home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_event_loop.h:
 /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c:
