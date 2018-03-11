@@ -114,7 +114,7 @@
 #define LOGGING_ENABLE                      0 //1 = enabled    
 
 //WIFI
-#define PORT_NUMBER                         6789
+#define PORT_NUMBER                         22
 #define BUFLEN                              512
 
 
@@ -204,7 +204,7 @@ esp_err_t udp_server()
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT_NUMBER);
     // server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_addr.sin_addr.s_addr = inet_addr("69.69.69.69"); //IP address
+    server_addr.sin_addr.s_addr = inet_addr("192.168.69.0"); //IP address
 
     if (bind(mysocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         show_socket_error_reason(mysocket);
@@ -693,28 +693,27 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     ESP_LOGI(TAG, "event_handler");
-    esp_err_t ret;
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
             ESP_LOGI(TAG, "start");
-            ret = esp_wifi_connect();
+            esp_err_t ret = esp_wifi_connect();
             if (ret != ESP_OK) {
-                ESP_LOGI(TAG, "connect failed");
+                ESP_LOGE(TAG, "ret connect failed");
             }
-            if (ret == ESP_OK) {
-                ESP_LOGI(TAG, "connect successful");
-                udp_server();
+            else if (ret == ESP_OK) {
+                ESP_LOGI(TAG, "ret connect successful");
+                // udp_server();
             }             
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG, "disconnected");
-            ret = esp_wifi_connect();
-            if (ret != ESP_OK) {
-                ESP_LOGI(TAG, "connect failed");
+            ESP_LOGE(TAG, "disconnected");
+            esp_err_t rat = esp_wifi_connect();
+            if (rat != ESP_OK) {
+                ESP_LOGE(TAG, "rat connect failed");
             }
-            if (ret == ESP_OK) {
-                ESP_LOGI(TAG, "connect successful");
-                udp_server();
+            else if (rat == ESP_OK) {
+                ESP_LOGI(TAG, "rat connect successful");
+                // udp_server();
             }            
             break;
         case SYSTEM_EVENT_STA_CONNECTED:
