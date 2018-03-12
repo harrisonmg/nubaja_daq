@@ -137,6 +137,7 @@ extern const char* ssid;
 extern const char* password;
 extern int comms_en;
 extern int program_len;
+extern char *DHCP_IP;
 
 
 //interrupt flag container
@@ -203,14 +204,13 @@ esp_err_t udp_server()
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT_NUMBER);
-    // server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_addr.sin_addr.s_addr = inet_addr("192.168.69.0"); //IP address
+    server_addr.sin_addr.s_addr = inet_addr(DHCP_IP); //IP address
+    ESP_LOGI(TAG, "socket ip:%s\n", inet_ntoa(server_addr.sin_addr.s_addr));
 
     if (bind(mysocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         show_socket_error_reason(mysocket);
         ESP_LOGI(WIFI_tag,"closing socket");
         close(mysocket);
-        
     } else {
         ESP_LOGI(WIFI_tag,"socket created without errors");
          while(1) {
@@ -224,7 +224,7 @@ esp_err_t udp_server()
             }
             
             ESP_LOGI(WIFI_tag,"Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
-            ESP_LOGI(WIFI_tag,"Data: %s -- %d\n" , buf, recv_len);
+            ESP_LOGI(WIFI_tag,"Command: %s -- %d\n" , buf, recv_len);
             // Set the NULL byte to avoid garbage in the read buffer
             if ((recv_len + 1) < BUFLEN) {
                 buf[recv_len + 1] = '\0';
@@ -233,7 +233,6 @@ esp_err_t udp_server()
             if ( memcmp( buf, "start", recv_len) == 0) {
                 ESP_LOGI(WIFI_tag,"Start Case\n");
                 xSemaphoreGive(commsSemaphore);
-                ESP_LOGI(WIFI_tag,"break 1");
                 break; //exits while loop and program proceeds to task creation and normal operation
             }
             else if ( memcmp( "num", buf, recv_len) > 0) {
@@ -244,17 +243,16 @@ esp_err_t udp_server()
                 //     dec = dec * 10 + ( buf[i] - '0' );
                 // }                
                 // program_len = dec;
-                ESP_LOGI(WIFI_tag,"break 2");
                 break;
             } 
             else {
                 ESP_LOGE(WIFI_tag,"Command: %s\n", buf);
+                break;
             }
         }
 
-        ESP_LOGI(WIFI_tag,"closing socket");
+        ESP_LOGI(WIFI_tag,"command received - closing socket");
         close(mysocket);
-        return ESP_FAIL;
     }
 
     return ESP_OK;
@@ -693,39 +691,34 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     ESP_LOGI(TAG, "event_handler");
+    int ret;
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
-            ESP_LOGI(TAG, "start");
-            esp_err_t ret = esp_wifi_connect();
-            if (ret != ESP_OK) {
-                ESP_LOGE(TAG, "ret connect failed");
+            ESP_LOGI(TAG, "WiFi Driver started. Connecting WiFi.");
+            ret = esp_wifi_connect();
+            if (ESP_OK != ret) {
+                ESP_LOGE(TAG, "connect failed");
             }
-            else if (ret == ESP_OK) {
-                ESP_LOGI(TAG, "ret connect successful");
-                // udp_server();
+            else if (ESP_OK == ret) {
+                ESP_LOGI(TAG, "connect successful");
+            }             
+            break;
+        case SYSTEM_EVENT_STA_CONNECTED:
+            ESP_LOGI(TAG, "connected, DHCP client starting");           
+            break;
+        case SYSTEM_EVENT_STA_GOT_IP:
+            ESP_LOGI(TAG, "connected, UPD server next");
+            DHCP_IP = ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip);
+            ESP_LOGI(TAG, "got ip:%s\n", DHCP_IP);    
+            ret = udp_server();
+            if (ESP_OK != ret) {
+                ESP_LOGE(TAG, "UDP server failed");
             }             
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             ESP_LOGE(TAG, "disconnected");
-            esp_err_t rat = esp_wifi_connect();
-            if (rat != ESP_OK) {
-                ESP_LOGE(TAG, "rat connect failed");
-            }
-            else if (rat == ESP_OK) {
-                ESP_LOGI(TAG, "rat connect successful");
-                // udp_server();
-            }            
-            break;
-        case SYSTEM_EVENT_STA_CONNECTED:
-            ESP_LOGI(TAG, "connected");
-            break;
-        // case SYSTEM_EVENT_STA_GOT_IP:
-        //     ESP_LOGI(TAG, "event_handler:SYSTEM_EVENT_STA_GOT_IP!");
-        //     ESP_LOGI(TAG, "got ip:%s\n",
-        //              ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
-        //     // IP is availiable, start the UDP server
-        //     udp_server();
-        //     break;
+            ESP_ERROR_CHECK(esp_wifi_connect());          
+            break;                        
         case SYSTEM_EVENT_AP_STACONNECTED:
             ESP_LOGI(TAG, "station:" MACSTR " join,AID=%d\n",
                      MAC2STR(event->event_info.sta_connected.mac),
@@ -757,14 +750,12 @@ void wifi_config () {
     wifi_config_t sta_config = { };
     strcpy((char*)sta_config.sta.ssid, ssid);
     strcpy((char*)sta_config.sta.password, password);
-    sta_config.sta.bssid_set = false;
+    sta_config.sta.bssid_set = 0;
+    sta_config.sta.channel = 0;
     
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &sta_config) );
-    ESP_ERROR_CHECK(esp_wifi_start() );
-    
-    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s \n",
-             ssid,password);    
+    ESP_ERROR_CHECK(esp_wifi_start() );  
 }
 /*****************************************************/
 
