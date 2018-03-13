@@ -1,4 +1,5 @@
 #include "hud_helper.h"
+#include "nubaja_wifi.h"
 
 //global vars
 SemaphoreHandle_t killSemaphore = NULL;
@@ -11,8 +12,7 @@ char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
 uint64_t old_time = 0;
-const char* ssid = "DADS_ONLY";
-const char* password = "";
+
 int comms_en = 1; //initialise with UDP listening 
 int program_len = 30;
 char *DHCP_IP;

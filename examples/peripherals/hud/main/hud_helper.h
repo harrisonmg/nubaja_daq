@@ -37,8 +37,7 @@
 #include "driver/i2c.h"
 #include "soc/timer_group_struct.h"
 #include "esp_spi_flash.h"
-#include "nvs_flash.h"
-#include "esp_event_loop.h"
+
 
 //custom
 #include "nubaja_udp_server.h"
@@ -120,7 +119,7 @@
 /* 
 * globals
 */ 
-static const char *TAG = "HEADER";
+static const char *TAG = "HUD_HELPER";
 extern char f_buf[];
 extern char err_buf[];
 extern int buffer_idx;
@@ -129,8 +128,6 @@ extern xQueueHandle timer_queue;
 extern xQueueHandle gpio_queue;
 extern SemaphoreHandle_t killSemaphore;
 extern SemaphoreHandle_t commsSemaphore;
-extern const char* ssid;
-extern const char* password;
 extern int comms_en;
 extern int program_len;
 extern char *DHCP_IP;
@@ -579,66 +576,7 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
     timer_start(TIMER_GROUP_0, timer_idx);
 }
 
-// Event Loop Handler
-esp_err_t event_handler(void *ctx, system_event_t *event)
-{
-    ESP_LOGI(TAG, "event_handler");
-    int ret;
-    switch(event->event_id) {
-        case SYSTEM_EVENT_STA_START:
-            ESP_LOGI(TAG, "WiFi Driver started. Connecting WiFi.");
-            ret = esp_wifi_connect();
-            if (ESP_OK != ret) {
-                ESP_LOGE(TAG, "connect failed");
-            }
-            else if (ESP_OK == ret) {
-                ESP_LOGI(TAG, "connect successful");
-            }             
-            break;
-        case SYSTEM_EVENT_STA_CONNECTED:
-            ESP_LOGI(TAG, "connected, DHCP client starting");           
-            break;
-        case SYSTEM_EVENT_STA_GOT_IP:
-            ESP_LOGI(TAG, "connected, UPD server next");
-            DHCP_IP = ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip);
-            ESP_LOGI(TAG, "got ip:%s\n", DHCP_IP);    
-            ret = udp_server( commsSemaphore );
-            if (ESP_OK != ret) {
-                ESP_LOGE(TAG, "UDP server failed");
-            }             
-            break;
-        case SYSTEM_EVENT_STA_DISCONNECTED:
-            ESP_LOGE(TAG, "disconnected");
-            vTaskDelete( NULL );
-            break;                        
-        default:
-            break;
-    }
-    return ESP_OK;
-}
 
-void wifi_config () {
-    ESP_ERROR_CHECK( nvs_flash_init() );
-
-    // Connect to the AP in STA mode
-    tcpip_adapter_init();
-    
-    // Set Event Handler
-    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL) );
-    
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    
-    wifi_config_t sta_config = { };
-    strcpy((char*)sta_config.sta.ssid, ssid);
-    strcpy((char*)sta_config.sta.password, password);
-    sta_config.sta.bssid_set = 0;
-    sta_config.sta.channel = 0;
-    
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &sta_config) );
-    ESP_ERROR_CHECK(esp_wifi_start() );  
-}
 /*****************************************************/
 
 #endif
