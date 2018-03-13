@@ -1,5 +1,6 @@
 #include "hud_helper.h"
-#include </home/sparky/esp/esp-idf/components/nubaja/nubaja_wifi.h>
+#include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h>
+
 
 //global vars
 SemaphoreHandle_t killSemaphore = NULL;
