@@ -37,9 +37,6 @@
 #include "driver/i2c.h"
 #include "soc/timer_group_struct.h"
 
-//custom
-#include "nubaja_udp_server.h"
-
 /* 
 * defines
 */ 

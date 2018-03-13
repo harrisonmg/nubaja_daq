@@ -124,9 +124,18 @@ timer_group_example_main.o: \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_task_wdt.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/i2c.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/ringbuf.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./nubaja_udp_server.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h \
+ /home/sparky/esp/esp-idf/components/nubaja/nubaja_wifi.h \
+ /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h \
+ /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_event_loop.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_event.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_interface.h \
+ /home/sparky/esp/esp-idf/components/tcpip_adapter/include/tcpip_adapter.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h \
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip_addr.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/opt.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/port/lwipopts.h \
  /home/sparky/esp/esp-idf/components/newlib/include/unistd.h \
@@ -142,26 +151,17 @@ timer_group_example_main.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/errno.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/port/arch/sys_arch.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/port/arch/vfs_lwip.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip_addr.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/def.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip4_addr.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip6_addr.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi.h \
- /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_interface.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_crypto_types.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_event.h \
- /home/sparky/esp/esp-idf/components/tcpip_adapter/include/tcpip_adapter.h \
- /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/apps/dhcpserver.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./nubaja_wifi.h \
- /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h \
- /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_event_loop.h
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_crypto_types.h \
+ /home/sparky/esp/esp-idf/components/nubaja/nubaja_udp_server.h \
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h \
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h \
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h \
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h
 
 /home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./nubaja_esp32_helper.h:
 
@@ -411,11 +411,29 @@ timer_group_example_main.o: \
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/ringbuf.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./nubaja_udp_server.h:
+/home/sparky/esp/esp-idf/components/nubaja/nubaja_wifi.h:
 
-/home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h:
+/home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h:
 
-/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h:
+/home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/esp_event_loop.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/esp_event.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/esp_interface.h:
+
+/home/sparky/esp/esp-idf/components/tcpip_adapter/include/tcpip_adapter.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h:
+
+/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip_addr.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/opt.h:
 
@@ -447,43 +465,25 @@ timer_group_example_main.o: \
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/port/arch/vfs_lwip.h:
 
-/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip_addr.h:
-
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/def.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip4_addr.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip6_addr.h:
 
-/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h:
-
-/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h:
+/home/sparky/esp/esp-idf/components/lwip/include/lwip/apps/dhcpserver.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi.h:
 
-/home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h:
-
-/home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h:
-
-/home/sparky/esp/esp-idf/components/esp32/include/esp_interface.h:
-
 /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_crypto_types.h:
 
-/home/sparky/esp/esp-idf/components/esp32/include/esp_event.h:
+/home/sparky/esp/esp-idf/components/nubaja/nubaja_udp_server.h:
 
-/home/sparky/esp/esp-idf/components/tcpip_adapter/include/tcpip_adapter.h:
+/home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h:
 
-/home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h:
+/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h:
 
-/home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_types.h:
+/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h:
 
-/home/sparky/esp/esp-idf/components/lwip/include/lwip/apps/dhcpserver.h:
-
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./nubaja_wifi.h:
-
-/home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h:
-
-/home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h:
-
-/home/sparky/esp/esp-idf/components/esp32/include/esp_event_loop.h:
+/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h:
 /home/sparky/esp/esp-idf/examples/peripherals/timer_group/main/./timer_group_example_main.c:
