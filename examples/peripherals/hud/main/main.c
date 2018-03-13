@@ -5,7 +5,7 @@ SemaphoreHandle_t killSemaphore = NULL;
 SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
 xQueueHandle gpio_queue = NULL;
-const char *TAG = "ESP_HUD";
+static const char *MAIN_TAG = "MAIN";
 char f_buf[SIZE]; //DATA BUFFER
 char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
@@ -110,13 +110,13 @@ void timeout_thread(void* task) {
     while(1) {
         if (xSemaphoreTake(killSemaphore, portMAX_DELAY) == pdTRUE) //end program after dumping to file
         {
-            ESP_LOGI(TAG, "program timeout expired");
+            ESP_LOGI(MAIN_TAG, "program timeout expired");
             vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
             for (int n=0;n<10;n++) {
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(1);
             }
-            ESP_LOGI(TAG, "goodbye!");
+            ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
         }
     }
@@ -140,7 +140,7 @@ void app_main() {
         config();
         TaskHandle_t ctrlHandle = NULL;
         TaskHandle_t endHandle = NULL;
-        ESP_LOGI(TAG, "Creating tasks");
+        ESP_LOGI(MAIN_TAG, "Creating tasks");
         xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
         xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
     }
