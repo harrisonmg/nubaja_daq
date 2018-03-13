@@ -1,5 +1,5 @@
 #include "nubaja_esp32_helper.h" //all other includes located here
-#include </home/sparky/esp/esp-idf/components/nubaja/nubaja_wifi.h>
+#include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h>
 
 #define SENSOR_ENABLE 1 //0 or 1
 
