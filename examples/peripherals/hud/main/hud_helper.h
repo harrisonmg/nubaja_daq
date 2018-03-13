@@ -232,6 +232,7 @@ esp_err_t udp_server()
                         
             if ( memcmp( buf, "start", recv_len) == 0) {
                 ESP_LOGI(WIFI_tag,"Start Case\n");
+                comms_en = 0;
                 xSemaphoreGive(commsSemaphore);
                 break; //exits while loop and program proceeds to task creation and normal operation
             }
@@ -244,6 +245,7 @@ esp_err_t udp_server()
                 } 
                 ESP_LOGI(TAG,"Program length: %d\n" , dec);            
                 program_len = dec;
+                comms_en = 0;
                 xSemaphoreGive(commsSemaphore);
                 break;
             } 
@@ -255,6 +257,10 @@ esp_err_t udp_server()
 
         ESP_LOGI(WIFI_tag,"command received - closing socket");
         close(mysocket);
+        //turn off wifi so event handler is no longer active
+        // esp_event_loop_init(NULL,NULL);
+        esp_wifi_disconnect();
+        esp_wifi_stop();
     }
 
     return ESP_OK;
@@ -719,18 +725,8 @@ esp_err_t event_handler(void *ctx, system_event_t *event)
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             ESP_LOGE(TAG, "disconnected");
-            ESP_ERROR_CHECK(esp_wifi_connect());          
+            vTaskDelete( NULL );
             break;                        
-        case SYSTEM_EVENT_AP_STACONNECTED:
-            ESP_LOGI(TAG, "station:" MACSTR " join,AID=%d\n",
-                     MAC2STR(event->event_info.sta_connected.mac),
-                     event->event_info.sta_connected.aid);
-            break;
-        case SYSTEM_EVENT_AP_STADISCONNECTED:
-            ESP_LOGI(TAG, "station:" MACSTR "leave,AID=%d\n",
-                     MAC2STR(event->event_info.sta_disconnected.mac),
-                     event->event_info.sta_disconnected.aid);
-            break;
         default:
             break;
     }
