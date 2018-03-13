@@ -182,8 +182,8 @@ void close_socket(int socket)
 
 /* UDP Listener
  * expects packets delivered via the following, or equivalent: 
- * echo -n "start" | nc -4u -q5 69.69.69.69 6789
- * echo -n "60" | nc -4u -q5 69.69.69.69 6789
+ * echo -n $cmd| nc -4u -q5 $IP $PORT for linux
+ * echo -n $cmd| nc -4u -w5 $IP $PORT for mac
  */
 esp_err_t udp_server()
 {
@@ -237,12 +237,14 @@ esp_err_t udp_server()
             }
             else if ( memcmp( "num", buf, recv_len) > 0) {
                 ESP_LOGI(WIFI_tag,"Number Case\n");                
-                // int dec = 0, i, len;
-                // len = strlen(buf);
-                // for(i=0; i<len; i++){
-                //     dec = dec * 10 + ( buf[i] - '0' );
-                // }                
-                // program_len = dec;
+                int dec = 0, i, len;
+                len = strlen(buf);
+                for(i=0; i<len; i++){
+                    dec = dec * 10 + ( buf[i] - '0' );
+                } 
+                ESP_LOGI(TAG,"Program length: %d\n" , dec);            
+                program_len = dec;
+                xSemaphoreGive(commsSemaphore);
                 break;
             } 
             else {

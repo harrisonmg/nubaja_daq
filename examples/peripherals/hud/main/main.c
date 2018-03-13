@@ -14,7 +14,7 @@ uint64_t old_time = 0;
 const char* ssid = "DADS_ONLY";
 const char* password = "";
 int comms_en = 1; //initialise with UDP listening 
-int program_len;
+int program_len = 30;
 char *DHCP_IP;
 
 /*
@@ -23,11 +23,10 @@ char *DHCP_IP;
 void config() {
     //timer config
     timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-    timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
+    timer_setup(1,0,program_len); //program length timer 
     
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
-    commsSemaphore = xSemaphoreCreateBinary();
 
     gpio_queue = xQueueCreate(10, sizeof(uint32_t));
     timer_queue = xQueueCreate(10, sizeof(timer_event_t));
@@ -49,9 +48,6 @@ void config() {
 
     if (LOGGING_ENABLE == 1) {
         sd_config();
-    }
-    if (comms_en == 1) {
-        wifi_config();     
     }
 }
 
@@ -135,9 +131,13 @@ void app_main() {
     // printf("Time :%s\n", __TIME__ );
     // printf("Line :%d\n", __LINE__ );
     // printf("ANSI :%d\n", __STDC__ );
-
-    config();   
+    if (comms_en == 1) {
+        commsSemaphore = xSemaphoreCreateBinary();
+        wifi_config();     
+    }
+       
     if (xSemaphoreTake(commsSemaphore, portMAX_DELAY) == pdTRUE) {
+        config();
         TaskHandle_t ctrlHandle = NULL;
         TaskHandle_t endHandle = NULL;
         ESP_LOGI(TAG, "Creating tasks");
