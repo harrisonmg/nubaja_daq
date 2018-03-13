@@ -1,16 +1,21 @@
 #include "nubaja_esp32_helper.h" //all other includes located here
+#include "nubaja_wifi.h"
+
 #define SENSOR_ENABLE 1 //0 or 1
 
 
 //global vars
 int level = 0;
 SemaphoreHandle_t killSemaphore = NULL;
+SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle ctrl_queue;
-const char *TAG = "ESP3";
+const char *MAIN_TAG = "ESP3";
 char f_buf[SIZE];
 char err_buf[SIZE];
 int buffer_idx = 0;
-
+int comms_en = 1; //initialise with wifi running
+int program_len = 30;
+char *DHCP_IP;
 
 
 /*
@@ -18,7 +23,7 @@ int buffer_idx = 0;
  * This function contains all functions to read data from any & all sensors
  */
 void control() {
-    // ESP_LOGI(TAG, "ctrl");
+    // ESP_LOGI(MAIN_TAG, "ctrl");
     if(SENSOR_ENABLE == 1) {
         // read_adc(1,ADC1_CHANNEL_6); //first argument is number of arguments
         // ERROR_HANDLE_ME(itg_read(XH));
@@ -52,14 +57,14 @@ void end_program(void* task) {
     while(1) {
         if (xSemaphoreTake(killSemaphore, portMAX_DELAY) == pdTRUE) //end program after dumping to file
         {
-            ESP_LOGI(TAG, "end_program");
+            ESP_LOGI(MAIN_TAG, "end_program");
             vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
             for (int n=0;n<10;n++) {
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(1);
             }
             ERROR_HANDLE_ME(dump_to_file(f_buf,err_buf,1)); 
-            ESP_LOGI(TAG, "goodbye!");
+            ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
         }
     }
@@ -71,10 +76,11 @@ void end_program(void* task) {
 void config() {
     //timer config
     timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-    timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
+    timer_setup(1,0,program_len); //program length timer 
     
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
+
 
     ctrl_queue = xQueueCreate(10, sizeof(timer_event_t));
 
@@ -105,9 +111,18 @@ void config() {
 * creates tasks
 */
 void app_main() { 
-    config();   
-    TaskHandle_t ctrlHandle = NULL;
-    TaskHandle_t endHandle = NULL;
-    xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
-    xTaskCreate(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
+
+    if (comms_en == 1) {
+        commsSemaphore = xSemaphoreCreateBinary();
+        wifi_config();     
+    }
+       
+    if (xSemaphoreTake(commsSemaphore, portMAX_DELAY) == pdTRUE) {
+        config();   
+        TaskHandle_t ctrlHandle = NULL;
+        TaskHandle_t endHandle = NULL;
+        xTaskCreate(control_thread_function, "control_thread_function", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
+        xTaskCreate(end_program, "end_program", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
+    }
+    
 }

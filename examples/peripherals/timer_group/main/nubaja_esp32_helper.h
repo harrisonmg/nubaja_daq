@@ -37,6 +37,9 @@
 #include "driver/i2c.h"
 #include "soc/timer_group_struct.h"
 
+//custom
+#include "nubaja_udp_server.h"
+
 /* 
 * defines
 */ 
@@ -100,7 +103,7 @@
 * globals
 */ 
 
-extern const char *TAG;
+const char *TAG = "NUBAJA_ESP32_HELPER";
 extern char f_buf[];
 extern char err_buf[];
 extern int buffer_idx;
