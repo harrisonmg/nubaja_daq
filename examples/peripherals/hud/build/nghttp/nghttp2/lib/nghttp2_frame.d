@@ -37,7 +37,7 @@ nghttp2/lib/nghttp2_frame.o: \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_mem.h \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_rcbuf.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/newlib/include/errno.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/errno.h \
@@ -120,7 +120,7 @@ nghttp2/lib/nghttp2_frame.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

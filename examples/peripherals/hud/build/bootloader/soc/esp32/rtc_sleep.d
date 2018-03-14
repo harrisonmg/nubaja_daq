@@ -9,7 +9,7 @@ esp32/rtc_sleep.o: \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/dport_access.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_attr.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_dport_access.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/i2s_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/timer_group_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/bb_reg.h \
@@ -35,7 +35,7 @@ esp32/rtc_sleep.o: \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_dport_access.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/i2s_reg.h:
 

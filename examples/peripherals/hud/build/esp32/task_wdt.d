@@ -24,7 +24,7 @@ task_wdt.o: /home/sparky/esp/esp-idf/components/esp32/./task_wdt.c \
  /home/sparky/esp/esp-idf/components/newlib/include/alloca.h \
  /home/sparky/esp/esp-idf/components/newlib/include/string.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/hal.h \
@@ -145,7 +145,7 @@ task_wdt.o: /home/sparky/esp/esp-idf/components/esp32/./task_wdt.c \
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 

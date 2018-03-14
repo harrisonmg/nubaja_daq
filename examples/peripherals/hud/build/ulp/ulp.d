@@ -27,7 +27,7 @@ ulp.o: /home/sparky/esp/esp-idf/components/ulp/./ulp.c \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
@@ -97,7 +97,7 @@ ulp.o: /home/sparky/esp/esp-idf/components/ulp/./ulp.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

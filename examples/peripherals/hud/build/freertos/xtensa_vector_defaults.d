@@ -14,7 +14,7 @@ xtensa_vector_defaults.o: \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/config/system.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/simcall.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_context.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/xtruntime-frames.h \
@@ -51,7 +51,7 @@ xtensa_vector_defaults.o: \
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h:
 

@@ -17,7 +17,7 @@ port/http_parser.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/reent.h \
@@ -64,7 +64,7 @@ port/http_parser.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 

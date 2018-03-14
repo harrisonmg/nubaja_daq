@@ -4,6 +4,8 @@ esp_adc_cal.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/_default_types.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/features.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
+ /home/sparky/esp/esp-idf/components/esp32/include/esp_types.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/sys/cdefs.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/adc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_err.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdio.h \
@@ -12,7 +14,6 @@ esp_adc_cal.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/config.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/ieeefp.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/config/core-isa.h \
- /home/sparky/esp/esp-idf/components/newlib/include/sys/cdefs.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/reent.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_types.h \
@@ -23,13 +24,12 @@ esp_adc_cal.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/sched.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stdio.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/alloca.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/gpio.h \
- /home/sparky/esp/esp-idf/components/esp32/include/esp_types.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/gpio_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
@@ -41,6 +41,7 @@ esp_adc_cal.o: \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_attr.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_intr_alloc.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/adc_channel.h \
+ /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/efuse_reg.h \
  /home/sparky/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdint.h:
@@ -50,6 +51,10 @@ esp_adc_cal.o: \
 /home/sparky/esp/esp-idf/components/newlib/include/sys/features.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h:
+
+/home/sparky/esp/esp-idf/components/esp32/include/esp_types.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/sys/cdefs.h:
 
 /home/sparky/esp/esp-idf/components/driver/include/driver/adc.h:
 
@@ -66,8 +71,6 @@ esp_adc_cal.o: \
 /home/sparky/esp/esp-idf/components/newlib/include/machine/ieeefp.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/xtensa/config/core-isa.h:
-
-/home/sparky/esp/esp-idf/components/newlib/include/sys/cdefs.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/reent.h:
 
@@ -89,7 +92,7 @@ esp_adc_cal.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 
@@ -100,8 +103,6 @@ esp_adc_cal.o: \
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 
 /home/sparky/esp/esp-idf/components/driver/include/driver/gpio.h:
-
-/home/sparky/esp/esp-idf/components/esp32/include/esp_types.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/gpio_reg.h:
 
@@ -124,6 +125,8 @@ esp_adc_cal.o: \
 /home/sparky/esp/esp-idf/components/esp32/include/esp_intr_alloc.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/adc_channel.h:
+
+/home/sparky/esp/esp-idf/components/soc/esp32/include/soc/efuse_reg.h:
 
 /home/sparky/esp/esp-idf/components/esp_adc_cal/include/esp_adc_cal.h:
 /home/sparky/esp/esp-idf/components/esp_adc_cal/./esp_adc_cal.c:

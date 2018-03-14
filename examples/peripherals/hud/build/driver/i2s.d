@@ -20,7 +20,7 @@ i2s.o: /home/sparky/esp/esp-idf/components/driver/./i2s.c \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/hal.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
@@ -99,6 +99,7 @@ i2s.o: /home/sparky/esp/esp-idf/components/driver/./i2s.c \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/rtc_gpio_channel.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/dac.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/dac_channel.h \
+ /home/sparky/esp/esp-idf/components/driver/./adc1_i2s_private.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h
 
@@ -144,7 +145,7 @@ i2s.o: /home/sparky/esp/esp-idf/components/driver/./i2s.c \
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h:
 
@@ -301,6 +302,8 @@ i2s.o: /home/sparky/esp/esp-idf/components/driver/./i2s.c \
 /home/sparky/esp/esp-idf/components/driver/include/driver/dac.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/dac_channel.h:
+
+/home/sparky/esp/esp-idf/components/driver/./adc1_i2s_private.h:
 
 /home/sparky/esp/esp-idf/components/log/include/esp_log.h:
 

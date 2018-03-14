@@ -4,7 +4,7 @@ esp32/rtc_clk.o: /home/sparky/esp/esp-idf/components/soc/esp32/rtc_clk.c \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/features.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/ieeefp.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
@@ -62,7 +62,7 @@ esp32/rtc_clk.o: /home/sparky/esp/esp-idf/components/soc/esp32/rtc_clk.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 

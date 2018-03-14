@@ -31,7 +31,7 @@ core/ipv4/autoip.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stat.h \
  /home/sparky/esp/esp-idf/components/vfs/include/sys/ioctl.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_task.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_system.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
@@ -163,7 +163,7 @@ core/ipv4/autoip.o: \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_task.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_system.h:
 

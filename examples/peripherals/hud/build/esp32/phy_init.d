@@ -23,7 +23,7 @@ phy_init.o: /home/sparky/esp/esp-idf/components/esp32/./phy_init.c \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/rtc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
@@ -142,7 +142,7 @@ phy_init.o: /home/sparky/esp/esp-idf/components/esp32/./phy_init.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

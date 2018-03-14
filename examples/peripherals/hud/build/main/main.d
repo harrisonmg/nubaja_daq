@@ -125,7 +125,7 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
  /home/sparky/esp/esp-idf/components/driver/include/driver/i2c.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/ringbuf.h \
  /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h \
- /home/sparky/esp/esp-idf/components/nubaja/nubaja_wifi.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h \
  /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h \
  /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_event_loop.h \
@@ -157,7 +157,7 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/apps/dhcpserver.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_crypto_types.h \
- /home/sparky/esp/esp-idf/components/nubaja/nubaja_udp_server.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_udp_server.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h \
@@ -415,7 +415,7 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 
 /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h:
 
-/home/sparky/esp/esp-idf/components/nubaja/nubaja_wifi.h:
+/home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h:
 
 /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h:
 
@@ -479,7 +479,7 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_wifi_crypto_types.h:
 
-/home/sparky/esp/esp-idf/components/nubaja/nubaja_udp_server.h:
+/home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_udp_server.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h:
 

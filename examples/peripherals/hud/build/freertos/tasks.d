@@ -23,7 +23,7 @@ tasks.o: /home/sparky/esp/esp-idf/components/freertos/./tasks.c \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/esp_newlib.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_panic.h \
@@ -88,7 +88,9 @@ tasks.o: /home/sparky/esp/esp-idf/components/freertos/./tasks.c \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/semphr.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/queue.h \
  /home/sparky/esp/esp-idf/components/freertos/./portmux_impl.h \
- /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/cpu.h
+ /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/cpu.h \
+ /home/sparky/esp/esp-idf/components/freertos/include/freertos/portable.h \
+ /home/sparky/esp/esp-idf/components/freertos/./portmux_impl.inc.h
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 
@@ -138,7 +140,7 @@ tasks.o: /home/sparky/esp/esp-idf/components/freertos/./tasks.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 
@@ -269,4 +271,8 @@ tasks.o: /home/sparky/esp/esp-idf/components/freertos/./tasks.c \
 /home/sparky/esp/esp-idf/components/freertos/./portmux_impl.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/cpu.h:
+
+/home/sparky/esp/esp-idf/components/freertos/include/freertos/portable.h:
+
+/home/sparky/esp/esp-idf/components/freertos/./portmux_impl.inc.h:
 /home/sparky/esp/esp-idf/components/freertos/./tasks.c:

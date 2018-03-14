@@ -176,7 +176,7 @@ Discarded input sections
  .text.rtc_init
                 0x0000000000000000      0x344 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
  .xt.lit        0x0000000000000000       0x18 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
- .xt.prop       0x0000000000000000       0xf0 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
+ .xt.prop       0x0000000000000000       0xfc /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
  .literal.rtc_clk_32k_bootstrap
                 0x0000000000000000       0x14 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
  .literal.rtc_clk_32k_enabled
@@ -316,87 +316,86 @@ END GROUP
  *(.jcr)
                 0x000000003fff001c                _data_end = ABSOLUTE (.)
 
-.dram0.rodata   0x000000003fff001c     0x15f8
+.dram0.rodata   0x000000003fff001c     0x1608
                 0x000000003fff001c                _rodata_start = ABSOLUTE (.)
  *(.rodata)
  .rodata        0x000000003fff001c       0x14 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
  .rodata        0x000000003fff0030        0x8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_clock.o)
  *(.rodata.*)
  .rodata.str1.4
-                0x000000003fff0038      0x942 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
-                                        0x946 (size before relaxing)
- *fill*         0x000000003fff097a        0x2 
- .rodata.__func__$3802
-                0x000000003fff097c       0x10 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
+                0x000000003fff0038      0x952 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
+ *fill*         0x000000003fff098a        0x2 
+ .rodata.__func__$3808
+                0x000000003fff098c       0x10 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
  .rodata.str1.4
-                0x000000003fff098c      0x28e /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
- *fill*         0x000000003fff0c1a        0x2 
+                0x000000003fff099c      0x28e /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+ *fill*         0x000000003fff0c2a        0x2 
  .rodata.str1.4
-                0x000000003fff0c1c      0x163 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
- *fill*         0x000000003fff0d7f        0x1 
+                0x000000003fff0c2c      0x163 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+ *fill*         0x000000003fff0d8f        0x1 
  .rodata.str1.4
-                0x000000003fff0d80      0x45a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                0x000000003fff0d90      0x45a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
                                         0x49a (size before relaxing)
- *fill*         0x000000003fff11da        0x2 
+ *fill*         0x000000003fff11ea        0x2 
  .rodata.str1.4
-                0x000000003fff11dc       0xc8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
+                0x000000003fff11ec       0xc8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
  .rodata.padding$2493
-                0x000000003fff12a4       0x40 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
+                0x000000003fff12b4       0x40 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
  .rodata.__func__$2489
-                0x000000003fff12e4       0x19 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
- *fill*         0x000000003fff12fd        0x3 
+                0x000000003fff12f4       0x19 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
+ *fill*         0x000000003fff130d        0x3 
  .rodata.__func__$2469
-                0x000000003fff1300       0x17 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
- *fill*         0x000000003fff1317        0x1 
+                0x000000003fff1310       0x17 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
+ *fill*         0x000000003fff1327        0x1 
  .rodata.str1.4
-                0x000000003fff1318      0x254 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000003fff1328      0x254 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                         0x251 (size before relaxing)
  .rodata.rtc_clk_xtal_freq_estimate
-                0x000000003fff156c       0x64 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000003fff157c       0x64 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
  .rodata.rtc_clk_cpu_freq_value
-                0x000000003fff15d0       0x14 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000003fff15e0       0x14 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
  .rodata.__func__$2616
-                0x000000003fff15e4       0x17 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
- *fill*         0x000000003fff15fb        0x1 
+                0x000000003fff15f4       0x17 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+ *fill*         0x000000003fff160b        0x1 
  .rodata.__func__$2601
-                0x000000003fff15fc       0x15 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000003fff160c       0x15 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
  *(.gnu.linkonce.r.*)
  *(.rodata1)
-                0x000000003fff1611                __XT_EXCEPTION_TABLE_ = ABSOLUTE (.)
+                0x000000003fff1621                __XT_EXCEPTION_TABLE_ = ABSOLUTE (.)
  *(.xt_except_table)
  *(.gcc_except_table)
  *(.gnu.linkonce.e.*)
  *(.gnu.version_r)
  *(.eh_frame)
-                0x000000003fff1614                . = ((. + 0x3) & 0xfffffffffffffffc)
- *fill*         0x000000003fff1611        0x3 
-                0x000000003fff1614                __init_array_start = ABSOLUTE (.)
+                0x000000003fff1624                . = ((. + 0x3) & 0xfffffffffffffffc)
+ *fill*         0x000000003fff1621        0x3 
+                0x000000003fff1624                __init_array_start = ABSOLUTE (.)
  *crtbegin.o(.ctors)
  *(EXCLUDE_FILE(*crtend.o) .ctors)
  *(SORT(.ctors.*))
  *(.ctors)
-                0x000000003fff1614                __init_array_end = ABSOLUTE (.)
+                0x000000003fff1624                __init_array_end = ABSOLUTE (.)
  *crtbegin.o(.dtors)
  *(EXCLUDE_FILE(*crtend.o) .dtors)
  *(SORT(.dtors.*))
  *(.dtors)
-                0x000000003fff1614                __XT_EXCEPTION_DESCS_ = ABSOLUTE (.)
+                0x000000003fff1624                __XT_EXCEPTION_DESCS_ = ABSOLUTE (.)
  *(.xt_except_desc)
  *(.gnu.linkonce.h.*)
-                0x000000003fff1614                __XT_EXCEPTION_DESCS_END__ = ABSOLUTE (.)
+                0x000000003fff1624                __XT_EXCEPTION_DESCS_END__ = ABSOLUTE (.)
  *(.xt_except_desc_end)
  *(.dynamic)
  *(.gnu.version_d)
-                0x000000003fff1614                _rodata_end = ABSOLUTE (.)
-                0x000000003fff1614                _lit4_start = ABSOLUTE (.)
+                0x000000003fff1624                _rodata_end = ABSOLUTE (.)
+                0x000000003fff1624                _lit4_start = ABSOLUTE (.)
  *(*.lit4)
  *(.lit4.*)
  *(.gnu.linkonce.lit4.*)
-                0x000000003fff1614                _lit4_end = ABSOLUTE (.)
-                0x000000003fff1614                . = ALIGN (0x4)
-                0x000000003fff1614                _heap_start = ABSOLUTE (.)
+                0x000000003fff1624                _lit4_end = ABSOLUTE (.)
+                0x000000003fff1624                . = ALIGN (0x4)
+                0x000000003fff1624                _heap_start = ABSOLUTE (.)
 
-.iram.text      0x0000000040078000     0x3657
+.iram.text      0x0000000040078000     0x365f
                 0x0000000040078000                _stext = .
                 0x0000000040078000                _text_start = ABSOLUTE (.)
  *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
@@ -542,7 +541,7 @@ END GROUP
                                          0x5c (size before relaxing)
  .literal.rtc_vddsdio_get_config
                 0x0000000040078448       0x24 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
-                                         0x2c (size before relaxing)
+                                         0x30 (size before relaxing)
  .literal.rtc_vddsdio_set_config
                 0x000000004007846c        0x4 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
                                           0x8 (size before relaxing)
@@ -805,179 +804,179 @@ END GROUP
                 0x000000004007a2bc      0x284 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/spi_flash/libspi_flash.a(spi_flash_rom_patch.o)
                 0x000000004007a2bc                esp_rom_spiflash_read
  .text.rtc_vddsdio_get_config
-                0x000000004007a540      0x10a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
+                0x000000004007a540      0x113 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
                 0x000000004007a540                rtc_vddsdio_get_config
- *fill*         0x000000004007a64a        0x2 
+ *fill*         0x000000004007a653        0x1 
  .text.rtc_vddsdio_set_config
-                0x000000004007a64c       0x46 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
-                0x000000004007a64c                rtc_vddsdio_set_config
- *fill*         0x000000004007a692        0x2 
+                0x000000004007a654       0x46 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
+                0x000000004007a654                rtc_vddsdio_set_config
+ *fill*         0x000000004007a69a        0x2 
  .text.rtc_clk_32k_enable_internal
-                0x000000004007a694       0x81 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
- *fill*         0x000000004007a715        0x3 
+                0x000000004007a69c       0x81 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+ *fill*         0x000000004007a71d        0x3 
  .text.rtc_clk_32k_enable
-                0x000000004007a718       0x2d /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a718                rtc_clk_32k_enable
- *fill*         0x000000004007a745        0x3 
+                0x000000004007a720       0x2d /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a720                rtc_clk_32k_enable
+ *fill*         0x000000004007a74d        0x3 
  .text.rtc_clk_8m_enable
-                0x000000004007a748       0x99 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a748                rtc_clk_8m_enable
- *fill*         0x000000004007a7e1        0x3 
+                0x000000004007a750       0x99 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a750                rtc_clk_8m_enable
+ *fill*         0x000000004007a7e9        0x3 
  .text.rtc_clk_8m_enabled
-                0x000000004007a7e4       0x19 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a7e4                rtc_clk_8m_enabled
- *fill*         0x000000004007a7fd        0x3 
+                0x000000004007a7ec       0x19 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a7ec                rtc_clk_8m_enabled
+ *fill*         0x000000004007a805        0x3 
  .text.rtc_clk_8md256_enabled
-                0x000000004007a800       0x1a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a800                rtc_clk_8md256_enabled
- *fill*         0x000000004007a81a        0x2 
+                0x000000004007a808       0x1a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a808                rtc_clk_8md256_enabled
+ *fill*         0x000000004007a822        0x2 
  .text.rtc_clk_xtal_freq_estimate
-                0x000000004007a81c       0xa6 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a824       0xa6 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                          0xb2 (size before relaxing)
- *fill*         0x000000004007a8c2        0x2 
+ *fill*         0x000000004007a8ca        0x2 
  .text.rtc_clk_slow_freq_set
-                0x000000004007a8c4       0x27 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a8c4                rtc_clk_slow_freq_set
- *fill*         0x000000004007a8eb        0x1 
+                0x000000004007a8cc       0x27 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a8cc                rtc_clk_slow_freq_set
+ *fill*         0x000000004007a8f3        0x1 
  .text.rtc_clk_slow_freq_get
-                0x000000004007a8ec       0x10 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a8ec                rtc_clk_slow_freq_get
+                0x000000004007a8f4       0x10 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a8f4                rtc_clk_slow_freq_get
  .text.rtc_clk_fast_freq_set
-                0x000000004007a8fc       0x2a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a8fc                rtc_clk_fast_freq_set
- *fill*         0x000000004007a926        0x2 
+                0x000000004007a904       0x2a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a904                rtc_clk_fast_freq_set
+ *fill*         0x000000004007a92e        0x2 
  .text.rtc_clk_fast_freq_get
-                0x000000004007a928       0x10 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007a928                rtc_clk_fast_freq_get
+                0x000000004007a930       0x10 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a930                rtc_clk_fast_freq_get
  .text.rtc_clk_bbpll_set
-                0x000000004007a938      0x170 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007a940      0x170 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                         0x178 (size before relaxing)
-                0x000000004007a938                rtc_clk_bbpll_set
+                0x000000004007a940                rtc_clk_bbpll_set
  .text.rtc_clk_xtal_freq_get
-                0x000000004007aaa8       0x38 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007aab0       0x38 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                          0x3c (size before relaxing)
-                0x000000004007aaa8                rtc_get_xtal
-                0x000000004007aaa8                rtc_clk_xtal_freq_get
+                0x000000004007aab0                rtc_get_xtal
+                0x000000004007aab0                rtc_clk_xtal_freq_get
  .text.rtc_clk_cpu_freq_get
-                0x000000004007aae0       0x88 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007aae8       0x88 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                          0x94 (size before relaxing)
-                0x000000004007aae0                rtc_clk_cpu_freq_get
+                0x000000004007aae8                rtc_clk_cpu_freq_get
  .text.rtc_clk_cpu_freq_value
-                0x000000004007ab68       0x45 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007ab68                rtc_clk_cpu_freq_value
- *fill*         0x000000004007abad        0x3 
+                0x000000004007ab70       0x45 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007ab70                rtc_clk_cpu_freq_value
+ *fill*         0x000000004007abb5        0x3 
  .text.rtc_clk_xtal_freq_update
-                0x000000004007abb0       0x12 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007abb8       0x12 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                          0x16 (size before relaxing)
-                0x000000004007abb0                rtc_clk_xtal_freq_update
- *fill*         0x000000004007abc2        0x2 
+                0x000000004007abb8                rtc_clk_xtal_freq_update
+ *fill*         0x000000004007abca        0x2 
  .text.rtc_clk_apb_freq_update
-                0x000000004007abc4       0x13 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007abcc       0x13 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                          0x16 (size before relaxing)
-                0x000000004007abc4                rtc_clk_apb_freq_update
- *fill*         0x000000004007abd7        0x1 
+                0x000000004007abcc                rtc_clk_apb_freq_update
+ *fill*         0x000000004007abdf        0x1 
  .text.rtc_clk_cpu_freq_set
-                0x000000004007abd8      0x1c4 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007abe0      0x1c4 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                         0x1d8 (size before relaxing)
-                0x000000004007abd8                rtc_clk_cpu_freq_set
+                0x000000004007abe0                rtc_clk_cpu_freq_set
  .text.rtc_clk_apb_freq_get
-                0x000000004007ad9c       0x2a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                0x000000004007ad9c                rtc_clk_apb_freq_get
- *fill*         0x000000004007adc6        0x2 
+                0x000000004007ada4       0x2a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007ada4                rtc_clk_apb_freq_get
+ *fill*         0x000000004007adce        0x2 
  .text.rtc_clk_init
-                0x000000004007adc8      0x182 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007add0      0x182 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
                                         0x1ba (size before relaxing)
-                0x000000004007adc8                rtc_clk_init
- *fill*         0x000000004007af4a        0x2 
+                0x000000004007add0                rtc_clk_init
+ *fill*         0x000000004007af52        0x2 
  .text.rtc_clk_cal_internal
-                0x000000004007af4c      0x161 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
- *fill*         0x000000004007b0ad        0x3 
+                0x000000004007af54      0x161 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
+ *fill*         0x000000004007b0b5        0x3 
  .text.rtc_clk_cal_ratio
-                0x000000004007b0b0       0x20 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
+                0x000000004007b0b8       0x20 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
                                          0x24 (size before relaxing)
-                0x000000004007b0b0                rtc_clk_cal_ratio
+                0x000000004007b0b8                rtc_clk_cal_ratio
  .text.rtc_clk_wait_for_slow_cycle
-                0x000000004007b0d0       0x79 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
-                0x000000004007b0d0                rtc_clk_wait_for_slow_cycle
- *fill*         0x000000004007b149        0x3 
- .text          0x000000004007b14c       0x26 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
-                0x000000004007b14c                __bswapsi2
- *fill*         0x000000004007b172        0x2 
+                0x000000004007b0d8       0x79 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
+                0x000000004007b0d8                rtc_clk_wait_for_slow_cycle
+ *fill*         0x000000004007b151        0x3 
+ .text          0x000000004007b154       0x26 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
+                0x000000004007b154                __bswapsi2
+ *fill*         0x000000004007b17a        0x2 
  .text.index_to_partition
-                0x000000004007b174       0x48 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
- *fill*         0x000000004007b1bc        0x0 
+                0x000000004007b17c       0x48 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
+ *fill*         0x000000004007b1c4        0x0 
  .text.clk_val_is_valid
-                0x000000004007b1bc       0x20 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007b1c4       0x20 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
  .text.reg_val_to_clk_val
-                0x000000004007b1dc        0x8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                0x000000004007b1e4        0x8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
  .text.clk_val_to_reg_val
-                0x000000004007b1e4        0xe /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x0 
- *fill*         0x000000004007b1f2        0x2 
- .text          0x000000004007b1f4      0x281 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
-                0x000000004007b1f4                __udivdi3
+                0x000000004007b1ec        0xe /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x0 
+ *fill*         0x000000004007b1fa        0x2 
+ .text          0x000000004007b1fc      0x281 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
+                0x000000004007b1fc                __udivdi3
  *(.iram1 .iram1.*)
- *fill*         0x000000004007b475        0x3 
- .iram1         0x000000004007b478      0x1df /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
- *fill*         0x000000004007b657        0x0 
+ *fill*         0x000000004007b47d        0x3 
+ .iram1         0x000000004007b480      0x1df /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
+ *fill*         0x000000004007b65f        0x0 
  *(.fini.literal)
  *(.fini)
  *(.gnu.version)
-                0x000000004007b657                _text_end = ABSOLUTE (.)
-                0x000000004007b657                _etext = .
+                0x000000004007b65f                _text_end = ABSOLUTE (.)
+                0x000000004007b65f                _etext = .
                 [!provide]                        PROVIDE (abort, 0x4000bba4)
                 [!provide]                        PROVIDE (__absvdi2, 0x4006387c)
                 [!provide]                        PROVIDE (__absvsi2, 0x40063868)
@@ -2853,7 +2852,7 @@ OUTPUT(/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootlo
  .debug_abbrev  0x0000000000001954       0x60 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
  .debug_abbrev  0x00000000000019b4      0x15f /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
 
-.debug_loc      0x0000000000000000     0x4c73
+.debug_loc      0x0000000000000000     0x4c7e
  .debug_loc     0x0000000000000000     0x1055 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
  .debug_loc     0x0000000000001055      0x638 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
  .debug_loc     0x000000000000168d       0x3d /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_clock.o)
@@ -2863,11 +2862,11 @@ OUTPUT(/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootlo
  .debug_loc     0x0000000000002496       0x91 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_random.o)
  .debug_loc     0x0000000000002527      0x4ad /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/log/liblog.a(log.o)
  .debug_loc     0x00000000000029d4      0xa20 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/spi_flash/libspi_flash.a(spi_flash_rom_patch.o)
- .debug_loc     0x00000000000033f4      0x2d2 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
- .debug_loc     0x00000000000036c6      0x9da /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
- .debug_loc     0x00000000000040a0      0x1ca /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
- .debug_loc     0x000000000000426a       0x21 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
- .debug_loc     0x000000000000428b      0x9e8 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
+ .debug_loc     0x00000000000033f4      0x2dd /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
+ .debug_loc     0x00000000000036d1      0x9da /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+ .debug_loc     0x00000000000040ab      0x1ca /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
+ .debug_loc     0x0000000000004275       0x21 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
+ .debug_loc     0x0000000000004296      0x9e8 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
 
 .debug_aranges  0x0000000000000000      0x4d8
  .debug_aranges
@@ -2914,7 +2913,7 @@ OUTPUT(/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootlo
  .debug_ranges  0x0000000000000440       0x40 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
  .debug_ranges  0x0000000000000480       0x60 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
 
-.debug_line     0x0000000000000000     0x4fd2
+.debug_line     0x0000000000000000     0x4fd8
  .debug_line    0x0000000000000000      0xef0 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
  .debug_line    0x0000000000000ef0      0x56a /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
  .debug_line    0x000000000000145a      0x1e7 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_clock.o)
@@ -2924,40 +2923,40 @@ OUTPUT(/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootlo
  .debug_line    0x0000000000002723      0x381 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_random.o)
  .debug_line    0x0000000000002aa4      0x4d6 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/log/liblog.a(log.o)
  .debug_line    0x0000000000002f7a      0xac8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/spi_flash/libspi_flash.a(spi_flash_rom_patch.o)
- .debug_line    0x0000000000003a42      0x3b8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
- .debug_line    0x0000000000003dfa      0xc32 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
- .debug_line    0x0000000000004a2c      0x38f /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
- .debug_line    0x0000000000004dbb       0x89 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
- .debug_line    0x0000000000004e44      0x18e /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
+ .debug_line    0x0000000000003a42      0x3be /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
+ .debug_line    0x0000000000003e00      0xc32 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+ .debug_line    0x0000000000004a32      0x38f /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
+ .debug_line    0x0000000000004dc1       0x89 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
+ .debug_line    0x0000000000004e4a      0x18e /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
 
-.debug_str      0x0000000000000000     0x26d4
- .debug_str     0x0000000000000000      0xdf8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
-                                        0xedd (size before relaxing)
- .debug_str     0x0000000000000df8      0x286 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
-                                        0x58f (size before relaxing)
- .debug_str     0x000000000000107e      0x233 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_clock.o)
+.debug_str      0x0000000000000000     0x26b4
+ .debug_str     0x0000000000000000      0xdf0 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/main/libmain.a(bootloader_start.o)
+                                        0xed5 (size before relaxing)
+ .debug_str     0x0000000000000df0      0x27e /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_flash.o)
+                                        0x587 (size before relaxing)
+ .debug_str     0x000000000000106e      0x233 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_clock.o)
                                         0x370 (size before relaxing)
- .debug_str     0x00000000000012b1       0xb5 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
-                                        0x3e2 (size before relaxing)
- .debug_str     0x0000000000001366      0x2ed /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
-                                        0x9e2 (size before relaxing)
- .debug_str     0x0000000000001653       0xee /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
+ .debug_str     0x00000000000012a1       0xb5 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(flash_partitions.o)
+                                        0x3da (size before relaxing)
+ .debug_str     0x0000000000001356      0x2ed /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(esp_image_format.o)
+                                        0x9da (size before relaxing)
+ .debug_str     0x0000000000001643       0xee /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_sha.o)
                                         0x2b8 (size before relaxing)
- .debug_str     0x0000000000001741       0x70 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_random.o)
-                                        0x242 (size before relaxing)
- .debug_str     0x00000000000017b1      0x1bf /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/log/liblog.a(log.o)
-                                        0x363 (size before relaxing)
- .debug_str     0x0000000000001970      0x483 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/spi_flash/libspi_flash.a(spi_flash_rom_patch.o)
+ .debug_str     0x0000000000001731       0x70 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/bootloader_support/libbootloader_support.a(bootloader_random.o)
+                                        0x23a (size before relaxing)
+ .debug_str     0x00000000000017a1      0x1b7 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/log/liblog.a(log.o)
+                                        0x35b (size before relaxing)
+ .debug_str     0x0000000000001958      0x483 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/spi_flash/libspi_flash.a(spi_flash_rom_patch.o)
                                         0x74f (size before relaxing)
- .debug_str     0x0000000000001df3       0xb5 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
+ .debug_str     0x0000000000001ddb       0xb5 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_init.o)
                                         0x22f (size before relaxing)
- .debug_str     0x0000000000001ea8      0x4f0 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
-                                        0x8ef (size before relaxing)
- .debug_str     0x0000000000002398      0x128 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
+ .debug_str     0x0000000000001e90      0x4e8 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_clk.o)
+                                        0x8e7 (size before relaxing)
+ .debug_str     0x0000000000002378      0x128 /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/soc/libsoc.a(rtc_time.o)
                                         0x36a (size before relaxing)
- .debug_str     0x00000000000024c0      0x138 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
+ .debug_str     0x00000000000024a0      0x138 /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_bswapsi2.o)
                                         0x1de (size before relaxing)
- .debug_str     0x00000000000025f8       0xdc /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
+ .debug_str     0x00000000000025d8       0xdc /home/sparky/esp/xtensa-esp32-elf/bin/../lib/gcc/xtensa-esp32-elf/5.2.0/libgcc.a(_udivdi3.o)
                                         0x258 (size before relaxing)
 
 .comment        0x0000000000000000       0x3a

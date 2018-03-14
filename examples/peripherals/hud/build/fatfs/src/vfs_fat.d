@@ -37,7 +37,7 @@ src/vfs_fat.o: /home/sparky/esp/esp-idf/components/fatfs/src/vfs_fat.c \
  /home/sparky/esp/esp-idf/components/newlib/include/stdio.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stdio.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
@@ -180,7 +180,7 @@ src/vfs_fat.o: /home/sparky/esp/esp-idf/components/fatfs/src/vfs_fat.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

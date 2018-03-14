@@ -14,12 +14,16 @@ app_trace.o: /home/sparky/esp/esp-idf/components/app_trace/./app_trace.c \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/lock.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/cdefs.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/sys/param.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/sys/syslimits.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/machine/endian.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/machine/param.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/alloca.h \
@@ -118,6 +122,14 @@ app_trace.o: /home/sparky/esp/esp-idf/components/app_trace/./app_trace.c \
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h:
 
+/home/sparky/esp/esp-idf/components/newlib/include/sys/param.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/sys/syslimits.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/machine/endian.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/machine/param.h:
+
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdint.h:
@@ -128,7 +140,7 @@ app_trace.o: /home/sparky/esp/esp-idf/components/app_trace/./app_trace.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 

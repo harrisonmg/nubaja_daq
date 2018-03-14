@@ -3,6 +3,7 @@ deps_config := \
 	/home/sparky/esp/esp-idf/components/aws_iot/Kconfig \
 	/home/sparky/esp/esp-idf/components/bt/Kconfig \
 	/home/sparky/esp/esp-idf/components/esp32/Kconfig \
+	/home/sparky/esp/esp-idf/components/esp_adc_cal/Kconfig \
 	/home/sparky/esp/esp-idf/components/ethernet/Kconfig \
 	/home/sparky/esp/esp-idf/components/fatfs/Kconfig \
 	/home/sparky/esp/esp-idf/components/freertos/Kconfig \

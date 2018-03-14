@@ -41,7 +41,7 @@ nghttp2/lib/nghttp2_stream.o: \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_map.h \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_pq.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_session.h \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_callbacks.h \
@@ -130,7 +130,7 @@ nghttp2/lib/nghttp2_stream.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

@@ -23,7 +23,7 @@ rtc_module.o: /home/sparky/esp/esp-idf/components/driver/./rtc_module.c \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h \
@@ -98,6 +98,7 @@ rtc_module.o: /home/sparky/esp/esp-idf/components/driver/./rtc_module.c \
  /home/sparky/esp/esp-idf/components/newlib/include/limits.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/list.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/rtc_cntl.h \
+ /home/sparky/esp/esp-idf/components/driver/./adc1_i2s_private.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_types.h:
@@ -148,7 +149,7 @@ rtc_module.o: /home/sparky/esp/esp-idf/components/driver/./rtc_module.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 
@@ -297,6 +298,8 @@ rtc_module.o: /home/sparky/esp/esp-idf/components/driver/./rtc_module.c \
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/list.h:
 
 /home/sparky/esp/esp-idf/components/driver/include/driver/rtc_cntl.h:
+
+/home/sparky/esp/esp-idf/components/driver/./adc1_i2s_private.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h:
 /home/sparky/esp/esp-idf/components/driver/./rtc_module.c:

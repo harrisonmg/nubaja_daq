@@ -10,7 +10,7 @@ periph_ctrl.o: /home/sparky/esp/esp-idf/components/driver/./periph_ctrl.c \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/ieeefp.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
@@ -103,7 +103,7 @@ periph_ctrl.o: /home/sparky/esp/esp-idf/components/driver/./periph_ctrl.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 

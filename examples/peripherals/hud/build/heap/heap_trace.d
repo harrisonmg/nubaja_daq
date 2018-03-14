@@ -18,7 +18,7 @@ heap_trace.o: /home/sparky/esp/esp-idf/components/heap/./heap_trace.c \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/syslimits.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/endian.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/param.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/heap/include/esp_heap_trace.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
@@ -125,7 +125,7 @@ heap_trace.o: /home/sparky/esp/esp-idf/components/heap/./heap_trace.c \
 
 /home/sparky/esp/esp-idf/components/newlib/include/machine/param.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/heap/include/esp_heap_trace.h:
 

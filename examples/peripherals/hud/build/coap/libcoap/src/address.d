@@ -1,7 +1,7 @@
 libcoap/src/address.o: \
  /home/sparky/esp/esp-idf/components/coap/libcoap/src/address.c \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/ieeefp.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
@@ -109,15 +109,15 @@ libcoap/src/address.o: \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/port/netinet/in.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h \
- /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/address.h \
  /home/sparky/esp/esp-idf/components/newlib/include/string.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h \
+ /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/address.h \
  /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/libcoap.h
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 
@@ -333,13 +333,13 @@ libcoap/src/address.o: \
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h:
 
-/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h:
-
-/home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/address.h:
-
 /home/sparky/esp/esp-idf/components/newlib/include/string.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h:
+
+/home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h:
+
+/home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/address.h:
 
 /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/libcoap.h:
 /home/sparky/esp/esp-idf/components/coap/libcoap/src/address.c:

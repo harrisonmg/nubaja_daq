@@ -1,6 +1,6 @@
 src/secure_boot_signatures.o: \
  /home/sparky/esp/esp-idf/components/bootloader_support/src/secure_boot_signatures.c \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/bootloader_support/include_priv/bootloader_flash.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_err.h \
  /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h \
@@ -19,7 +19,7 @@ src/secure_boot_signatures.o: \
  /home/sparky/esp/esp-idf/components/micro-ecc/micro-ecc/uECC.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/sha.h
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/bootloader_support/include_priv/bootloader_flash.h:
 

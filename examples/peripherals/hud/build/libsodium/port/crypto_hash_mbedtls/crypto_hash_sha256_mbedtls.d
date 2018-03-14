@@ -22,7 +22,7 @@ port/crypto_hash_mbedtls/crypto_hash_sha256_mbedtls.o: \
  /home/sparky/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/export.h \
  /home/sparky/esp/esp-idf/components/mbedtls/include/mbedtls/sha256.h \
  /home/sparky/esp/esp-idf/components/mbedtls/port/include/mbedtls/esp_config.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/mbedtls/include/mbedtls/check_config.h \
  /home/sparky/esp/esp-idf/components/newlib/include/limits.h \
  /home/sparky/esp/esp-idf/components/newlib/include/string.h \
@@ -72,7 +72,7 @@ port/crypto_hash_mbedtls/crypto_hash_sha256_mbedtls.o: \
 
 /home/sparky/esp/esp-idf/components/mbedtls/port/include/mbedtls/esp_config.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/mbedtls/include/mbedtls/check_config.h:
 

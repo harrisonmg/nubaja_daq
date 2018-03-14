@@ -1,5 +1,5 @@
 intr_alloc.o: /home/sparky/esp/esp-idf/components/esp32/./intr_alloc.c \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/_default_types.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/features.h \
@@ -82,7 +82,7 @@ intr_alloc.o: /home/sparky/esp/esp-idf/components/esp32/./intr_alloc.c \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdint.h:
 

@@ -18,7 +18,7 @@ core_dump.o: /home/sparky/esp/esp-idf/components/esp32/./core_dump.c \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/hal.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
@@ -126,7 +126,7 @@ core_dump.o: /home/sparky/esp/esp-idf/components/esp32/./core_dump.c \
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h:
 

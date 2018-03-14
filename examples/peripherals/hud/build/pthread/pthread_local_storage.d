@@ -31,7 +31,7 @@ pthread_local_storage.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/stdio.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stdio.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/alloca.h \
@@ -154,7 +154,7 @@ pthread_local_storage.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 

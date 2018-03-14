@@ -31,7 +31,7 @@ api/netdb.o: /home/sparky/esp/esp-idf/components/lwip/api/netdb.c \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stat.h \
  /home/sparky/esp/esp-idf/components/vfs/include/sys/ioctl.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_task.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_system.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
@@ -106,6 +106,8 @@ api/netdb.o: /home/sparky/esp/esp-idf/components/lwip/api/netdb.c \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip4_addr.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip6_addr.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/string.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/mem.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/memp.h \
@@ -115,9 +117,7 @@ api/netdb.o: /home/sparky/esp/esp-idf/components/lwip/api/netdb.c \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/netbuf.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/pbuf.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sys.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/dns.h \
- /home/sparky/esp/esp-idf/components/newlib/include/string.h \
- /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/dns.h
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/netdb.h:
 
@@ -183,7 +183,7 @@ api/netdb.o: /home/sparky/esp/esp-idf/components/lwip/api/netdb.c \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_task.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_system.h:
 
@@ -333,6 +333,10 @@ api/netdb.o: /home/sparky/esp/esp-idf/components/lwip/api/netdb.c \
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h:
 
+/home/sparky/esp/esp-idf/components/newlib/include/string.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/sys/string.h:
+
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/mem.h:
@@ -352,8 +356,4 @@ api/netdb.o: /home/sparky/esp/esp-idf/components/lwip/api/netdb.c \
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sys.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/dns.h:
-
-/home/sparky/esp/esp-idf/components/newlib/include/string.h:
-
-/home/sparky/esp/esp-idf/components/newlib/include/sys/string.h:
 /home/sparky/esp/esp-idf/components/lwip/api/netdb.c:

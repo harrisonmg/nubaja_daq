@@ -10,7 +10,7 @@ src/ff.o: /home/sparky/esp/esp-idf/components/fatfs/src/ff.c \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/syslimits.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/endian.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/param.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/reent.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
@@ -111,7 +111,7 @@ src/ff.o: /home/sparky/esp/esp-idf/components/fatfs/src/ff.c \
 
 /home/sparky/esp/esp-idf/components/newlib/include/machine/param.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h:
 

@@ -10,7 +10,7 @@ library/ssl_x509.o: \
  /home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_methods.h \
  /home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_dbg.h \
  /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_opt.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_port.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_types.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/cdefs.h \
@@ -42,7 +42,10 @@ library/ssl_x509.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
  /home/sparky/esp/esp-idf/components/newlib/include/malloc.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/malloc.h \
- /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_port.h
+ /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_port.h \
+ /home/sparky/esp/esp-idf/components/openssl/include/openssl/ssl.h \
+ /home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_x509.h \
+ /home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_pkey.h
 
 /home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_x509.h:
 
@@ -64,7 +67,7 @@ library/ssl_x509.o: \
 
 /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_opt.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_port.h:
 
@@ -129,4 +132,10 @@ library/ssl_x509.o: \
 /home/sparky/esp/esp-idf/components/newlib/include/machine/malloc.h:
 
 /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_port.h:
+
+/home/sparky/esp/esp-idf/components/openssl/include/openssl/ssl.h:
+
+/home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_x509.h:
+
+/home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_pkey.h:
 /home/sparky/esp/esp-idf/components/openssl/library/ssl_x509.c:

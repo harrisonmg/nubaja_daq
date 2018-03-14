@@ -21,7 +21,7 @@ wifi_internal.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/alloca.h \
  /home/sparky/esp/esp-idf/components/heap/include/multi_heap.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_attr.h:
 
@@ -65,5 +65,5 @@ wifi_internal.o: \
 
 /home/sparky/esp/esp-idf/components/heap/include/multi_heap.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 /home/sparky/esp/esp-idf/components/esp32/./wifi_internal.c:

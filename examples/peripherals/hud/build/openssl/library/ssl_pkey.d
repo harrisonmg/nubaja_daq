@@ -9,7 +9,7 @@ library/ssl_pkey.o: \
  /home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_methods.h \
  /home/sparky/esp/esp-idf/components/openssl/include/internal/ssl_dbg.h \
  /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_opt.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_port.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_types.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/cdefs.h \
@@ -61,7 +61,7 @@ library/ssl_pkey.o: \
 
 /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_opt.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/openssl/include/platform/ssl_port.h:
 

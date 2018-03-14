@@ -18,7 +18,7 @@ ipc.o: /home/sparky/esp/esp-idf/components/esp32/./ipc.c \
  /home/sparky/esp/esp-idf/components/newlib/include/string.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_err.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
@@ -121,7 +121,7 @@ ipc.o: /home/sparky/esp/esp-idf/components/esp32/./ipc.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

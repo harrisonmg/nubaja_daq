@@ -39,7 +39,7 @@ syscall_table.o: \
  /home/sparky/esp/esp-idf/components/vfs/include/esp_vfs.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_err.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/newlib/include/dirent.h \
  /home/sparky/esp/esp-idf/components/vfs/include/sys/dirent.h \
@@ -123,7 +123,7 @@ syscall_table.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

@@ -31,7 +31,7 @@ nghttp2/lib/nghttp2_hd_huffman.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/nghttp/port/include/nghttp2/nghttp2ver.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_hd.h \
  /home/sparky/esp/esp-idf/components/nghttp/nghttp2/lib/nghttp2_buf.h \
@@ -101,7 +101,7 @@ nghttp2/lib/nghttp2_hd_huffman.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

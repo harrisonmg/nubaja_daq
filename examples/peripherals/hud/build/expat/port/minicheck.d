@@ -24,7 +24,7 @@ port/minicheck.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/setjmp.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/setjmp.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/assert.h \
  /home/sparky/esp/esp-idf/components/expat/include/expat/internal.h \
  /home/sparky/esp/esp-idf/components/expat/port/include/minicheck.h
@@ -77,7 +77,7 @@ port/minicheck.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/assert.h:
 

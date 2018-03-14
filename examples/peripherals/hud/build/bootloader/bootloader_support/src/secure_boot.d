@@ -3,7 +3,7 @@ src/secure_boot.o: \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_attr.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_types.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
@@ -35,7 +35,7 @@ src/secure_boot.o: \
 
 /home/sparky/esp/esp-idf/components/log/include/esp_log.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h:
 

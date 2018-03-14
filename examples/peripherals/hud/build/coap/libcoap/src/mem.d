@@ -35,7 +35,7 @@ libcoap/src/mem.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stat.h \
  /home/sparky/esp/esp-idf/components/vfs/include/sys/ioctl.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_task.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_system.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
@@ -104,6 +104,8 @@ libcoap/src/mem.o: \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/semphr.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/queue.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/port/arch/vfs_lwip.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/string.h \
+ /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip_addr.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/def.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip4_addr.h \
@@ -115,9 +117,7 @@ libcoap/src/mem.o: \
  /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/pdu.h \
  /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/uri.h \
  /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/hashkey.h \
- /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/str.h \
- /home/sparky/esp/esp-idf/components/newlib/include/string.h \
- /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h
+ /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/str.h
 
 /home/sparky/esp/esp-idf/components/coap/port/include/coap_config.h:
 
@@ -189,7 +189,7 @@ libcoap/src/mem.o: \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_task.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_system.h:
 
@@ -327,6 +327,10 @@ libcoap/src/mem.o: \
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/port/arch/vfs_lwip.h:
 
+/home/sparky/esp/esp-idf/components/newlib/include/string.h:
+
+/home/sparky/esp/esp-idf/components/newlib/include/sys/string.h:
+
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/ip_addr.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/def.h:
@@ -350,8 +354,4 @@ libcoap/src/mem.o: \
 /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/hashkey.h:
 
 /home/sparky/esp/esp-idf/components/coap/libcoap/include/coap/str.h:
-
-/home/sparky/esp/esp-idf/components/newlib/include/string.h:
-
-/home/sparky/esp/esp-idf/components/newlib/include/sys/string.h:
 /home/sparky/esp/esp-idf/components/coap/libcoap/src/mem.c:

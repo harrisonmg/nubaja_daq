@@ -16,7 +16,7 @@ esp32/rtc_clk.o: /home/sparky/esp/esp-idf/components/soc/esp32/rtc_clk.c \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/dport_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/dport_access.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_dport_access.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/efuse_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/apb_ctrl_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/i2c_rtc_clk.h \
@@ -66,7 +66,7 @@ esp32/rtc_clk.o: /home/sparky/esp/esp-idf/components/soc/esp32/rtc_clk.c \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_dport_access.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/efuse_reg.h:
 

@@ -1,6 +1,6 @@
 pm_trace.o: /home/sparky/esp/esp-idf/components/esp32/./pm_trace.c \
  /home/sparky/esp/esp-idf/components/esp32/./pm_trace.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/gpio.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_err.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
@@ -42,7 +42,7 @@ pm_trace.o: /home/sparky/esp/esp-idf/components/esp32/./pm_trace.c \
 
 /home/sparky/esp/esp-idf/components/esp32/./pm_trace.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/driver/include/driver/gpio.h:
 

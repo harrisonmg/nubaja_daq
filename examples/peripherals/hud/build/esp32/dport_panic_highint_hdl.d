@@ -15,7 +15,7 @@ dport_panic_highint_hdl.o: \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/xtensa_context.h \
  /home/sparky/esp/esp-idf/components/esp32/include/xtensa/xtruntime-frames.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_panic.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/dport_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h
@@ -50,7 +50,7 @@ dport_panic_highint_hdl.o: \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_panic.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h:
 

@@ -29,7 +29,7 @@ spiffs/src/spiffs_gc.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/string.h \
  /home/sparky/esp/esp-idf/components/newlib/include/unistd.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/unistd.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
@@ -97,7 +97,7 @@ spiffs/src/spiffs_gc.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/unistd.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/log/include/esp_log.h:
 

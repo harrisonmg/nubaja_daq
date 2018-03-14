@@ -29,7 +29,7 @@ port/freertos/sys_arch.o: \
  /home/sparky/esp/esp-idf/components/newlib/include/errno.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/errno.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/alloca.h \
@@ -170,7 +170,7 @@ port/freertos/sys_arch.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 

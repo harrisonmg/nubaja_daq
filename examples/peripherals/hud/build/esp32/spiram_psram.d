@@ -1,6 +1,6 @@
 spiram_psram.o: \
  /home/sparky/esp/esp-idf/components/esp32/./spiram_psram.c \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/string.h \
  /home/sparky/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/sparky/esp/esp-idf/components/newlib/include/newlib.h \
@@ -60,7 +60,7 @@ spiram_psram.o: \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/queue.h \
  /home/sparky/esp/esp-idf/components/driver/include/driver/periph_ctrl.h
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/string.h:
 

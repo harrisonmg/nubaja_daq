@@ -21,7 +21,7 @@ hwcrypto/sha.o: /home/sparky/esp/esp-idf/components/esp32/hwcrypto/sha.c \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/stdio.h \
  /home/sparky/esp/esp-idf/components/wpa_supplicant/port/include/byteswap.h \
  /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/sparky/esp/esp-idf/components/newlib/include/alloca.h \
@@ -85,7 +85,7 @@ hwcrypto/sha.o: /home/sparky/esp/esp-idf/components/esp32/hwcrypto/sha.c \
 
 /home/sparky/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdlib.h:
 

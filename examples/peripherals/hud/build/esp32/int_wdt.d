@@ -1,5 +1,5 @@
 int_wdt.o: /home/sparky/esp/esp-idf/components/esp32/./int_wdt.c \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/machine/_default_types.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/features.h \
@@ -87,7 +87,7 @@ int_wdt.o: /home/sparky/esp/esp-idf/components/esp32/./int_wdt.c \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_dport_access.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_int_wdt.h
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/newlib/include/stdint.h:
 

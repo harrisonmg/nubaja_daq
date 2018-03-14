@@ -8,7 +8,7 @@ src/bootloader_sha.o: \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/dport_access.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_attr.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_dport_access.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/hwcrypto_reg.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h
@@ -29,7 +29,7 @@ src/bootloader_sha.o: \
 
 /home/sparky/esp/esp-idf/components/esp32/include/esp_dport_access.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/hwcrypto_reg.h:
 

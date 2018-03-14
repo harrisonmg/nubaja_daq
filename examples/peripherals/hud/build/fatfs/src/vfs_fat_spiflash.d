@@ -21,7 +21,7 @@ src/vfs_fat_spiflash.o: \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
  /home/sparky/esp/esp-idf/components/newlib/include/stdint.h \
  /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/esp32/include/esp_assert.h \
@@ -107,6 +107,7 @@ src/vfs_fat_spiflash.o: \
  /home/sparky/esp/esp-idf/components/wear_levelling/include/wear_levelling.h \
  /home/sparky/esp/esp-idf/components/spi_flash/include/esp_partition.h \
  /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h \
+ /home/sparky/esp/esp-idf/components/fatfs/src/vfs_fat_internal.h \
  /home/sparky/esp/esp-idf/components/fatfs/src/diskio.h \
  /home/sparky/esp/esp-idf/components/sdmmc/include/sdmmc_cmd.h \
  /home/sparky/esp/esp-idf/components/fatfs/src/diskio_spiflash.h
@@ -153,7 +154,7 @@ src/vfs_fat_spiflash.o: \
 
 /home/sparky/esp/esp-idf/components/newlib/include/sys/_intsup.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h:
 
@@ -324,6 +325,8 @@ src/vfs_fat_spiflash.o: \
 /home/sparky/esp/esp-idf/components/spi_flash/include/esp_partition.h:
 
 /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h:
+
+/home/sparky/esp/esp-idf/components/fatfs/src/vfs_fat_internal.h:
 
 /home/sparky/esp/esp-idf/components/fatfs/src/diskio.h:
 

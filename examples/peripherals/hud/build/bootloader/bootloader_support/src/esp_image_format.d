@@ -14,7 +14,7 @@ src/esp_image_format.o: \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/efuse_reg.h \
  /home/sparky/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log.h \
- /home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h \
  /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
  /home/sparky/esp/esp-idf/components/log/include/esp_log_internal.h \
  /home/sparky/esp/esp-idf/components/bootloader_support/include_priv/bootloader_flash.h \
@@ -50,7 +50,7 @@ src/esp_image_format.o: \
 
 /home/sparky/esp/esp-idf/components/log/include/esp_log.h:
 
-/home/sparky/esp/esp-idf/examples/peripherals/timer_group/build/bootloader/../include/sdkconfig.h:
+/home/sparky/esp/esp-idf/examples/peripherals/hud/build/bootloader/../include/sdkconfig.h:
 
 /home/sparky/esp/esp-idf/components/esp32/include/rom/ets_sys.h:
 
