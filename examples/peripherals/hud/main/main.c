@@ -35,6 +35,10 @@ void config() {
     memset(f_buf,0,strlen(f_buf));
     memset(err_buf,0,strlen(err_buf));
 
+    //start confirmation flasher
+    gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_4,1); //activate relay G6L-1F DC3
+
     if (SENSOR_ENABLE == 1) {
         //adc config
         adc1_config_width(ADC_WIDTH_BIT_12);
@@ -117,6 +121,7 @@ void timeout_thread(void* task) {
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(1);
             }
+            gpio_kill(1,GPIO_NUM_4);//deactivate flasher
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
         }
@@ -128,8 +133,8 @@ void timeout_thread(void* task) {
 */
 void app_main() { 
     // printf("File :%s\n", __FILE__ );
-    // printf("Date :%s\n", __DATE__ );
-    // printf("Time :%s\n", __TIME__ );
+    printf("Date :%s\n", __DATE__ );
+    printf("Time :%s\n", __TIME__ );
     // printf("Line :%d\n", __LINE__ );
     // printf("ANSI :%d\n", __STDC__ );
     if (comms_en == 1) {
