@@ -114,6 +114,11 @@ esp_err_t udp_server( SemaphoreHandle_t commsSemaphore )
                 ESP_LOGI(UDP_TAG,"Program length: %d\n" , dec);            
                 program_len = dec;
                 comms_en = 0;
+
+                //start confirmation flasher
+                gpio_set_direction(GPIO_NUM_13, GPIO_MODE_OUTPUT);
+                gpio_set_level(GPIO_NUM_13,1); //activate relay G6L-1F DC3
+
                 xSemaphoreGive(commsSemaphore);
                 break;
             } 
