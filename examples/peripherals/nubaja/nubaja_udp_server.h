@@ -100,7 +100,7 @@ esp_err_t udp_server( SemaphoreHandle_t commsSemaphore )
                         
             if ( memcmp( buf, "start", recv_len) == 0) {
                 ESP_LOGI(UDP_TAG,"Start Case\n");
-                comms_en = 0;
+                // comms_en = 0;
                 xSemaphoreGive(commsSemaphore);
                 break; //exits while loop and program proceeds to task creation and normal operation
             }
@@ -113,11 +113,9 @@ esp_err_t udp_server( SemaphoreHandle_t commsSemaphore )
                 } 
                 ESP_LOGI(UDP_TAG,"Program length: %d\n" , dec);            
                 program_len = dec;
-                comms_en = 0;
+                // comms_en = 0
 
-                //start confirmation flasher
-                gpio_set_direction(GPIO_NUM_13, GPIO_MODE_OUTPUT);
-                gpio_set_level(GPIO_NUM_13,1); //activate relay G6L-1F DC3
+
 
                 xSemaphoreGive(commsSemaphore);
                 break;
@@ -127,6 +125,7 @@ esp_err_t udp_server( SemaphoreHandle_t commsSemaphore )
                 break;
             }
         }
+
 
         ESP_LOGI(UDP_TAG,"command received - closing socket");
         close(mysocket);
