@@ -13,7 +13,6 @@ char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
 uint64_t old_time = 0;
-
 int comms_en = 1; //initialise with UDP listening 
 int program_len = 30;
 char *DHCP_IP;
@@ -24,8 +23,12 @@ char *DHCP_IP;
 void config() {
     //timer config
     timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-    timer_setup(1,0,program_len); //program length timer 
-    
+    if (comms_en == 1) {
+        timer_setup(1,0,program_len); //program length timer 
+    } else {
+        timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
+    }
+
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
 

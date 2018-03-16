@@ -124,7 +124,6 @@ extern xQueueHandle timer_queue;
 extern xQueueHandle gpio_queue;
 extern SemaphoreHandle_t killSemaphore;
 extern SemaphoreHandle_t commsSemaphore;
-extern int comms_en;
 extern int program_len;
 extern char *DHCP_IP;
 
@@ -576,3 +575,5 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 /*****************************************************/
 
 #endif
+
+
