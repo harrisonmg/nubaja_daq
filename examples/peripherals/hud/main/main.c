@@ -55,10 +55,10 @@ void config() {
         
         //display driver config
         AS1115_config();
-        AS1115_display_write(0x0,DIGIT_3,0x5);
-        AS1115_display_write(0x0,DIGIT_2,0xd);
+        AS1115_display_write(0x0,DIGIT_3,0xc);
+        AS1115_display_write(0x0,DIGIT_2,0xc);
         AS1115_display_write(0x0,DIGIT_1,0xa);
-        AS1115_display_write(0x0,DIGIT_0,0xd);
+        AS1115_display_write(0x0,DIGIT_0,0xf);
     }
 
     if (LOGGING_ENABLE == 1) {
