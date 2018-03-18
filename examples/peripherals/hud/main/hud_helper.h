@@ -102,10 +102,10 @@
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD                 .01   // control loop period for timer group 0 timer 0 in secondss
-#define PROGRAM_LENGTH                      30 // program length for timer group 0 timer 1 in seconds
+#define PROGRAM_LENGTH                      60 // program length for timer group 0 timer 1 in seconds
 
 //CONTROL FLOW
-#define SENSOR_ENABLE                       0 //1 = enabled
+#define SENSOR_ENABLE                       1 //1 = enabled
 #define LOGGING_ENABLE                      0 //1 = enabled    
 
 
@@ -479,12 +479,13 @@ int sd_config()
 * configures the AS1115 7-segment display driver 
 */
 void AS1115_config () {
-    ERROR_HANDLE_ME(i2c_write_byte(0x0,0x2d,0x01)); //enable self addressing setting the slave-addr to 0x03
-    uint8_t slave_address = 0x03;    
-    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0x9,0xff)); //decode mode enabled for all digits
-    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0xa,0x07)); //global intensity set to 50%
-    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0xb,0xff)); //scan limit set to only display 3 digits 
-    ERROR_HANDLE_ME(i2c_write_byte(slave_address,0xe,0x0)); //sets features as desired
+    // ERROR_HANDLE_ME(i2c_write_byte(0x0,0x2d,0x0)); //enable self addressing setting the slave-addr to 0x03   
+    ERROR_HANDLE_ME(i2c_write_byte(0x0,0xc,0x81)); //sets shutdown register for normal operation
+    ERROR_HANDLE_ME(i2c_write_byte(0x0,0xe,0x04)); //sets features as desired with hex-code font
+    ERROR_HANDLE_ME(i2c_write_byte(0x0,0x9,0xff)); //decode mode enabled for all digits
+    ERROR_HANDLE_ME(i2c_write_byte(0x0,0xa,0xee)); //global intensity set to 15/16
+    ERROR_HANDLE_ME(i2c_write_byte(0x0,0xb,0x3)); //scan limit set to only display 4 digits 
+    
 }
 
 /*

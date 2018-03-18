@@ -3,6 +3,7 @@
 
 
 //global vars
+int comms_en = 1; //initialise with UDP listening 
 SemaphoreHandle_t killSemaphore = NULL;
 SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
@@ -13,7 +14,6 @@ char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
 uint64_t old_time = 0;
-int comms_en = 1; //initialise with UDP listening 
 int program_len = 30;
 char *DHCP_IP;
 
@@ -38,9 +38,12 @@ void config() {
     memset(f_buf,0,strlen(f_buf));
     memset(err_buf,0,strlen(err_buf));
 
+    //i2c module config
+    i2c_master_config();
+
     //start confirmation flasher
-    gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_4,1); //activate relay G6L-1F DC3
+    gpio_set_direction(GPIO_NUM_13, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_13,1); //activate relay G6L-1F DC3
 
     if (SENSOR_ENABLE == 1) {
         //adc config
@@ -50,8 +53,12 @@ void config() {
         //GPIO config
         config_gpio();
         
-        //i2c and IMU config
-        i2c_master_config();
+        //display driver config
+        AS1115_config();
+        AS1115_display_write(0x0,DIGIT_3,0x5);
+        AS1115_display_write(0x0,DIGIT_2,0xd);
+        AS1115_display_write(0x0,DIGIT_1,0xa);
+        AS1115_display_write(0x0,DIGIT_0,0xd);
     }
 
     if (LOGGING_ENABLE == 1) {
@@ -77,20 +84,20 @@ void control(timer_event_t evt) {
             
             uint8_t v_car_l = (uint32_t) v_car % 10; 
             uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
-            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_0,v_car_l);
-            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_1,v_car_h);
-            // printf("period   : %.8f s\n", period);
-            // printf("v_car: %u mph\n", (uint32_t) v_car);
+            AS1115_display_write(0x0,DIGIT_3,v_car_l);
+            AS1115_display_write(0x0,DIGIT_2,v_car_h);
+            printf("period   : %.8f s\n", period);
+            printf("v_car: %u mph\n", (uint32_t) v_car);
                         
-            uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
-            add_12b_to_buffer(f_buf,adc_raw); 
-            float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
-            float temp = (adc_v - THERM_B) / THERM_M;
+            // uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
+            // add_12b_to_buffer(f_buf,adc_raw); 
+            // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
+            // float temp = (adc_v - THERM_B) / THERM_M;
             
-            uint8_t temp_l = (uint32_t) temp % 10; 
-            uint8_t temp_h = ( (uint32_t) temp / 10) % 10; 
-            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,temp_l);
-            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,temp_h);    
+            // uint8_t temp_l = (uint32_t) temp % 10; 
+            // uint8_t temp_h = ( (uint32_t) temp / 10) % 10; 
+            // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,temp_l);
+            // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,temp_h);    
         }
     }
 }
@@ -124,7 +131,7 @@ void timeout_thread(void* task) {
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(1);
             }
-            gpio_kill(1,GPIO_NUM_4);//deactivate flasher
+            gpio_kill(1,GPIO_NUM_13);//deactivate flasher
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
         }
@@ -143,6 +150,9 @@ void app_main() {
     if (comms_en == 1) {
         commsSemaphore = xSemaphoreCreateBinary();
         wifi_config();     
+    } else if (comms_en == 0) {
+        commsSemaphore = xSemaphoreCreateBinary();
+        xSemaphoreGive(commsSemaphore);
     }
        
     if (xSemaphoreTake(commsSemaphore, portMAX_DELAY) == pdTRUE) {
@@ -152,5 +162,12 @@ void app_main() {
         ESP_LOGI(MAIN_TAG, "Creating tasks");
         xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
         xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
+    // } else if (comms_en == 0) { //bypass semaphore
+    //     config();
+    //     TaskHandle_t ctrlHandle = NULL;
+    //     TaskHandle_t endHandle = NULL;
+    //     ESP_LOGI(MAIN_TAG, "Creating tasks");
+    //     xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
+    //     xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
     }
 }
