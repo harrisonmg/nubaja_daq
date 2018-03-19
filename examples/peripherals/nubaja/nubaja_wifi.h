@@ -23,7 +23,7 @@
 * globals
 */ 
 const char* ssid = "DADS_ONLY";
-const char* password = "correct horse battery staple";    
+const char* password = "wheatsoda";    
 
 
 
