@@ -73,17 +73,23 @@ void control(timer_event_t evt) {
     uint32_t gpio_num;
     if (SENSOR_ENABLE == 1) {
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
-            uint64_t curr_time = evt.timer_counts;
-            float period = (float) (curr_time - old_time) / TIMER_SCALE;
-            float v_car = MPH_SCALE / period;
-            old_time = curr_time; 
-            
-            uint8_t v_car_l = (uint32_t) v_car % 10; 
-            uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
-            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
-            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);
-            printf("period   : %.8f s\n", period);
-            printf("v_car: %u mph\n", (uint32_t) v_car);
+            printf("%08x\n",gpio_num);
+
+            if (gpio_num == 0x4) { //hall effect
+                uint64_t curr_time = evt.timer_counts;
+                float period = (float) (curr_time - old_time) / TIMER_SCALE;
+                float v_car = MPH_SCALE / period;
+                old_time = curr_time; 
+                uint8_t v_car_l = (uint32_t) v_car % 10; 
+                uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);                
+            } 
+            if (gpio_num == 0xc) { //engine RPM measuring circuit
+                ;         
+            }  
+            // printf("period   : %.8f s\n", period);
+            // printf("v_car: %u mph\n", (uint32_t) v_car);
                         
             // uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
             // add_12b_to_buffer(f_buf,adc_raw); 
@@ -158,12 +164,5 @@ void app_main() {
         ESP_LOGI(MAIN_TAG, "Creating tasks");
         xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
         xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
-    // } else if (comms_en == 0) { //bypass semaphore
-    //     config();
-    //     TaskHandle_t ctrlHandle = NULL;
-    //     TaskHandle_t endHandle = NULL;
-    //     ESP_LOGI(MAIN_TAG, "Creating tasks");
-    //     xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
-    //     xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
-    }
+    } 
 }

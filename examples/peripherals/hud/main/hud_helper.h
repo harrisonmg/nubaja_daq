@@ -60,7 +60,8 @@
 
 //GPIO 
 #define GPIO_INPUT_0                        4 //wheel spd hall effect in
-#define GPIO_INPUT_PIN_SEL                  (1ULL<<GPIO_INPUT_0)
+#define GPIO_INPUT_1                        12 //engine RPM measurement circuit
+#define GPIO_INPUT_PIN_SEL                  ((1ULL<<GPIO_INPUT_0) | (1ULL<<GPIO_INPUT_1))
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           4.10 //23*3.14159265358979323846*3600 / 63360 
                                             // TIRE DIAMETER * PI * 3600 / 63360
@@ -514,7 +515,8 @@ void config_gpio() {
 
 
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT); //install gpio isr service
-    gpio_isr_handler_add(GPIO_INPUT_0, gpio_isr_handler, (void*) GPIO_INPUT_0); //hook isr handler for specific gpio pin
+    gpio_isr_handler_add(GPIO_INPUT_0, gpio_isr_handler, (void*) GPIO_INPUT_0); //hook isr handler for gpio pins
+    gpio_isr_handler_add(GPIO_INPUT_1, gpio_isr_handler, (void*) GPIO_INPUT_1); 
 }
 
 /*
