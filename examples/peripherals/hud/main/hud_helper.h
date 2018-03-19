@@ -476,15 +476,19 @@ int sd_config()
 }
 
 /*
-* configures the AS1115 7-segment display driver 
+* configures the AS1115 7-segment display driver to work with HDSP-D03E common anode 4 digit display
 */
 void AS1115_config () {
-    // ERROR_HANDLE_ME(i2c_write_byte(0x0,0x2d,0x0)); //enable self addressing setting the slave-addr to 0x03   
+    ERROR_HANDLE_ME(i2c_write_byte(0x0,0x2d,0x1)); //enable self addressing setting the slave-addr to 0x03   
     ERROR_HANDLE_ME(i2c_write_byte(0x0,0xc,0x81)); //sets shutdown register for normal operation
     ERROR_HANDLE_ME(i2c_write_byte(0x0,0xe,0x04)); //sets features as desired with hex-code font
-    ERROR_HANDLE_ME(i2c_write_byte(0x0,0x9,0xff)); //decode mode enabled for all digits
-    ERROR_HANDLE_ME(i2c_write_byte(0x0,0xa,0xee)); //global intensity set to 15/16
-    ERROR_HANDLE_ME(i2c_write_byte(0x0,0xb,0x3)); //scan limit set to only display 4 digits 
+    ERROR_HANDLE_ME(i2c_write_byte(AS1115_SLAVE_ADDR,0x9,0xff)); //decode mode enabled for all digits
+    ERROR_HANDLE_ME(i2c_write_byte(AS1115_SLAVE_ADDR,0xa,0xee)); //global intensity set to 15/16
+    ERROR_HANDLE_ME(i2c_write_byte(AS1115_SLAVE_ADDR,0xb,0x3)); //scan limit set to only display 4 digits 
+    ERROR_HANDLE_ME(i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_3,0xc));
+    ERROR_HANDLE_ME(i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_2,0xc));
+    ERROR_HANDLE_ME(i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_1,0xa));
+    ERROR_HANDLE_ME(i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_0,0xf));
     
 }
 

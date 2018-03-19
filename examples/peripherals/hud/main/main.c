@@ -3,7 +3,7 @@
 
 
 //global vars
-int comms_en = 1; //initialise with UDP listening 
+int comms_en = 0; //initialise with UDP listening 
 SemaphoreHandle_t killSemaphore = NULL;
 SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
@@ -55,10 +55,6 @@ void config() {
         
         //display driver config
         AS1115_config();
-        AS1115_display_write(0x0,DIGIT_3,0xc);
-        AS1115_display_write(0x0,DIGIT_2,0xc);
-        AS1115_display_write(0x0,DIGIT_1,0xa);
-        AS1115_display_write(0x0,DIGIT_0,0xf);
     }
 
     if (LOGGING_ENABLE == 1) {
@@ -84,8 +80,8 @@ void control(timer_event_t evt) {
             
             uint8_t v_car_l = (uint32_t) v_car % 10; 
             uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
-            AS1115_display_write(0x0,DIGIT_3,v_car_l);
-            AS1115_display_write(0x0,DIGIT_2,v_car_h);
+            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
+            AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);
             printf("period   : %.8f s\n", period);
             printf("v_car: %u mph\n", (uint32_t) v_car);
                         
