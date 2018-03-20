@@ -5,19 +5,19 @@
 * includes
 */ 
 
-//standard c shite
+// standard c shite
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 
-//kernel
+// kernel
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 
-//esp
+// esp
 #include "esp_types.h"
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
@@ -41,7 +41,7 @@
 * defines
 */ 
 
-//I2C CONFIG
+// I2C CONFIG
 #define I2C_MASTER_SDA_IO                   23               /*!< gpio number for I2C master data  */
 #define I2C_MASTER_SCL_IO                   22               /*!< gpio number for I2C master clock */
 #define I2C_NUM                             I2C_NUM_0        /*!< I2C port number for master dev */
@@ -54,22 +54,22 @@
 #define ACK_CHECK_DIS                       0x0              /*!< I2C master will not check ack from slave */
 #define ACK                                 0x0              /*!< I2C ack value */
 #define NACK                                0x1              /*!< I2C nack value */
-#define DATA_LENGTH                         1                //in bytes
-#define I2C_TASK_LENGTH                     1              //in ms
+#define DATA_LENGTH                         1                // in bytes
+#define I2C_TASK_LENGTH                     1              // in ms
 
-//errors
+// errors
 #define SUCCESS                             0
 #define I2C_READ_FAILED                     1
 #define FILE_DUMP_ERROR                     2
 #define FILE_CREATE_ERROR                   3
 
-//sad card spi config
+// sad card spi config
 #define PIN_NUM_MISO                        18
 #define PIN_NUM_MOSI                        19
 #define PIN_NUM_CLK                         14
 #define PIN_NUM_CS                          15
 
-//ITG-3200 register mappings for gyroscope
+// ITG-3200 register mappings for gyroscope
 #define XH                                  0x1D
 #define XL                                  0x1E
 #define YH                                  0x1F
@@ -77,18 +77,18 @@
 #define ZH                                  0x21
 #define ZL                                  0x22
 
-//buffer config
+// buffer config
 #define SIZE                                2000
 
-//TIMER CONFIGS
-#define TIMER_DIVIDER               16  //  Hardware timer clock divider
+// TIMER CONFIGS
+#define TIMER_DIVIDER               16  // Hardware timer clock divider
 #define TIMER_SCALE                 (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD         .001   // control loop period for timer group 0 timer 0 in seconds
 #define PROGRAM_LENGTH              600 // program length for timer group 0 timer 1 in seconds
 
-//ADC CONFIGS
+// ADC CONFIGS
 #define V_REF               1000
-#define V_FS                3.6 //change accordingly to ADC_ATTEN_xx_x
+#define V_FS                3.6 // change accordingly to ADC_ATTEN_xx_x
 #define ADC_SCALE           (V_FS/4096)
 #define ATTENUATION         ADC_ATTEN_11db
 
@@ -108,7 +108,7 @@ extern xQueueHandle ctrl_queue;
 extern SemaphoreHandle_t killSemaphore;
 
 
-//interrupt flag container
+// interrupt flag container
 typedef struct {
     int ctrl_intr;
 } timer_event_t;
@@ -131,17 +131,17 @@ void record_error(char err_buffer[], char err_msg[]) {
 void ERROR_HANDLE_ME(int err_num) {
     char msg[50];
     switch (err_num) {
-        case 0: //no error
+        case 0: // no error
             break;  
-        case 1: //i2c read error
+        case 1: // i2c read error
             strcpy(msg,"i2c read error\n");
             record_error(err_buf,msg);
             break;    
-        case 2: //file dump error
+        case 2: // file dump error
             strcpy(msg, "file dump error\n");
             record_error(err_buf,msg);
             break; 
-        case 3: //file dump error
+        case 3: // file dump error
             strcpy(msg, "file create error\n");
             record_error(err_buf,msg);
             break;             
@@ -200,7 +200,7 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
  * which has 16b registers
  */
 void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
-    char formatted_string [17]; //number of bits + 1
+    char formatted_string [17]; // number of bits + 1
     sprintf(formatted_string,"%04x",i_to_add);
     strcat(buf,formatted_string);
     strcat(buf," ");
@@ -218,7 +218,7 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
  * designed with use case of adc read in mind (12b resolution)
  */
 void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
-    char formatted_string [13]; //number of bits + 1
+    char formatted_string [13]; // number of bits + 1
     sprintf(formatted_string,"%03x",i_to_add);
     strcat(buf,formatted_string);
     strcat(buf," ");
@@ -256,7 +256,7 @@ int itg_3200_write(uint8_t slave_address, uint8_t reg, uint8_t data) {
     i2c_cmd_link_delete(cmd);  
     if (ret != ESP_OK) {
         ESP_LOGE(TAG,"i2c write failed");
-        return I2C_READ_FAILED; //dead sensor
+        return I2C_READ_FAILED; // dead sensor
     } else { 
         return SUCCESS;
     }
@@ -264,7 +264,7 @@ int itg_3200_write(uint8_t slave_address, uint8_t reg, uint8_t data) {
 
 
 
-//takes around 500us @100kHz
+// takes around 500us @100kHz
 /*
  * reads a register from an I2C device
  * can be configured to read an 8bit or 16bit register 
@@ -273,7 +273,7 @@ int itg_3200_write(uint8_t slave_address, uint8_t reg, uint8_t data) {
 int itg_read(int reg) 
 {
     int ret;
-    uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
+    uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); // comment out for one byte read
     uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
     uint8_t gyro_slave_address = 0x69; 
 
@@ -288,17 +288,17 @@ int itg_read(int reg)
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
-    uint16_t data = (*data_h << 8 | *data_l); //comment out for one byte read
-    //uint16_t data = *data_l; //uncomment for one byte read
+    uint16_t data = (*data_h << 8 | *data_l); // comment out for one byte read
+    // uint16_t data = *data_l; // uncomment for one byte read
     add_16b_to_buffer(f_buf,data);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG,"i2c read failed");
-        return I2C_READ_FAILED; //dead sensor
-        // free(data_h); //comment out for one byte read
+        return I2C_READ_FAILED; // dead sensor
+        // free(data_h); // comment out for one byte read
         free(data_l);
         vTaskSuspend(NULL);
     } else {
-        free(data_h); //comment out for one byte read
+        free(data_h); // comment out for one byte read
         free(data_l);
         return SUCCESS;
     }
@@ -346,7 +346,7 @@ int itg_read_3_reg(int reg)
         free(data_l_1);
         free(data_h_2); 
         free(data_l_2);   
-        return I2C_READ_FAILED; //dead sensor            
+        return I2C_READ_FAILED; // dead sensor            
     } else {
         uint16_t data_0 = (*data_h_0 << 8 | *data_l_0); 
         uint16_t data_1 = (*data_h_1 << 8 | *data_l_1); 
@@ -439,7 +439,7 @@ void itg_3200_config() {
     uint8_t DLPF_CFG = (DLPF_CFG_2 | DLPF_CFG_1 | DLPF_CFG_0);
     uint8_t DLPF_FS_SEL = (DLPF_FS_SEL_1 | DLPF_FS_SEL_0);
     uint8_t DLPF = (DLPF_FS_SEL | DLPF_CFG);
-    uint8_t SMPLRT_DIV = 0x9; //100 hz
+    uint8_t SMPLRT_DIV = 0x9; // 100 hz
 
     ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,SMPLRT_DIV_REG,SMPLRT_DIV));
     ERROR_HANDLE_ME(itg_3200_write(gyro_slave_address,DLPF_FS_REG,DLPF));
@@ -454,9 +454,9 @@ void itg_3200_config() {
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
     conf.sda_io_num = I2C_MASTER_SDA_IO;
-    conf.sda_pullup_en = GPIO_PULLUP_DISABLE;//
+    conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
     conf.scl_io_num = I2C_MASTER_SCL_IO;
-    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;//
+    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
     conf.master.clk_speed = I2C_CLK_HZ;
     i2c_param_config(i2c_master_port, &conf);
     i2c_driver_install(i2c_master_port, conf.mode,
@@ -510,7 +510,7 @@ int sd_config()
             ESP_LOGE(TAG, "Failed to mount filesystem; suspending task");
             vTaskSuspend(NULL);
             // ESP_LOGE(TAG, "Failed to mount filesystem. "
-            //     "If you want the card to be formatted, set format_if_mount_failed = true.");
+            // "If you want the card to be formatted, set format_if_mount_failed = true.");
         } else {
             ESP_LOGE(TAG, "Failed to initialize the card");
             vTaskSuspend(NULL);
@@ -528,15 +528,15 @@ int sd_config()
 void IRAM_ATTR timer_group0_isr(void *para) {
     uint32_t intr_status = TIMERG0.int_st_timers.val;
     timer_event_t evt;
-    if ((intr_status & BIT(0))) { //if alarm is true, set interrupt flag 
-        TIMERG0.int_clr_timers.t0 = 1; //clear timer interrupt bit
-        evt.ctrl_intr = 1; //set flag
+    if ((intr_status & BIT(0))) { // if alarm is true, set interrupt flag 
+        TIMERG0.int_clr_timers.t0 = 1; // clear timer interrupt bit
+        evt.ctrl_intr = 1; // set flag
     } 
-    if ((intr_status & BIT(1))) { //if alarm is true, set interrupt flag 
-        TIMERG0.int_clr_timers.t1 = 1; //clear timer interrupt bit
-        xSemaphoreGiveFromISR(killSemaphore,NULL); //GIVE SEMAPHORE
+    if ((intr_status & BIT(1))) { // if alarm is true, set interrupt flag 
+        TIMERG0.int_clr_timers.t1 = 1; // clear timer interrupt bit
+        xSemaphoreGiveFromISR(killSemaphore,NULL); // GIVE SEMAPHORE
     }
-    TIMERG0.hw_timer[0].config.alarm_en = TIMER_ALARM_EN; //re-enable timer for timer 0 which is timing control loop
+    TIMERG0.hw_timer[0].config.alarm_en = TIMER_ALARM_EN; // re-enable timer for timer 0 which is timing control loop
 
     // send the event data back to the main program task
     xQueueSendFromISR(ctrl_queue, &evt, NULL);
