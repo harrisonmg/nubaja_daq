@@ -14,6 +14,7 @@ char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
 uint64_t old_time = 0;
+uint64_t old_time_RPM = 0;
 int program_len = 30;
 char *DHCP_IP;
 
@@ -73,7 +74,7 @@ void control(timer_event_t evt) {
     uint32_t gpio_num;
     if (SENSOR_ENABLE == 1) {
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
-            printf("%08x\n",gpio_num);
+            // printf("%08x\n",gpio_num);
 
             if (gpio_num == 0x4) { //hall effect
                 uint64_t curr_time = evt.timer_counts;
@@ -82,11 +83,25 @@ void control(timer_event_t evt) {
                 old_time = curr_time; 
                 uint8_t v_car_l = (uint32_t) v_car % 10; 
                 uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);                
+                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
+                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);                
             } 
+
             if (gpio_num == 0xc) { //engine RPM measuring circuit
-                ;         
+                uint64_t curr_time_RPM = evt.timer_counts;
+                float period = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
+                float RPM = RPM_SCALE / period;
+                uint8_t rpm_3 = (uint32_t) RPM % 10; 
+                uint8_t rpm_2 = ( (uint32_t) RPM / 10) % 10; 
+                uint8_t rpm_1 = ( (uint32_t) RPM / 100) % 10; 
+                uint8_t rpm_0 = ( (uint32_t) RPM / 1000) % 10; 
+
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,rpm_3);
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);                  
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_1,rpm_1);
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);                  
+                add_32b_to_buffer(f_buf,RPM);
+                old_time_RPM = curr_time_RPM; 
             }  
             // printf("period   : %.8f s\n", period);
             // printf("v_car: %u mph\n", (uint32_t) v_car);

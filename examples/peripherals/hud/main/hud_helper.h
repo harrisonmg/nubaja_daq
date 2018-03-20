@@ -65,6 +65,7 @@
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           4.10 //23*3.14159265358979323846*3600 / 63360 
                                             // TIRE DIAMETER * PI * 3600 / 63360
+#define RPM_SCALE                           60 //RPM = 60 / period
 
 //SD CARD
 #define PIN_NUM_MISO                        18
@@ -250,7 +251,7 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
 
 /*
  * appends 16b integer to the end of the buffer
- * adds 2 hex digits to the end of the buffer
+ * adds 4 hex digits to the end of the buffer
  * designed for use with I2C reads of the itg-3200
  * which has 16b registers
  */
@@ -266,6 +267,22 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
     }    
 }
 
+/*
+ * appends 32b float to the end of the buffer
+ * adds 8 hex digits to the end of the buffer
+ */
+void add_32b_to_buffer (char buf[],float f_to_add) {
+    char formatted_string [33]; //number of bits + 1
+    uint32_t i_to_add = (uint32_t) f_to_add;
+    sprintf(formatted_string,"%08x",i_to_add);
+    strcat(buf,formatted_string);
+    strcat(buf," ");
+    buffer_idx+=9;
+    if (buffer_idx >= SIZE) {
+       buffer_idx = 0;
+       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+    }    
+}
 /*****************************************************/
 
 /* SENSOR INTERFACE FUNCTIONS
