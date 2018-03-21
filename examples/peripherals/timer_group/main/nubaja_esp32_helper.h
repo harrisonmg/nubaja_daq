@@ -155,7 +155,7 @@ void ERROR_HANDLE_ME(int err_num) {
  */
 int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     FILE *fp;
-    fp = fopen("/sdcard/data.txt", "a");
+    fp = fopen("/sdcard/timer_data.txt", "a");
     if (fp == NULL)
     {
         ESP_LOGE(TAG, "Failed to open file for writing");
@@ -164,7 +164,7 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     fputs(buffer, fp);    
     fclose(fp);
 
-    fp = fopen("/sdcard/error.txt", "a");
+    fp = fopen("/sdcard/timer_error.txt", "a");
     if (fp == NULL)
     {
         ESP_LOGE(TAG, "Failed to open file for writing");
@@ -174,11 +174,11 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     fclose(fp);     
 
     if (unmount == 1) {
-        fp = fopen("/sdcard/data.txt", "a");
+        fp = fopen("/sdcard/timer_data.txt", "a");
         fputs("ded\n", fp);  
         fclose(fp);
 
-        fp = fopen("/sdcard/error.txt", "a");
+        fp = fopen("/sdcard/timer_error.txt", "a");
         fputs("ded\n", fp);  
         fclose(fp);
 
