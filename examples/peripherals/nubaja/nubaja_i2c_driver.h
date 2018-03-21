@@ -87,7 +87,7 @@ int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
  * can be configured to read an 8bit or 16bit register 
  * automatically adds result to the data buffer
  */
-int i2c_read_2_byte(int reg) 
+int i2c_read_2_byte(uint8_t slave_address, int reg) 
 {
     int ret;
     uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
@@ -96,10 +96,10 @@ int i2c_read_2_byte(int reg)
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);    
-    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, reg, ACK); 
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, ( gyro_slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
     i2c_master_read_byte(cmd, data_h, ACK);    
     i2c_master_read_byte(cmd, data_l, NACK);
     i2c_master_stop(cmd);
@@ -118,6 +118,69 @@ int i2c_read_2_byte(int reg)
     } else {
         free(data_h); //comment out for one byte read
         free(data_l);
+        return SUCCESS;
+    }
+}
+
+/*
+* reads 3 registers as a burst read
+* should be faster than calling itg_read 3 times sequentially
+*/
+int i2c_read_3_reg(uint8_t slave_address, int reg) 
+{
+    int ret;
+    uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_0 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_1 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_1 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_2 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_2 = (uint8_t*) malloc(DATA_LENGTH);
+    
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_read_byte(cmd, data_h_0, ACK);    
+    i2c_master_read_byte(cmd, data_h_0, ACK); 
+    
+    i2c_master_read_byte(cmd, data_h_1, ACK); 
+    i2c_master_read_byte(cmd, data_h_1, ACK); 
+
+    i2c_master_read_byte(cmd, data_h_2, ACK); 
+    i2c_master_read_byte(cmd, data_l_2, NACK);
+    
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd); 
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c read failed");
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+        return I2C_READ_FAILED; // dead sensor            
+    } else {
+        uint16_t data_0 = (*data_h_0 << 8 | *data_l_0); 
+        uint16_t data_1 = (*data_h_1 << 8 | *data_l_1); 
+        uint16_t data_2 = (*data_h_2 << 8 | *data_l_2); 
+        
+        add_16b_to_buffer(f_buf,data_0);
+        add_16b_to_buffer(f_buf,data_1);
+        add_16b_to_buffer(f_buf,data_2);     
+           
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+
         return SUCCESS;
     }
 }
