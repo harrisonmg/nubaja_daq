@@ -1,18 +1,24 @@
 #include "hud_helper.h"
 #include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h>
+#include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/AS1115_driver.h>
+#include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h>
 
-
-//global vars
+//vars
 int comms_en = 0; //initialise with UDP listening 
+int SENSOR_ENABLE = 1; //1 = enabled
+int LOGGING_ENABLE = 0; //1 = enabled  
+
 SemaphoreHandle_t killSemaphore = NULL;
 SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
 xQueueHandle gpio_queue = NULL;
 static const char *MAIN_TAG = "MAIN";
+
 char f_buf[SIZE]; //DATA BUFFER
 char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
+
 uint64_t old_time = 0;
 uint64_t old_time_RPM = 0;
 int program_len = 30;
@@ -83,8 +89,8 @@ void control(timer_event_t evt) {
                 old_time = curr_time; 
                 uint8_t v_car_l = (uint32_t) v_car % 10; 
                 uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
-                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
-                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);                
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);                
             } 
 
             if (gpio_num == 0xc) { //engine RPM measuring circuit
@@ -96,10 +102,10 @@ void control(timer_event_t evt) {
                 uint8_t rpm_1 = ( (uint32_t) RPM / 100) % 10; 
                 uint8_t rpm_0 = ( (uint32_t) RPM / 1000) % 10; 
 
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,rpm_3);
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);                  
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_1,rpm_1);
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);                  
+                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,rpm_3);
+                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);                  
+                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_1,rpm_1);
+                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);                  
                 add_32b_to_buffer(f_buf,RPM);
                 old_time_RPM = curr_time_RPM; 
             }  

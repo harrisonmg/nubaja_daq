@@ -125,6 +125,7 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
  /home/sparky/esp/esp-idf/components/driver/include/driver/i2c.h \
  /home/sparky/esp/esp-idf/components/freertos/include/freertos/ringbuf.h \
  /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h \
  /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h \
  /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h \
  /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs.h \
@@ -161,7 +162,10 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/posix/sys/socket.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/sockets.h \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h \
- /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h
+ /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/AS1115_driver.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_i2c_driver.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h
 
 /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./hud_helper.h:
 
@@ -415,6 +419,8 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 
 /home/sparky/esp/esp-idf/components/spi_flash/include/esp_spi_flash.h:
 
+/home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h:
+
 /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h:
 
 /home/sparky/esp/esp-idf/components/nvs_flash/include/nvs_flash.h:
@@ -488,4 +494,10 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/err.h:
 
 /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h:
+
+/home/sparky/esp/esp-idf/examples/peripherals/nubaja/AS1115_driver.h:
+
+/home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_i2c_driver.h:
+
+/home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h:
 /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c:
