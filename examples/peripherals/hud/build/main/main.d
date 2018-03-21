@@ -165,7 +165,8 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
  /home/sparky/esp/esp-idf/components/lwip/include/lwip/lwip/inet.h \
  /home/sparky/esp/esp-idf/examples/peripherals/nubaja/AS1115_driver.h \
  /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_i2c_driver.h \
- /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h \
+ /home/sparky/esp/esp-idf/examples/peripherals/nubaja/ITG_3200_driver.h
 
 /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./hud_helper.h:
 
@@ -500,4 +501,6 @@ main.o: /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c \
 /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_i2c_driver.h:
 
 /home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h:
+
+/home/sparky/esp/esp-idf/examples/peripherals/nubaja/ITG_3200_driver.h:
 /home/sparky/esp/esp-idf/examples/peripherals/hud/main/./main.c:

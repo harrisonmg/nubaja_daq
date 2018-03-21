@@ -2,6 +2,7 @@
 #include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_wifi.h>
 #include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/AS1115_driver.h>
 #include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/nubaja_logging.h>
+#include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/ITG_3200_driver.h>
 
 //vars
 int comms_en = 0; //initialise with UDP listening 
@@ -62,6 +63,9 @@ void config() {
         
         //display driver config
         AS1115_config();
+
+        //
+        itg_3200_config();
     }
 
     if (LOGGING_ENABLE == 1) {
@@ -109,6 +113,8 @@ void control(timer_event_t evt) {
                 add_32b_to_buffer(f_buf,RPM);
                 old_time_RPM = curr_time_RPM; 
             }  
+
+            ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
             // printf("period   : %.8f s\n", period);
             // printf("v_car: %u mph\n", (uint32_t) v_car);
                         
