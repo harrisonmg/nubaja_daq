@@ -114,7 +114,7 @@ int i2c_read_2_byte(uint8_t slave_address, int reg)
         return I2C_READ_FAILED; //dead sensor
         free(data_h); //comment out for one byte read
         free(data_l);
-        vTaskSuspend(NULL);
+        // vTaskSuspend(NULL);
     } else {
         free(data_h); //comment out for one byte read
         free(data_l);
