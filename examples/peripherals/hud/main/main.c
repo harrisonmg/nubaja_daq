@@ -5,7 +5,7 @@
 #include </home/sparky/esp/esp-idf/examples/peripherals/nubaja/ITG_3200_driver.h>
 
 //vars
-int comms_en = 0; //initialise with UDP listening 
+int COMMS_ENABLE = 0; //initialise with UDP listening 
 int SENSOR_ENABLE = 1; //1 = enabled
 int LOGGING_ENABLE = 0; //1 = enabled  
 
@@ -31,10 +31,15 @@ char *DHCP_IP;
 void config() {
     //timer config
     timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-    if (comms_en == 1) {
+
+    if (COMMS_ENABLE == 1) {
+
         timer_setup(1,0,program_len); //program length timer 
+
     } else {
+
         timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
+
     }
 
     //semaphore that blocks end program task 
@@ -54,6 +59,7 @@ void config() {
     gpio_set_level(FLASHER_GPIO,1); //activate relay G6L-1F DC3
 
     if (SENSOR_ENABLE == 1) {
+        
         //adc config
         adc1_config_width(ADC_WIDTH_BIT_12);
         adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
@@ -69,7 +75,9 @@ void config() {
     }
 
     if (LOGGING_ENABLE == 1) {
+        
         sd_config();
+    
     }
 }
 
@@ -82,39 +90,32 @@ void config() {
  */
 void control(timer_event_t evt) {
     uint32_t gpio_num;
+
     if (SENSOR_ENABLE == 1) {
+
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             
+            if (gpio_num == HALL_EFF_GPIO) { //hall effect
 
-            if (gpio_num == 0x4) { //hall effect
                 uint64_t curr_time = evt.timer_counts;
                 float period = (float) (curr_time - old_time) / TIMER_SCALE;
                 float v_car = MPH_SCALE / period;
                 old_time = curr_time; 
-                uint8_t v_car_l = (uint32_t) v_car % 10; 
-                uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h); 
+                display_speed(v_car);
                 printf("speed: %f intr: %08x\n",v_car,gpio_num);
+
             } 
 
-            if (gpio_num == 0xc) { //engine RPM measuring circuit
+            if (gpio_num == ENGINE_RPM_GPIO) { //engine RPM measuring circuit
                 
                 uint64_t curr_time_RPM = evt.timer_counts;
                 float period = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
                 float RPM = RPM_SCALE / period;
-                uint8_t rpm_3 = (uint32_t) RPM % 10; 
-                uint8_t rpm_2 = ( (uint32_t) RPM / 10) % 10; 
-                uint8_t rpm_1 = ( (uint32_t) RPM / 100) % 10; 
-                uint8_t rpm_0 = ( (uint32_t) RPM / 1000) % 10; 
-                printf("RPM: %f intr: %08x\n",RPM,gpio_num);
-
-                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,rpm_3);
-                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);                  
-                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_1,rpm_1);
-                // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);                  
-                // add_32b_to_buffer(f_buf,RPM);
                 old_time_RPM = curr_time_RPM; 
+                display_RPM(RPM);
+                printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
+                // add_32b_to_buffer(f_buf,RPM);
+                
             }  
 
             // ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
@@ -155,15 +156,20 @@ void timeout_thread(void* task) {
     while(1) {
         if (xSemaphoreTake(killSemaphore, portMAX_DELAY) == pdTRUE) //end program after dumping to file
         {
+            
             ESP_LOGI(MAIN_TAG, "program timeout expired");
             vTaskPrioritySet((TaskHandle_t*) task,(configMAX_PRIORITIES-2));
             for (int n=0;n<10;n++) {
+
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(1);
+
             }
-            gpio_kill(1,FLASHER_GPIO);//deactivate flasher
+
+            gpio_kill(1,FLASHER_GPIO);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
+
         }
     }
 }
@@ -172,23 +178,31 @@ void timeout_thread(void* task) {
 * creates tasks
 */
 void app_main() { 
+    
     printf("Date :%s\n", __DATE__ );
     printf("Time :%s\n", __TIME__ );
 
-    if (comms_en == 1) {
+    if (COMMS_ENABLE == 1) {
+
         commsSemaphore = xSemaphoreCreateBinary();
-        wifi_config();     
-    } else if (comms_en == 0) {
+        wifi_config();   
+
+    } else if (COMMS_ENABLE == 0) {
+
         commsSemaphore = xSemaphoreCreateBinary();
         xSemaphoreGive(commsSemaphore);
+
     }
        
     if (xSemaphoreTake(commsSemaphore, portMAX_DELAY) == pdTRUE) {
+
         config();
         TaskHandle_t ctrlHandle = NULL;
         TaskHandle_t endHandle = NULL;
         ESP_LOGI(MAIN_TAG, "Creating tasks");
         xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
         xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
+
     } 
+
 }
