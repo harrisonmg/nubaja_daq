@@ -92,7 +92,6 @@ int i2c_read_2_byte(uint8_t slave_address, int reg)
     int ret;
     uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
     uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
-    uint8_t gyro_slave_address = 0x69; 
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);    
