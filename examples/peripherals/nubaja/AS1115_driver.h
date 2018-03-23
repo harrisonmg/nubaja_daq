@@ -22,10 +22,10 @@ void AS1115_config () {
     i2c_write_byte(AS1115_SLAVE_ADDR,0x9,0xff); //decode mode enabled for all digits
     i2c_write_byte(AS1115_SLAVE_ADDR,0xa,0xee); //global intensity set to 15/16
     i2c_write_byte(AS1115_SLAVE_ADDR,0xb,0x3); //scan limit set to only display 4 digits 
-    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_3,0xc);
-    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_2,0xc);
-    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_1,0xa);
-    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_0,0xf);
+    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_3,0xb);
+    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_2,0x0);
+    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_1,0x0);
+    i2c_write_byte(AS1115_SLAVE_ADDR,DIGIT_0,0xb);
 }
 
 /*
@@ -33,8 +33,8 @@ void AS1115_config () {
 * the device is configured to use BCD encoding, meaning values of 0-9 and -,E,H,L,P are 
 * possible 
 */
-void AS1115_display_write(uint8_t slave_addr, uint8_t digit, uint8_t BCD_value) {
-    i2c_write_byte(slave_addr, digit, BCD_value);
+void AS1115_display_write(uint8_t slave_addr, uint8_t digit, uint8_t value) {
+    i2c_write_byte(slave_addr, digit, value);
 }
 
 #endif

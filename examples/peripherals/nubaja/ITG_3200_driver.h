@@ -65,6 +65,7 @@ void itg_3200_config() {
     uint8_t DLPF = (DLPF_FS_SEL | DLPF_CFG);
     uint8_t SMPLRT_DIV = 0x9; // 100 hz
 
+    // ERROR_HANDLE_ME(i2c_write_byte(0x0,0x0,0x69));//address rewrite
     ERROR_HANDLE_ME(i2c_write_byte(GYRO_SLAVE_ADDR,SMPLRT_DIV_REG,SMPLRT_DIV));
     ERROR_HANDLE_ME(i2c_write_byte(GYRO_SLAVE_ADDR,DLPF_FS_REG,DLPF));
 }

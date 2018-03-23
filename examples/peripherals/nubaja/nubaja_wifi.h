@@ -24,7 +24,7 @@
 */ 
 const char* ssid = "DADS_ONLY";
 const char* password = "wheatsoda";    
-
+int connected = 0; 
 
 
 extern SemaphoreHandle_t commsSemaphore;                      
@@ -35,6 +35,7 @@ esp_err_t event_handler(void *ctx, system_event_t *event)
     const char *WIFI_TAG = "NUBAJA_WIFI";
     ESP_LOGI(WIFI_TAG, "event_handler");
     int ret;
+
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
             ESP_LOGI(WIFI_TAG, "WiFi Driver started. Connecting WiFi.");
@@ -52,15 +53,20 @@ esp_err_t event_handler(void *ctx, system_event_t *event)
         case SYSTEM_EVENT_STA_GOT_IP:
             ESP_LOGI(WIFI_TAG, "connected, starting UDP listener");
             DHCP_IP = ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip);
-            ESP_LOGI(WIFI_TAG, "got ip:%s\n", DHCP_IP);    
+            ESP_LOGI(WIFI_TAG, "got ip:%s\n", DHCP_IP);  
+            connected = 1;  
             ret = udp_server( commsSemaphore );
             if (ESP_OK != ret) {
                 ESP_LOGE(WIFI_TAG, "UDP server failed");
-            }             
+            }            
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             ESP_LOGE(WIFI_TAG, "disconnected");
-            vTaskDelete( NULL );
+            if (connected) {
+                vTaskDelete( NULL );  
+            } else {
+                esp_wifi_connect();
+            }
             break;                        
         default:
             break;
