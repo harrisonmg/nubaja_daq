@@ -50,8 +50,8 @@ void config() {
     i2c_master_config();
 
     //start confirmation flasher
-    gpio_set_direction(GPIO_NUM_13, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_13,1); //activate relay G6L-1F DC3
+    gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_level(FLASHER_GPIO,1); //activate relay G6L-1F DC3
 
     if (SENSOR_ENABLE == 1) {
         //adc config
@@ -64,8 +64,8 @@ void config() {
         //display driver config
         AS1115_config();
 
-        //
-        itg_3200_config();
+        //gyro 
+        // itg_3200_config();
     }
 
     if (LOGGING_ENABLE == 1) {
@@ -84,7 +84,7 @@ void control(timer_event_t evt) {
     uint32_t gpio_num;
     if (SENSOR_ENABLE == 1) {
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
-            // printf("%08x\n",gpio_num);
+            
 
             if (gpio_num == 0x4) { //hall effect
                 uint64_t curr_time = evt.timer_counts;
@@ -94,10 +94,12 @@ void control(timer_event_t evt) {
                 uint8_t v_car_l = (uint32_t) v_car % 10; 
                 uint8_t v_car_h = ( (uint32_t) v_car / 10) % 10; 
                 AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,v_car_l);
-                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h);                
+                AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,v_car_h); 
+                printf("speed: %f intr: %08x\n",v_car,gpio_num);
             } 
 
             if (gpio_num == 0xc) { //engine RPM measuring circuit
+                
                 uint64_t curr_time_RPM = evt.timer_counts;
                 float period = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
                 float RPM = RPM_SCALE / period;
@@ -105,18 +107,17 @@ void control(timer_event_t evt) {
                 uint8_t rpm_2 = ( (uint32_t) RPM / 10) % 10; 
                 uint8_t rpm_1 = ( (uint32_t) RPM / 100) % 10; 
                 uint8_t rpm_0 = ( (uint32_t) RPM / 1000) % 10; 
+                printf("RPM: %f intr: %08x\n",RPM,gpio_num);
 
                 // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,rpm_3);
                 // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);                  
                 // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_1,rpm_1);
                 // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);                  
-                add_32b_to_buffer(f_buf,RPM);
+                // add_32b_to_buffer(f_buf,RPM);
                 old_time_RPM = curr_time_RPM; 
             }  
 
-            ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
-            // printf("period   : %.8f s\n", period);
-            // printf("v_car: %u mph\n", (uint32_t) v_car);
+            // ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
                         
             // uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
             // add_12b_to_buffer(f_buf,adc_raw); 
@@ -160,7 +161,7 @@ void timeout_thread(void* task) {
                 vTaskSuspend((TaskHandle_t*) task);
                 vTaskDelay(1);
             }
-            gpio_kill(1,GPIO_NUM_13);//deactivate flasher
+            gpio_kill(1,FLASHER_GPIO);//deactivate flasher
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
         }
@@ -171,11 +172,9 @@ void timeout_thread(void* task) {
 * creates tasks
 */
 void app_main() { 
-    // printf("File :%s\n", __FILE__ );
     printf("Date :%s\n", __DATE__ );
     printf("Time :%s\n", __TIME__ );
-    // printf("Line :%d\n", __LINE__ );
-    // printf("ANSI :%d\n", __STDC__ );
+
     if (comms_en == 1) {
         commsSemaphore = xSemaphoreCreateBinary();
         wifi_config();     

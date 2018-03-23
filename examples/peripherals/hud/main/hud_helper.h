@@ -52,7 +52,7 @@
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           4.10 // TIRE DIAMETER (23") * PI * 3600 / 63360                                            
 #define RPM_SCALE                           60 //RPM = 60 / period
-
+#define FLASHER_GPIO                        25
 //ADC 
 #define V_REF                               1000
 #define V_FS                                3.6 //change accordingly to ADC_ATTEN_xx_x
