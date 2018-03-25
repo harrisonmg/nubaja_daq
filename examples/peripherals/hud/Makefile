@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := timer_group
+PROJECT_NAME := hud
 
 include $(IDF_PATH)/make/project.mk
 
