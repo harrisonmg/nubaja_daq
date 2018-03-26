@@ -74,7 +74,7 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         }   
         fputs(buffer, fp);        
         fclose(fp);
-        memset(buffer,0,strlen(buffer)); 
+        // memset(buffer,0,strlen(buffer)); 
 
         fp = fopen("/sdcard/error.txt", "a");
         if (fp == NULL)
@@ -84,10 +84,10 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         }   
         fputs(err_buffer, fp);        
         fclose(fp);  
-        memset(err_buf,0,strlen(err_buf)); 
+        // memset(err_buf,0,strlen(err_buf)); 
     }  
 
-    if (unmount == 1) {
+    if ( unmount == 1 && LOGGING_ENABLE == 1 ) {
         fp = fopen("/sdcard/data.txt", "a");
         fputs("ded\n", fp);  
         fclose(fp);
@@ -100,10 +100,12 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         ESP_LOGI(NUBAJA_LOGGING_TAG, "umounted");
         return SUCCESS;
     }
-
     
+    memset(buffer,0,strlen(buffer)); 
+    memset(err_buf,0,strlen(err_buf)); 
     ESP_LOGI(NUBAJA_LOGGING_TAG, "buffers dumped");    
     return SUCCESS;
+
 }
 
 /*
