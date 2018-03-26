@@ -67,7 +67,9 @@ void config() {
         
         //adc config
         adc1_config_width(ADC_WIDTH_BIT_12);
-        adc1_config_channel_atten(ADC1_CHANNEL_6, ATTENUATION);
+        adc1_config_channel_atten(X_ACCEL, ATTENUATION);
+        adc1_config_channel_atten(Y_ACCEL, ATTENUATION);
+        adc1_config_channel_atten(Z_ACCEL, ATTENUATION);
         
         //GPIO config
         config_gpio();
@@ -98,6 +100,8 @@ void control(timer_event_t evt) {
 
     if (SENSOR_ENABLE == 1) {
 
+        read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
+
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             
             if (gpio_num == HALL_EFF_GPIO) { //hall effect
@@ -124,7 +128,7 @@ void control(timer_event_t evt) {
             }  
 
             // ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
-                        
+            
             // uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
             // add_12b_to_buffer(f_buf,adc_raw); 
             // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
@@ -170,7 +174,7 @@ void timeout_thread(void* task) {
                 vTaskDelay(1);
 
             }
-
+            dump_to_file(f_buf,err_buf,1);
             gpio_kill(1,FLASHER_GPIO);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);

@@ -55,6 +55,9 @@
 //ADC 
 #define V_REF                               1000
 #define V_FS                                3.6 //change accordingly to ADC_ATTEN_xx_x
+#define X_ACCEL                             ADC1_CHANNEL_0 // A4 on adafruit feather 
+#define Y_ACCEL                             ADC1_CHANNEL_3 // A3 on adafruit feather 
+#define Z_ACCEL                             ADC1_CHANNEL_6 // A2 on adafruit feather 
 #define ADC_SCALE                           (V_FS / 4096)
 #define ATTENUATION                         ADC_ATTEN_11db
 
@@ -67,7 +70,7 @@
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD                 .01   // control loop period for timer group 0 timer 0 in secondss
-#define PROGRAM_LENGTH                      60 // program length for timer group 0 timer 1 in seconds
+#define PROGRAM_LENGTH                      30 // program length for timer group 0 timer 1 in seconds
 
   
 
@@ -122,7 +125,7 @@ void gpio_kill(int num,...)
 * the raw value is from 0-4095 (12b resolution)
 * the raw value is then added to the data buffer appropriately
 */
-void read_adc(int num,...) 
+void read_adc1(int num,...) 
 {  
     va_list valist;
     uint16_t val_0;
@@ -133,6 +136,7 @@ void read_adc(int num,...)
     /* access all the arguments assigned to valist */
     for (int i = 0; i < num; i++) {
         val_0 = adc1_get_raw(va_arg(valist, int));
+        // printf("counts: %03x\n",val_0); 
         add_12b_to_buffer(f_buf,val_0);        
     }
 
