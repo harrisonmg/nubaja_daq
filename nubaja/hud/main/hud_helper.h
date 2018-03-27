@@ -45,7 +45,7 @@
 */ 
 
 //GPIO 
-#define HALL_EFF_GPIO                       4 //wheel spd hall effect in
+#define HALL_EFF_GPIO                       26 //wheel spd hall effect in
 #define ENGINE_RPM_GPIO                     12 //engine RPM measurement circuit
 #define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO))
 #define ESP_INTR_FLAG_DEFAULT               0
@@ -64,6 +64,7 @@
 //THERMISTOR CONFIGS 
 #define THERM_M                             0.024                    
 #define THERM_B                             -0.5371 //(y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
+#define TEMP                                ADC1_CHANNEL_3
 //thermistor pn: NTCALUG02A103F800
 
 //TIMER CONFIGS

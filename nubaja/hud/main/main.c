@@ -129,7 +129,7 @@ void control(timer_event_t evt) {
 
             // ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
             
-            // uint16_t adc_raw = adc1_get_raw(ADC1_CHANNEL_6);  //read ADC (thermistor)
+            // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
             // add_12b_to_buffer(f_buf,adc_raw); 
             // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
             // float temp = (adc_v - THERM_B) / THERM_M;
