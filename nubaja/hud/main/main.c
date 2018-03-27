@@ -8,12 +8,15 @@
 #include </home/sparky/esp/esp-idf/nubaja/drivers/AS1115_driver.h>
 #include </home/sparky/esp/esp-idf/nubaja/drivers/nubaja_logging.h>
 #include </home/sparky/esp/esp-idf/nubaja/drivers/ITG_3200_driver.h>
+#include </home/sparky/esp/esp-idf/nubaja/drivers/nubaja_runmodes.h>
+
+//run mode - see nubaja_runmodes.h for enumeration
+Runmode_t runMode = (Runmode_t) LAB; 
+int COMMS_ENABLE;
+int SENSOR_ENABLE;
+int LOGGING_ENABLE;
 
 //vars
-int COMMS_ENABLE = 0; //initialise with UDP listening 
-int SENSOR_ENABLE = 1; //1 = enabled
-int LOGGING_ENABLE = 0; //1 = enabled  
-
 SemaphoreHandle_t killSemaphore = NULL;
 SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
@@ -188,9 +191,15 @@ void timeout_thread(void* task) {
 */
 void app_main() { 
     
-    printf("Date :%s\n", __DATE__ );
-    printf("Time :%s\n", __TIME__ );
+    //set run mode
+    COMMS_ENABLE = (runMode & BIT(2)); 
+    SENSOR_ENABLE = (runMode & BIT(1)); 
+    LOGGING_ENABLE = (runMode & BIT(0));  
+    ESP_LOGI(MAIN_TAG,"Comms en is: %d",COMMS_ENABLE);
+    ESP_LOGI(MAIN_TAG,"Sensor enable is: %d",SENSOR_ENABLE);
+    ESP_LOGI(MAIN_TAG,"Logging enable is: %d",LOGGING_ENABLE);
 
+    //INIT UDP SERVER FOR WIFI CONTROL (OR NOT)
     if (COMMS_ENABLE == 1) {
 
         commsSemaphore = xSemaphoreCreateBinary();
@@ -203,6 +212,7 @@ void app_main() {
 
     }
        
+    //DO MAIN TASKS
     if (xSemaphoreTake(commsSemaphore, portMAX_DELAY) == pdTRUE) {
 
         config();

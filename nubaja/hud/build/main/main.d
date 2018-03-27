@@ -166,7 +166,8 @@ main.o: /home/sparky/esp/esp-idf/nubaja/hud/main/./main.c \
  /home/sparky/esp/esp-idf/nubaja/drivers/AS1115_driver.h \
  /home/sparky/esp/esp-idf/nubaja/drivers/nubaja_i2c_driver.h \
  /home/sparky/esp/esp-idf/nubaja/drivers/nubaja_logging.h \
- /home/sparky/esp/esp-idf/nubaja/drivers/ITG_3200_driver.h
+ /home/sparky/esp/esp-idf/nubaja/drivers/ITG_3200_driver.h \
+ /home/sparky/esp/esp-idf/nubaja/drivers/nubaja_runmodes.h
 
 /home/sparky/esp/esp-idf/nubaja/hud/main/./hud_helper.h:
 
@@ -503,4 +504,6 @@ main.o: /home/sparky/esp/esp-idf/nubaja/hud/main/./main.c \
 /home/sparky/esp/esp-idf/nubaja/drivers/nubaja_logging.h:
 
 /home/sparky/esp/esp-idf/nubaja/drivers/ITG_3200_driver.h:
+
+/home/sparky/esp/esp-idf/nubaja/drivers/nubaja_runmodes.h:
 /home/sparky/esp/esp-idf/nubaja/hud/main/./main.c:
