@@ -4,11 +4,11 @@
 /* drivers
  * if cloning, file path below must be modified according to driver location. 
  */
-#include </home/sparky/esp/esp-idf/nubaja/drivers/nubaja_wifi.h>
-#include </home/sparky/esp/esp-idf/nubaja/drivers/AS1115_driver.h>
-#include </home/sparky/esp/esp-idf/nubaja/drivers/nubaja_logging.h>
-#include </home/sparky/esp/esp-idf/nubaja/drivers/ITG_3200_driver.h>
-#include </home/sparky/esp/esp-idf/nubaja/drivers/nubaja_runmodes.h>
+#include "../../drivers/nubaja_wifi.h"
+#include "../../drivers/AS1115_driver.h"
+#include "../../drivers/nubaja_logging.h"
+#include "../../drivers/ITG_3200_driver.h"
+#include "../../drivers/nubaja_runmodes.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
 Runmode_t runMode = (Runmode_t) LAB; 

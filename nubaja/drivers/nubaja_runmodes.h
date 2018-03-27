@@ -13,7 +13,7 @@
  */
 
 typedef enum runmode_t {
-	LAB = 0b010, 
+	LAB = 0b010,
 	FIELD = 0b111,
 	DEFAULT = 0b000
 } Runmode_t;
