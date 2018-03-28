@@ -38,8 +38,8 @@
 #include "esp_spi_flash.h"
 
 //SD CARD
-#define PIN_NUM_MISO                        18
-#define PIN_NUM_MOSI                        19
+#define PIN_NUM_MISO                        19
+#define PIN_NUM_MOSI                        18
 #define PIN_NUM_CLK                         14
 #define PIN_NUM_CS                          15
 
@@ -65,7 +65,9 @@ extern int LOGGING_ENABLE;
  */
 int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     FILE *fp;
-    if(LOGGING_ENABLE == 1) {
+
+    if(LOGGING_ENABLE) {
+        ESP_LOGI(NUBAJA_LOGGING_TAG,"logging");
         fp = fopen("/sdcard/data.txt", "a");
         if (fp == NULL)
         {
@@ -87,7 +89,7 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         // memset(err_buf,0,strlen(err_buf)); 
     }  
 
-    if ( unmount == 1 && LOGGING_ENABLE == 1 ) {
+    if ( unmount && LOGGING_ENABLE ) {
         fp = fopen("/sdcard/data.txt", "a");
         fputs("ded\n", fp);  
         fclose(fp);
@@ -100,7 +102,6 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         ESP_LOGI(NUBAJA_LOGGING_TAG, "umounted");
         return SUCCESS;
     }
-    
     memset(buffer,0,strlen(buffer)); 
     memset(err_buf,0,strlen(err_buf)); 
     ESP_LOGI(NUBAJA_LOGGING_TAG, "buffers dumped");    
@@ -212,10 +213,11 @@ int sd_config()
     ESP_LOGI(NUBAJA_LOGGING_TAG, "sd_config");
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
-    slot_config.gpio_miso = PIN_NUM_MISO;
-    slot_config.gpio_mosi = PIN_NUM_MOSI;
-    slot_config.gpio_sck  = PIN_NUM_CLK;
-    slot_config.gpio_cs   = PIN_NUM_CS;    
+    slot_config.gpio_miso = 18;
+    slot_config.gpio_mosi = 19;
+    slot_config.gpio_sck  = 14;
+    slot_config.gpio_cs   = 15;  
+
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
         .max_files = 5
@@ -224,6 +226,12 @@ int sd_config()
     sdmmc_card_t* card;
     esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
     
+    if (ret != ESP_OK) {
+        ESP_LOGE(NUBAJA_LOGGING_TAG, "Failed to mount");
+        return FILE_CREATE_ERROR;    
+    }
+
+
     FILE *fp;
     fp = fopen("/sdcard/data.txt", "a");
     if (fp == NULL)

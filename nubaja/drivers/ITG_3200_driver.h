@@ -52,6 +52,7 @@ static const char *ITG_3200_DRIVER_TAG = "ITG_3200_DRIVER";
  * 
  */
 void itg_3200_config() {
+    ESP_LOGI(ITG_3200_DRIVER_TAG,"ITG-3200 config");
     uint8_t SMPLRT_DIV_REG= 0x15;
     uint8_t DLPF_FS_REG = 0x16;
     uint8_t DLPF_CFG_0 = 0x1;
