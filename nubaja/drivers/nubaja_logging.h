@@ -86,7 +86,7 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
             return FILE_DUMP_ERROR;
         }   
         fputs(err_buffer, fp);        
-        fclose(fp);  
+        fclose(fp)  
         // memset(err_buf,0,strlen(err_buf)); 
     }  
 
