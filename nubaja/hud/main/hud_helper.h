@@ -46,7 +46,7 @@
 
 //GPIO 
 #define HALL_EFF_GPIO                       26 //wheel spd hall effect in
-#define ENGINE_RPM_GPIO                     12 //engine RPM measurement circuit
+#define ENGINE_RPM_GPIO                     4 //engine RPM measurement circuit
 #define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO))
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           4.10 // TIRE DIAMETER (23") * PI * 3600 / 63360                                            
@@ -70,7 +70,7 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_PERIOD                 .01   // control loop period for timer group 0 timer 0 in secondss
+#define CONTROL_LOOP_PERIOD                 .1   // control loop period for timer group 0 timer 0 in secondss
 #define PROGRAM_LENGTH                      30 // program length for timer group 0 timer 1 in seconds
 
   
@@ -168,6 +168,7 @@ void config_gpio() {
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT); //install gpio isr service
     gpio_isr_handler_add(HALL_EFF_GPIO, gpio_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
     gpio_isr_handler_add(ENGINE_RPM_GPIO, gpio_isr_handler, (void*) ENGINE_RPM_GPIO); 
+    // gpio_set_intr_type(HALL_EFF_GPIO,GPIO_PIN_INTR_NEGEDGE);
 }
 
 /*

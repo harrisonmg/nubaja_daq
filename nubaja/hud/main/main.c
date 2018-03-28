@@ -8,10 +8,11 @@
 #include "../../drivers/AS1115_driver.h"
 #include "../../drivers/nubaja_logging.h"
 #include "../../drivers/ITG_3200_driver.h"
+#include "../../drivers/LSM6DSM_driver.h"
 #include "../../drivers/nubaja_runmodes.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) LAB; 
+Runmode_t runMode = (Runmode_t) LAB_LOG; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
@@ -63,10 +64,10 @@ void config() {
     i2c_master_config();
 
     //start confirmation flasher
-    gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_level(FLASHER_GPIO,1); //activate relay G6L-1F DC3
+    // gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
+    // gpio_set_level(FLASHER_GPIO,1); //activate relay G6L-1F DC3
 
-    if (SENSOR_ENABLE == 1) {
+    if ( SENSOR_ENABLE ) {
         
         //adc config
         adc1_config_width(ADC_WIDTH_BIT_12);
@@ -78,13 +79,16 @@ void config() {
         config_gpio();
         
         //display driver config
-        AS1115_config();
+        // AS1115_config();
 
         //gyro 
         // itg_3200_config();
+
+        //IMU
+        LSM6DSM_config();
     }
 
-    if (LOGGING_ENABLE == 1) {
+    if ( LOGGING_ENABLE ) {
         
         sd_config();
     
@@ -101,9 +105,11 @@ void config() {
 void control(timer_event_t evt) {
     uint32_t gpio_num;
 
-    if (SENSOR_ENABLE == 1) {
+    if ( SENSOR_ENABLE ) {
 
-        read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
+        // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
+        // ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
+        ERROR_HANDLE_ME(i2c_read_3_reg(IMU_SLAVE_ADDR, OUTX_L_G));
 
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             
@@ -130,7 +136,7 @@ void control(timer_event_t evt) {
                 
             }  
 
-            // ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
+           
             
             // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
             // add_12b_to_buffer(f_buf,adc_raw); 
@@ -178,7 +184,7 @@ void timeout_thread(void* task) {
 
             }
             dump_to_file(f_buf,err_buf,1);
-            gpio_kill(1,FLASHER_GPIO);
+            // gpio_kill(1,FLASHER_GPIO);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
 
@@ -192,8 +198,8 @@ void timeout_thread(void* task) {
 void app_main() { 
     
     //set run mode
-    COMMS_ENABLE = (runMode & BIT(2)); 
-    SENSOR_ENABLE = (runMode & BIT(1)); 
+    COMMS_ENABLE = (runMode & BIT(2)) >> 2; 
+    SENSOR_ENABLE = (runMode & BIT(1)) >> 1; 
     LOGGING_ENABLE = (runMode & BIT(0));  
     ESP_LOGI(MAIN_TAG,"Comms en is: %d",COMMS_ENABLE);
     ESP_LOGI(MAIN_TAG,"Sensor enable is: %d",SENSOR_ENABLE);
