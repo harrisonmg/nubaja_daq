@@ -82,6 +82,24 @@ int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
     }
 }   
 
+int i2c_write_byte_dis(uint8_t slave_address, uint8_t reg, uint8_t data) {
+    int ret; 
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_DIS);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_write_byte(cmd, data, ACK); 
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd);  
+    if (ret != ESP_OK) {
+        ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c write failed");
+        return I2C_READ_FAILED; //dead sensor
+    } else { 
+        return SUCCESS;
+    }
+} 
+
 /*
  * reads a register from an I2C device
  * can be configured to read an 8bit or 16bit register 

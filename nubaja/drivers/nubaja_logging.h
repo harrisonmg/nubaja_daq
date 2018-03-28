@@ -43,6 +43,8 @@
 #define PIN_NUM_CLK                         14
 #define PIN_NUM_CS                          15
 
+
+
 //errors
 #define SUCCESS                             0
 #define I2C_READ_FAILED                     1
@@ -67,7 +69,6 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     FILE *fp;
 
     if(LOGGING_ENABLE) {
-        ESP_LOGI(NUBAJA_LOGGING_TAG,"logging");
         fp = fopen("/sdcard/data.txt", "a");
         if (fp == NULL)
         {
@@ -213,10 +214,10 @@ int sd_config()
     ESP_LOGI(NUBAJA_LOGGING_TAG, "sd_config");
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     sdspi_slot_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
-    slot_config.gpio_miso = 18;
-    slot_config.gpio_mosi = 19;
-    slot_config.gpio_sck  = 14;
-    slot_config.gpio_cs   = 15;  
+    slot_config.gpio_miso = PIN_NUM_MISO;
+    slot_config.gpio_mosi = PIN_NUM_MOSI;
+    slot_config.gpio_sck  = PIN_NUM_CLK;
+    slot_config.gpio_cs   = PIN_NUM_CS;  
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
