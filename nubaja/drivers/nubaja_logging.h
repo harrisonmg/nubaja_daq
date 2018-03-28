@@ -202,6 +202,17 @@ void add_32b_to_buffer (char buf[],float f_to_add) {
     }    
 }
 
+void buffer_newline(char buf[]) {
+    char newline [] = {'\n'}; //number of bits + 1
+    strcat(buf,newline);
+    strcat(buf," ");
+    buffer_idx+=strlen(newline);
+    if (buffer_idx >= SIZE) {
+       buffer_idx = 0;
+       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+    } 
+}
+
 /*
  * mounts SD card
  * configures SPI bus for SD card comms

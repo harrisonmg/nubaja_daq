@@ -16,6 +16,7 @@ static const char *AS1115_DRIVER_TAG = "AS1115_DRIVER";
 * configures the AS1115 7-segment display driver to work with HDSP-D03E common anode 4 digit display
 */
 void AS1115_config () {
+    ESP_LOGI(AS1115_DRIVER_TAG,"AS1115 config");
     i2c_write_byte(0x0,0x2d,0x1); //enable self addressing setting the slave-addr to 0x03   
     i2c_write_byte(0x0,0xc,0x81); //sets shutdown register for normal operation
     i2c_write_byte(0x0,0xe,0x04); //sets features as desired with hex-code font

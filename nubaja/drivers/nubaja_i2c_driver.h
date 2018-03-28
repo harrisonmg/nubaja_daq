@@ -189,7 +189,8 @@ int i2c_read_3_reg(uint8_t slave_address, int reg)
         
         add_16b_to_buffer(f_buf,data_0);
         add_16b_to_buffer(f_buf,data_1);
-        add_16b_to_buffer(f_buf,data_2);     
+        add_16b_to_buffer(f_buf,data_2);    
+        buffer_newline(f_buf); 
            
         free(data_h_0); 
         free(data_l_0);

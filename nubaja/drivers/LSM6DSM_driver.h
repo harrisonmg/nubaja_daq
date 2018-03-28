@@ -49,7 +49,7 @@
 #define CTRL8_XL                            0x17
 #define CTRL2_G                             0x11
 #define CTRL3_OIS                           0x72
-#define IMU_SLAVE_ADDR 					    0x6a
+#define IMU_SLAVE_ADDR 		            0x6a
 
 //vars
 static const char *LSM6DSM_DRIVER_TAG = "LSM6DSM_DRIVER";
@@ -81,6 +81,9 @@ void LSM6DSM_config() {
         uint8_t FS_125 = 0b0;
         uint8_t CTRL2_G_CONFIG = ( ODR_G | FS_G | FS_125 | 0 );
 
+        ERROR_HANDLE_ME(i2c_write_byte(IMU_SLAVE_ADDR,CTRL1_XL,CTRL1_XL_CONFIG));
+        ERROR_HANDLE_ME(i2c_write_byte(IMU_SLAVE_ADDR,CTRL8_XL,CTRL8_XL_CONFIG));
+        ERROR_HANDLE_ME(i2c_write_byte(IMU_SLAVE_ADDR,CTRL2_G,CTRL2_G_CONFIG));
 
 }
 
