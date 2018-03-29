@@ -12,7 +12,7 @@
 #include "../../drivers/nubaja_runmodes.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) LAB_LOG; 
+Runmode_t runMode = (Runmode_t) LAB; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
@@ -60,12 +60,14 @@ void config() {
     memset(f_buf,0,strlen(f_buf));
     memset(err_buf,0,strlen(err_buf));
 
-    //i2c module config
-    i2c_master_config();
-
+    //i2c module configs
+    i2c_master_config(PORT_0,I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO);
+    i2c_master_config(PORT_1,I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO);
+    // i2c_master_config_test();
+    
     //start confirmation flasher
-    // gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
-    // gpio_set_level(FLASHER_GPIO,1); //activate relay G6L-1F DC3
+    gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_level(FLASHER_GPIO,1); //activate relay G6L-1F DC3
 
     if ( SENSOR_ENABLE ) {
         
@@ -82,10 +84,10 @@ void config() {
         // AS1115_config();
 
         //gyro 
-        // itg_3200_config();
+        itg_3200_config();
 
         //IMU
-        LSM6DSM_config();
+        // LSM6DSM_config();
     }
 
     if ( LOGGING_ENABLE ) {
@@ -108,9 +110,9 @@ void control(timer_event_t evt) {
     if ( SENSOR_ENABLE ) {
 
         // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
-        // ERROR_HANDLE_ME(i2c_read_3_reg(GYRO_SLAVE_ADDR, XH));
-        ERROR_HANDLE_ME(i2c_read_3_reg(IMU_SLAVE_ADDR, OUTX_L_G));
-
+        ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, GYRO_SLAVE_ADDR, XH));
+        // ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G));
+        display_speed(PORT_1, 12.0);
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             
             if (gpio_num == HALL_EFF_GPIO) { //hall effect
@@ -119,7 +121,7 @@ void control(timer_event_t evt) {
                 float period = (float) (curr_time - old_time) / TIMER_SCALE;
                 float v_car = MPH_SCALE / period;
                 old_time = curr_time; 
-                display_speed(v_car);
+                display_speed(PORT_1, v_car);
                 printf("speed: %f intr: %08x\n",v_car,gpio_num);
 
             } 
@@ -130,7 +132,7 @@ void control(timer_event_t evt) {
                 float period = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
                 float RPM = RPM_SCALE / period;
                 old_time_RPM = curr_time_RPM; 
-                display_RPM(RPM);
+                display_RPM(PORT_1, RPM);
                 printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
                 // add_32b_to_buffer(f_buf,RPM);
                 
@@ -185,6 +187,7 @@ void timeout_thread(void* task) {
             }
             dump_to_file(f_buf,err_buf,1);
             // gpio_kill(1,FLASHER_GPIO);
+            gpio_set_level(FLASHER_GPIO,0);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
 

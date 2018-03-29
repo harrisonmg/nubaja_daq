@@ -21,9 +21,12 @@
 #include "nubaja_logging.h"
 
 //I2C MODULE
-#define I2C_MASTER_SDA_IO                   23               /*!< gpio number for I2C master data  */
-#define I2C_MASTER_SCL_IO                   22               /*!< gpio number for I2C master clock */
-#define I2C_NUM                             I2C_NUM_0        /*!< I2C port number for master dev */
+#define I2C_MASTER_0_SDA_IO                 23               /*!< gpio number for I2C master data  */
+#define I2C_MASTER_0_SCL_IO                 22               /*!< gpio number for I2C master clock */
+#define I2C_MASTER_1_SDA_IO                 17               /*!< gpio number for I2C master data  */
+#define I2C_MASTER_1_SCL_IO                 21               /*!< gpio number for I2C master clock */
+#define PORT_0                              I2C_NUM_0        /*!< I2C port number for master dev */
+#define PORT_1                              I2C_NUM_1        /*!< I2C port number for master dev */
 #define I2C_MASTER_TX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
 #define I2C_CLK_HZ                          400000           /*!< I2C master clock frequency */
@@ -46,13 +49,31 @@ extern int err_buffer_idx;
 /*
  * configures one i2c module for operation as an i2c master with internal pullups disabled
  */
- void i2c_master_config() {
-    int i2c_master_port = I2C_NUM;
+void i2c_master_config(int port_num, int sda, int scl) {
+    ESP_LOGI(NUBAJA_I2C_DRIVER_TAG,"Configuring port %d",port_num);
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = I2C_MASTER_SDA_IO;
+    conf.sda_io_num = sda;
     conf.sda_pullup_en = GPIO_PULLUP_DISABLE;//
-    conf.scl_io_num = I2C_MASTER_SCL_IO;
+    conf.scl_io_num = scl;
+    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;//
+    conf.master.clk_speed = I2C_CLK_HZ;
+    i2c_param_config(port_num, &conf);
+    i2c_driver_install(port_num, conf.mode,
+                       I2C_MASTER_RX_BUF_DISABLE,
+                       I2C_MASTER_TX_BUF_DISABLE, 0);
+}
+
+/*
+ * configures one i2c module for operation as an i2c master with internal pullups disabled
+ */
+void i2c_master_config_test() {
+    int i2c_master_port = PORT_1;
+    i2c_config_t conf;
+    conf.mode = I2C_MODE_MASTER;
+    conf.sda_io_num = I2C_MASTER_1_SDA_IO;
+    conf.sda_pullup_en = GPIO_PULLUP_DISABLE;//
+    conf.scl_io_num = I2C_MASTER_1_SCL_IO;
     conf.scl_pullup_en = GPIO_PULLUP_DISABLE;//
     conf.master.clk_speed = I2C_CLK_HZ;
     i2c_param_config(i2c_master_port, &conf);
@@ -61,10 +82,12 @@ extern int err_buffer_idx;
                        I2C_MASTER_TX_BUF_DISABLE, 0);
 }
 
+
+
 /*
  * writes a single byte of data to a register using I2C protocol 
  */
-int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
+int i2c_write_byte(int port_num, uint8_t slave_address, uint8_t reg, uint8_t data) {
     int ret; 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);    
@@ -72,7 +95,7 @@ int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
     i2c_master_write_byte(cmd, reg, ACK); 
     i2c_master_write_byte(cmd, data, ACK); 
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
     if (ret != ESP_OK) {
         ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c write failed");
@@ -82,7 +105,7 @@ int i2c_write_byte(uint8_t slave_address, uint8_t reg, uint8_t data) {
     }
 }   
 
-int i2c_write_byte_dis(uint8_t slave_address, uint8_t reg, uint8_t data) {
+int i2c_write_byte_dis(int port_num, uint8_t slave_address, uint8_t reg, uint8_t data) {
     int ret; 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);    
@@ -90,7 +113,7 @@ int i2c_write_byte_dis(uint8_t slave_address, uint8_t reg, uint8_t data) {
     i2c_master_write_byte(cmd, reg, ACK); 
     i2c_master_write_byte(cmd, data, ACK); 
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
     if (ret != ESP_OK) {
         ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c write failed");
@@ -105,7 +128,7 @@ int i2c_write_byte_dis(uint8_t slave_address, uint8_t reg, uint8_t data) {
  * can be configured to read an 8bit or 16bit register 
  * automatically adds result to the data buffer
  */
-int i2c_read_2_byte(uint8_t slave_address, int reg) 
+int i2c_read_2_byte(int port_num, uint8_t slave_address, int reg) 
 {
     int ret;
     uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
@@ -120,7 +143,7 @@ int i2c_read_2_byte(uint8_t slave_address, int reg)
     i2c_master_read_byte(cmd, data_h, ACK);    
     i2c_master_read_byte(cmd, data_l, NACK);
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
     uint16_t data = (*data_h << 8 | *data_l); //comment out for one byte read
     //uint16_t data = *data_l; //uncomment for one byte read
@@ -143,7 +166,7 @@ int i2c_read_2_byte(uint8_t slave_address, int reg)
 * reads 3 registers as a burst read
 * should be faster than calling itg_read 3 times sequentially
 */
-int i2c_read_3_reg(uint8_t slave_address, int reg) 
+int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg) 
 {
     int ret;
     uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
@@ -170,7 +193,7 @@ int i2c_read_3_reg(uint8_t slave_address, int reg)
     i2c_master_read_byte(cmd, data_l_2, NACK);
     
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_NUM, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd); 
 
     if (ret != ESP_OK) {

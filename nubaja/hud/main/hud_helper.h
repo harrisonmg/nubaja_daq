@@ -82,7 +82,7 @@
 /* 
 * globals
 */ 
-static const char *TAG = "HUD_HELPER";
+// static const char *TAG = "HUD_HELPER"; //unused
 extern char f_buf[];
 extern char err_buf[];
 extern int buffer_idx;
