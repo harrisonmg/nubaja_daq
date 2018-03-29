@@ -119,6 +119,21 @@ void gpio_kill(int num,...)
 }
 
 /*
+ * turns on/off flasher to indicate data is being recorded or not
+ */
+void flasher(int level) {
+    
+    gpio_set_level(FLASHER_GPIO,level); //activate relay G6L-1F DC3
+
+}
+
+void flasher_init(int flasher_gpio_num) {
+
+    gpio_set_direction(flasher_gpio_num, GPIO_MODE_OUTPUT);
+
+}
+
+/*
 * function designed with variable number of arguments
 * allows for adc reads of multiple channels without
 * several repetitive function calls

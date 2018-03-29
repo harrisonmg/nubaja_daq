@@ -48,7 +48,6 @@
 #define CTRL1_XL                            0x10
 #define CTRL8_XL                            0x17
 #define CTRL2_G                             0x11
-#define CTRL3_OIS                           0x72
 #define IMU_SLAVE_ADDR 		            0x6a
 
 //vars

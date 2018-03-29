@@ -69,28 +69,36 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
     FILE *fp;
 
     if(LOGGING_ENABLE) {
+
         fp = fopen("/sdcard/data.txt", "a");
+
         if (fp == NULL)
         {
+
             ESP_LOGE(NUBAJA_LOGGING_TAG, "Failed to open data file for writing");
             return FILE_DUMP_ERROR;
-        }   
+
+        }  
+
         fputs(buffer, fp);        
         fclose(fp);
-        // memset(buffer,0,strlen(buffer)); 
-
         fp = fopen("/sdcard/error.txt", "a");
+
         if (fp == NULL)
         {
+
             ESP_LOGE(NUBAJA_LOGGING_TAG, "Failed to open error file for writing");
             return FILE_DUMP_ERROR;
-        }   
+
+        } 
+
         fputs(err_buffer, fp);        
         fclose(fp);  
-        // memset(err_buf,0,strlen(err_buf)); 
+        
     }  
 
     if ( unmount && LOGGING_ENABLE ) {
+
         fp = fopen("/sdcard/data.txt", "a");
         fputs("ded\n", fp);  
         fclose(fp);
@@ -102,7 +110,9 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         esp_vfs_fat_sdmmc_unmount();
         ESP_LOGI(NUBAJA_LOGGING_TAG, "umounted");
         return SUCCESS;
+
     }
+
     memset(buffer,0,strlen(buffer)); 
     memset(err_buf,0,strlen(err_buf)); 
     ESP_LOGI(NUBAJA_LOGGING_TAG, "buffers dumped");    
@@ -114,22 +124,29 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
 * 
 */
 void record_error(char err_buffer[], char err_msg[]) {
+
     int length = strlen(err_msg);
     strcat(err_buf,err_msg);
     strcat(err_buf," \n");
     err_buffer_idx+=length;
+
     if (err_buffer_idx >= SIZE) {
+
         err_buffer_idx = 0;
         char null_buf[1];
         dump_to_file(null_buf,err_buf,0);  
-    }     
+
+    } 
+
 }
 
 /*
 * 
 */
 void ERROR_HANDLE_ME(int err_num) {
+
     char msg[50];
+    
     switch (err_num) {
         case 0: //no error
             break;  
@@ -148,6 +165,7 @@ void ERROR_HANDLE_ME(int err_num) {
         default: 
             NULL;
     }
+
 }
 
 /*

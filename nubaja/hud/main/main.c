@@ -66,8 +66,8 @@ void config() {
     // i2c_master_config_test();
     
     //start confirmation flasher
-    gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_level(FLASHER_GPIO,1); //activate relay G6L-1F DC3
+    flasher_init(FLASHER_GPIO);
+    flasher(1);
 
     if ( SENSOR_ENABLE ) {
         
@@ -81,13 +81,14 @@ void config() {
         config_gpio();
         
         //display driver config
-        // AS1115_config();
+        AS1115_config(PORT_1);
 
         //gyro 
         itg_3200_config();
 
         //IMU
-        // LSM6DSM_config();
+        LSM6DSM_config();
+
     }
 
     if ( LOGGING_ENABLE ) {
@@ -186,8 +187,8 @@ void timeout_thread(void* task) {
 
             }
             dump_to_file(f_buf,err_buf,1);
+            flasher(0);
             // gpio_kill(1,FLASHER_GPIO);
-            gpio_set_level(FLASHER_GPIO,0);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
 
