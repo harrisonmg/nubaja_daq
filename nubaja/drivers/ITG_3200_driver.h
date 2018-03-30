@@ -43,7 +43,8 @@
 
 //vars
 static const char *ITG_3200_DRIVER_TAG = "ITG_3200_DRIVER";
-
+//datasheet: https://www.invensense.com/products/motion-tracking/3-axis/itg-3200/
+//register map: https://www.invensense.com/wp-content/uploads/2015/02/ITG-3200-Register-Map.pdf
 
 /*
  * configures gyroscope with the following settings: 
