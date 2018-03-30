@@ -21,6 +21,7 @@ void AS1115_config (int port_num) {
 
     i2c_write_byte(port_num, 0x0,0x2d,0x1); //enable self addressing setting the slave-addr to 0x03   
     i2c_write_byte(port_num, 0x0,0xc,0x81); //sets shutdown register for normal operation
+    i2c_write_byte(port_num, 0x0,0xe,0x04); //sets features as desired with hex-code font
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0xe,0x04); //sets features as desired with hex-code font
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0x9,0xff); //decode mode enabled for all digits
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0xa,0xee); //global intensity set to 15/16

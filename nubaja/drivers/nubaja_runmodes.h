@@ -15,6 +15,7 @@
 typedef enum runmode_t {
 	LAB = 0b010,
 	LAB_LOG = 0b011,
+	LAB_WIFI = 0b110,
 	FIELD = 0b111,
 	DEFAULT = 0b000
 } Runmode_t;

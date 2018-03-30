@@ -63,7 +63,7 @@ void config() {
 
     //i2c module configs
     // i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
-    i2c_master_config(PORT_1,NORMAL_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+    i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
         
     //start confirmation flasher
     flasher_init(FLASHER_GPIO);
