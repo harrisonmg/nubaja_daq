@@ -23,9 +23,8 @@
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
 #include "driver/gpio.h"
-#include "driver/adc.h"
+
 #include "esp_system.h"
-#include "esp_adc_cal.h"
 #include "esp_vfs_fat.h"
 #include "driver/sdmmc_host.h"
 #include "driver/sdspi_host.h"
@@ -46,21 +45,18 @@
 
 //GPIO 
 #define HALL_EFF_GPIO                       26 //wheel spd hall effect in
-#define ENGINE_RPM_GPIO                     4 //engine RPM measurement circuit
+#define ENGINE_RPM_GPIO                     4 //engine RPM measurement circuit. currently unrouted. 
 #define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO))
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           4.10 // TIRE DIAMETER (23") * PI * 3600 / 63360                                            
 #define RPM_SCALE                           60 //RPM = 60 / period
 #define FLASHER_GPIO                        25
+#define H                                   1
+#define L                                   0
 //ADC 
-#define V_REF                               1000
-#define V_FS                                3.6 //change accordingly to ADC_ATTEN_xx_x
 #define X_ACCEL                             ADC1_CHANNEL_0 // A4 on adafruit feather 
 #define Y_ACCEL                             ADC1_CHANNEL_3 // A3 on adafruit feather 
 #define Z_ACCEL                             ADC1_CHANNEL_6 // A2 on adafruit feather 
-#define ADC_SCALE                           (V_FS / 4096)
-#define ATTENUATION                         ADC_ATTEN_11db
-
 //THERMISTOR CONFIGS 
 #define THERM_M                             0.024                    
 #define THERM_B                             -0.5371 //(y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
@@ -131,33 +127,6 @@ void flasher_init(int flasher_gpio_num) {
 
     gpio_set_direction(flasher_gpio_num, GPIO_MODE_OUTPUT);
 
-}
-
-/*
-* function designed with variable number of arguments
-* allows for adc reads of multiple channels without
-* several repetitive function calls
-* function reads a single channel from the adc
-* the raw value is from 0-4095 (12b resolution)
-* the raw value is then added to the data buffer appropriately
-*/
-void read_adc1(int num,...) 
-{  
-    va_list valist;
-    uint16_t val_0;
-
-    /* initialize valist for num number of arguments */
-    va_start(valist, num);
-
-    /* access all the arguments assigned to valist */
-    for (int i = 0; i < num; i++) {
-        val_0 = adc1_get_raw(va_arg(valist, int));
-        // printf("counts: %03x\n",val_0); 
-        add_12b_to_buffer(f_buf,val_0);        
-    }
-
-    /* clean memory reserved for valist */
-    va_end(valist);    
 }
 
 /*

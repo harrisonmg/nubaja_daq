@@ -10,6 +10,7 @@
 #include "../../drivers/ITG_3200_driver.h"
 #include "../../drivers/LSM6DSM_driver.h"
 #include "../../drivers/nubaja_runmodes.h"
+#include "../../drivers/nubaja_adc.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
 Runmode_t runMode = (Runmode_t) LAB; 
@@ -61,13 +62,12 @@ void config() {
     memset(err_buf,0,strlen(err_buf));
 
     //i2c module configs
-    i2c_master_config(PORT_0,I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO);
-    i2c_master_config(PORT_1,I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO);
-    // i2c_master_config_test();
-    
+    // i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
+    i2c_master_config(PORT_1,NORMAL_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+        
     //start confirmation flasher
     flasher_init(FLASHER_GPIO);
-    flasher(1);
+    flasher(H);
 
     if ( SENSOR_ENABLE ) {
         
@@ -84,10 +84,10 @@ void config() {
         AS1115_config(PORT_1);
 
         //gyro 
-        itg_3200_config();
+        // itg_3200_config();
 
         //IMU
-        LSM6DSM_config();
+        // LSM6DSM_config();
 
     }
 
@@ -105,15 +105,11 @@ void config() {
  * subsequently used to calculate vehicle speed 
  * Additionally, a thermistor is measured and its temperature display and recorded 
  */
-void control(timer_event_t evt) {
+void control_dyno(timer_event_t evt) {
     uint32_t gpio_num;
 
     if ( SENSOR_ENABLE ) {
-
-        // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
-        ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, GYRO_SLAVE_ADDR, XH));
-        // ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G));
-        display_speed(PORT_1, 12.0);
+        
         if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             
             if (gpio_num == HALL_EFF_GPIO) { //hall effect
@@ -137,22 +133,37 @@ void control(timer_event_t evt) {
                 printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
                 // add_32b_to_buffer(f_buf,RPM);
                 
-            }  
-
-           
-            
-            // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
-            // add_12b_to_buffer(f_buf,adc_raw); 
-            // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
-            // float temp = (adc_v - THERM_B) / THERM_M;
-            
-            // uint8_t temp_l = (uint32_t) temp % 10; 
-            // uint8_t temp_h = ( (uint32_t) temp / 10) % 10; 
-            // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,temp_l);
-            // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,temp_h);    
+            }   
         }
     }
 }
+
+/*
+ * This function is executed each time timer 0 ISR sets ctrl_intr high upon timer alarm
+ * This function reads several sensors and records the data
+ */
+void control_inertia() {
+
+    if ( SENSOR_ENABLE ) {
+
+        // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
+        ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, GYRO_SLAVE_ADDR, XH));
+        ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G));
+
+        // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
+        // add_12b_to_buffer(f_buf,adc_raw); 
+        // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
+        // float temp = (adc_v - THERM_B) / THERM_M;
+
+        // uint8_t temp_l = (uint32_t) temp % 10; 
+        // uint8_t temp_h = ( (uint32_t) temp / 10) % 10; 
+        // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,temp_l);
+        // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,temp_h);    
+        
+    }
+}
+
+
 
 /*
  * Resets interrupt and calls control function to interface sensors
@@ -164,7 +175,8 @@ void control_thread()
     {
         if ((xQueueReceive(timer_queue, &evt, 0)) == pdTRUE) //0 or port max delay? 
         { 
-            control(evt);
+            control_dyno(evt);
+            // control_inertia();
         }
     }
 }
@@ -187,7 +199,7 @@ void timeout_thread(void* task) {
 
             }
             dump_to_file(f_buf,err_buf,1);
-            flasher(0);
+            flasher(L);
             // gpio_kill(1,FLASHER_GPIO);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);

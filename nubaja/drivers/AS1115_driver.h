@@ -5,8 +5,8 @@
 
 //DISPLAY 
 #define DIGIT_0                             0x1 
-#define DIGIT_1                             0x2
-#define DIGIT_2                             0x3
+#define DIGIT_1                             0x3 //fuck u harrison
+#define DIGIT_2                             0x2 //fuck u harrison
 #define DIGIT_3                             0x4
 #define AS1115_SLAVE_ADDR                   0x3
 
@@ -21,10 +21,15 @@ void AS1115_config (int port_num) {
 
     i2c_write_byte(port_num, 0x0,0x2d,0x1); //enable self addressing setting the slave-addr to 0x03   
     i2c_write_byte(port_num, 0x0,0xc,0x81); //sets shutdown register for normal operation
-    i2c_write_byte(port_num, 0x0,0xe,0x04); //sets features as desired with hex-code font
+    i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0xe,0x04); //sets features as desired with hex-code font
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0x9,0xff); //decode mode enabled for all digits
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0xa,0xee); //global intensity set to 15/16
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0xb,0x3); //scan limit set to only display 4 digits 
+    
+    // for (int j = 0; j<0xf; j++) {
+    //     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_3,j);        
+    // }
+
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_3,0x5);
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_2,0xd);
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_1,0xa);

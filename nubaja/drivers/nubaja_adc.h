@@ -11,6 +11,9 @@
 #include <stdarg.h>
 #include "nubaja_logging.h"
 
+//vars
+extern char f_buf[];
+
 /*
 * function designed with variable number of arguments
 * allows for adc reads of multiple channels without

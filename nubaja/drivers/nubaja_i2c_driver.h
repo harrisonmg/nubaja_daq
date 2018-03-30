@@ -29,7 +29,8 @@
 #define PORT_1                              I2C_NUM_1        /*!< I2C port number for master dev */
 #define I2C_MASTER_TX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
-#define I2C_CLK_HZ                          400000           /*!< I2C master clock frequency */
+#define NORMAL_MODE                         100000           /*!< I2C master clock frequency */
+#define FAST_MODE                           400000           /*!< I2C master clock frequency */
 #define WRITE_BIT                           I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT                            I2C_MASTER_READ  /*!< I2C master read */
 #define ACK_CHECK_EN                        0x1              /*!< I2C master will check ack from slave*/
@@ -49,7 +50,7 @@ extern int err_buffer_idx;
 /*
  * configures one i2c module for operation as an i2c master with internal pullups disabled
  */
-void i2c_master_config(int port_num, int sda, int scl) {
+void i2c_master_config(int port_num, int clk, int sda, int scl) {
     ESP_LOGI(NUBAJA_I2C_DRIVER_TAG,"Configuring port %d",port_num);
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
@@ -57,7 +58,7 @@ void i2c_master_config(int port_num, int sda, int scl) {
     conf.sda_pullup_en = GPIO_PULLUP_DISABLE;//
     conf.scl_io_num = scl;
     conf.scl_pullup_en = GPIO_PULLUP_DISABLE;//
-    conf.master.clk_speed = I2C_CLK_HZ;
+    conf.master.clk_speed = clk;
     i2c_param_config(port_num, &conf);
     i2c_driver_install(port_num, conf.mode,
                        I2C_MASTER_RX_BUF_DISABLE,
