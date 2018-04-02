@@ -40,9 +40,15 @@
 #define ZH                                  0x21
 #define ZL                                  0x22
 #define GYRO_SLAVE_ADDR 					0x69
+#define GYRO_FS                             16 // full scale: +/- 2000 degrees / sec
+#define GYRO_SCALE                          (GYRO_FS / 32767)
 
 //vars
 static const char *ITG_3200_DRIVER_TAG = "ITG_3200_DRIVER";
+extern char f_buf[];
+extern char err_buf[];
+extern int buffer_idx;
+extern int err_buffer_idx;
 //datasheet: https://www.invensense.com/products/motion-tracking/3-axis/itg-3200/
 //register map: https://www.invensense.com/wp-content/uploads/2015/02/ITG-3200-Register-Map.pdf
 
@@ -70,6 +76,14 @@ void itg_3200_config() {
     // ERROR_HANDLE_ME(i2c_write_byte(0x0,0x0,0x69));//address rewrite
     ERROR_HANDLE_ME(i2c_write_byte(PORT_0, GYRO_SLAVE_ADDR,SMPLRT_DIV_REG,SMPLRT_DIV));
     ERROR_HANDLE_ME(i2c_write_byte(PORT_0, GYRO_SLAVE_ADDR,DLPF_FS_REG,DLPF));
+}
+
+void itg_3200_test(int port_num, uint8_t slave_address, int reg) {
+    struct sensor_output_t itg_3200_output; 
+    ERROR_HANDLE_ME(i2c_read_3_reg(port_num, slave_address, reg, &itg_3200_output));
+    add_s_16b_to_buffer(f_buf,(itg_3200_output.reg_0 * GYRO_SCALE));
+    add_s_16b_to_buffer(f_buf,(itg_3200_output.reg_1 * GYRO_SCALE));
+    add_s_16b_to_buffer(f_buf,(itg_3200_output.reg_2 * GYRO_SCALE));
 }
 
 #endif

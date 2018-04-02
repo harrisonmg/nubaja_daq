@@ -47,6 +47,13 @@ extern char err_buf[];
 extern int buffer_idx;
 extern int err_buffer_idx;
 
+//output container
+struct sensor_output_t {
+    int16_t reg_0;
+    int16_t reg_1;
+    int16_t reg_2;
+};
+
 /*
  * configures one i2c module for operation as an i2c master with internal pullups disabled
  */
@@ -130,10 +137,6 @@ int i2c_read_2_byte(int port_num, uint8_t slave_address, int reg)
     //uint16_t data = *data_l; //uncomment for one byte read
     add_16b_to_buffer (f_buf, data);
     
-    //experiment
-    int16_t output_data = (int16_t) data; //convert to signed
-    add_s_16b_to_buffer (f_buf, output_data); //add signed data to buffer
-
     if (ret != ESP_OK) {
         ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c read failed");
         return I2C_READ_FAILED; //dead sensor
@@ -151,7 +154,7 @@ int i2c_read_2_byte(int port_num, uint8_t slave_address, int reg)
 * reads 3 registers as a burst read
 * should be faster than calling itg_read 3 times sequentially
 */
-int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg) 
+int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
 {
     int ret;
     uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
@@ -194,6 +197,10 @@ int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg)
         uint16_t data_0 = (*data_h_0 << 8 | *data_l_0); 
         uint16_t data_1 = (*data_h_1 << 8 | *data_l_1); 
         uint16_t data_2 = (*data_h_2 << 8 | *data_l_2); 
+        
+        output_container->reg_0 = (int16_t) data_0;
+        output_container->reg_1 = (int16_t) data_1;
+        output_container->reg_2 = (int16_t) data_2;
         
         add_16b_to_buffer(f_buf,data_0);
         add_16b_to_buffer(f_buf,data_1);

@@ -147,8 +147,9 @@ void control_inertia() {
     if ( SENSOR_ENABLE ) {
 
         // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
-        ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, GYRO_SLAVE_ADDR, XH));
-        ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G));
+        itg_3200_test(PORT_0, GYRO_SLAVE_ADDR, XH);
+        // ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, GYRO_SLAVE_ADDR, XH,NULL));
+        // ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G,NULL));
 
         // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
         // add_12b_to_buffer(f_buf,adc_raw); 
