@@ -129,6 +129,10 @@ int i2c_read_2_byte(int port_num, uint8_t slave_address, int reg)
     uint16_t data = (*data_h << 8 | *data_l); //comment out for one byte read
     //uint16_t data = *data_l; //uncomment for one byte read
     add_16b_to_buffer (f_buf, data);
+    
+    //experiment
+    int16_t output_data = (int16_t) data; //convert to signed
+    add_s_16b_to_buffer (f_buf, output_data); //add signed data to buffer
 
     if (ret != ESP_OK) {
         ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c read failed");
@@ -165,10 +169,10 @@ int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg)
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, ( slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
     i2c_master_read_byte(cmd, data_h_0, ACK);    
-    i2c_master_read_byte(cmd, data_h_0, ACK); 
+    i2c_master_read_byte(cmd, data_l_0, ACK); 
     
     i2c_master_read_byte(cmd, data_h_1, ACK); 
-    i2c_master_read_byte(cmd, data_h_1, ACK); 
+    i2c_master_read_byte(cmd, data_l_1, ACK); 
 
     i2c_master_read_byte(cmd, data_h_2, ACK); 
     i2c_master_read_byte(cmd, data_l_2, NACK);
