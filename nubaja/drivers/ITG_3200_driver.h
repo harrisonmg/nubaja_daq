@@ -40,7 +40,7 @@
 #define ZH                                  0x21
 #define ZL                                  0x22
 #define GYRO_SLAVE_ADDR 					0x69
-#define GYRO_FS                             16 // full scale: +/- 2000 degrees / sec
+#define GYRO_FS                             2000 // full scale: +/- 2000 degrees / sec
 #define GYRO_SCALE                          (GYRO_FS / 32767)
 
 //vars
