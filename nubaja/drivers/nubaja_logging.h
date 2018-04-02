@@ -204,6 +204,24 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
 }
 
 /*
+ * appends signed 16b integer to the end of the buffer
+ * adds 4 hex digits to the end of the buffer
+ * designed for use with I2C reads of the itg-3200
+ * which has 16b registers
+ */
+void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
+    char formatted_string [17]; //number of bits + 1
+    sprintf(formatted_string,"%04x",i_to_add);
+    strcat(buf,formatted_string);
+    strcat(buf," ");
+    buffer_idx+=5;
+    if (buffer_idx >= SIZE) {
+       buffer_idx = 0;
+       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+    }    
+}
+
+/*
  * appends 32b float to the end of the buffer
  * adds 8 hex digits to the end of the buffer
  */
