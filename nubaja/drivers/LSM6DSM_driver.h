@@ -106,7 +106,7 @@ void LSM6DSM_read_both(int port_num, uint8_t slave_address, int reg) {
 
     struct sensor_output_t LSM6DSM_output; 
 
-    ERROR_HANDLE_ME(i2c_read_3_reg_lh(port_num, slave_address, reg, &LSM6DSM_output)); //this function doesn't work properly with the IMU - order of high and low registers is wrong
+    ERROR_HANDLE_ME(i2c_read_6_reg_lh(port_num, slave_address, reg, &LSM6DSM_output)); //this function doesn't work properly with the IMU - order of high and low registers is wrong
     add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_0);
     add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_1);
     add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_2);

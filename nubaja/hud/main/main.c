@@ -17,6 +17,7 @@ Runmode_t runMode = (Runmode_t) LAB_LOG;
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
+int ERROR_ENABLE;
 
 //vars
 SemaphoreHandle_t killSemaphore = NULL;
@@ -131,7 +132,7 @@ void control_dyno(timer_event_t evt) {
                 old_time_RPM = curr_time_RPM; 
                 display_RPM(PORT_1, RPM);
                 printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
-                // add_32b_to_buffer(f_buf,RPM);
+                add_32b_to_buffer(f_buf,RPM);
                 
             }   
         }
@@ -199,7 +200,8 @@ void timeout_thread(void* task) {
                 vTaskDelay(1);
 
             }
-            dump_to_file(f_buf,err_buf,1);
+            err_to_file(err_buf,1); //err_to_file called first here since data_to_file actually unmounts the SD card 
+            data_to_file(f_buf,1);
             flasher(L);
             display_disable(PORT_1);
             // gpio_kill(1,FLASHER_GPIO);
@@ -216,6 +218,7 @@ void timeout_thread(void* task) {
 void app_main() { 
     
     //set run mode
+    ERROR_ENABLE = (runMode & BIT(2)) >> 2; 
     COMMS_ENABLE = (runMode & BIT(2)) >> 2; 
     SENSOR_ENABLE = (runMode & BIT(1)) >> 1; 
     LOGGING_ENABLE = (runMode & BIT(0));  

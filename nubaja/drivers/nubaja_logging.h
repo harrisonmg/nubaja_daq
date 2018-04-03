@@ -62,11 +62,13 @@ extern char err_buf[];
 extern int buffer_idx;
 extern int err_buffer_idx;
 extern int LOGGING_ENABLE; 
+extern int ERROR_ENABLE; 
 
 /*
  * writes data buffer and error buffer to respective file on SD card
+ * UNMOUNTS SD CARD WHEN UNMOUNT IS TRUE
  */
-int dump_to_file(char buffer[],char err_buffer[],int unmount) {
+int data_to_file(char buffer[],int unmount) {
     FILE *fp;
 
     if(LOGGING_ENABLE) {
@@ -83,6 +85,36 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
 
         fputs(buffer, fp);        
         fclose(fp);
+        
+    }  
+
+    if ( unmount && LOGGING_ENABLE ) {
+
+        fp = fopen("/sdcard/data.txt", "a");
+        fputs("ded\n", fp);  
+        fclose(fp);
+
+        esp_vfs_fat_sdmmc_unmount();
+        ESP_LOGI(NUBAJA_LOGGING_TAG, "umounted");
+        return SUCCESS;
+
+    }
+
+    memset(buffer,0,strlen(buffer));  
+    ESP_LOGI(NUBAJA_LOGGING_TAG, "data buffer dumped");    
+    return SUCCESS;
+
+}
+
+/*
+ * writes error buffer to respective file on SD card
+ * DOES NOT UNMOUNT SD CARD WHEN UNMOUNT IS TRUE
+ */
+int err_to_file(char err_buffer[],int unmount) {
+    FILE *fp;
+
+    if(ERROR_ENABLE) {
+
         fp = fopen("/sdcard/error.txt", "a");
 
         if (fp == NULL)
@@ -98,31 +130,26 @@ int dump_to_file(char buffer[],char err_buffer[],int unmount) {
         
     }  
 
-    if ( unmount && LOGGING_ENABLE ) {
-
-        fp = fopen("/sdcard/data.txt", "a");
-        fputs("ded\n", fp);  
-        fclose(fp);
+    if ( unmount && ERROR_ENABLE ) {
 
         fp = fopen("/sdcard/error.txt", "a");
         fputs("ded\n", fp);  
         fclose(fp);
 
-        esp_vfs_fat_sdmmc_unmount();
-        ESP_LOGI(NUBAJA_LOGGING_TAG, "umounted");
+        // esp_vfs_fat_sdmmc_unmount();
+        ESP_LOGI(NUBAJA_LOGGING_TAG, "err - umounted");
         return SUCCESS;
 
     }
 
-    memset(buffer,0,strlen(buffer)); 
     memset(err_buf,0,strlen(err_buf)); 
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "buffers dumped");    
+    ESP_LOGI(NUBAJA_LOGGING_TAG, "err buf dumped");    
     return SUCCESS;
 
 }
 
 /*
-* 
+* adds error into the error buffer for later storage 
 */
 void record_error(char err_buffer[], char err_msg[]) {
 
@@ -134,8 +161,7 @@ void record_error(char err_buffer[], char err_msg[]) {
     if (err_buffer_idx >= SIZE) {
 
         err_buffer_idx = 0;
-        char null_buf[1];
-        dump_to_file(null_buf,err_buf,0);  
+        err_to_file(err_buf,0);  
 
     } 
 
@@ -182,7 +208,7 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
     buffer_idx+=4;
     if (buffer_idx >= SIZE) {
         buffer_idx = 0;
-        ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+        ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }   
 }
 
@@ -200,7 +226,7 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
     buffer_idx+=5;
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
-       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+       ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }    
 }
 
@@ -223,7 +249,7 @@ void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
     buffer_idx+=5;
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
-       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+       ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }    
 }
 
@@ -240,7 +266,7 @@ void add_32b_to_buffer (char buf[],float f_to_add) {
     buffer_idx+=9;
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
-       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+       ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }    
 }
 
@@ -251,7 +277,7 @@ void buffer_newline(char buf[]) {
     buffer_idx+=strlen(newline);
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
-       ERROR_HANDLE_ME(dump_to_file(buf,err_buf,0)); 
+       ERROR_HANDLE_ME(data_to_file(buf,0)); 
     } 
 }
 
@@ -293,17 +319,19 @@ int sd_config()
         ESP_LOGE(NUBAJA_LOGGING_TAG, "Failed to create file");
         return FILE_CREATE_ERROR;
     }   
-    fputs("ALIVE\n", fp); 
+    fputs("RECORDING\n", fp); 
     fclose(fp);
 
-    fp = fopen("/sdcard/error.txt", "a");
-    if (fp == NULL)
-    {
-        ESP_LOGE(NUBAJA_LOGGING_TAG, "Failed to create file");
-        return FILE_CREATE_ERROR;
-    }   
-    fputs("ALIVE\n", fp); 
-    fclose(fp);    
+    if (ERROR_ENABLE) {
+        fp = fopen("/sdcard/error.txt", "a");
+        if (fp == NULL)
+        {
+            ESP_LOGE(NUBAJA_LOGGING_TAG, "Failed to create file");
+            return FILE_CREATE_ERROR;
+        }   
+        fputs("RECORDING\n", fp); 
+        fclose(fp);    
+    }
 
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {

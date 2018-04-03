@@ -45,7 +45,7 @@
 
 //GPIO 
 #define HALL_EFF_GPIO                       26 //wheel spd hall effect in
-#define ENGINE_RPM_GPIO                     4 //engine RPM measurement circuit. currently unrouted. 
+#define ENGINE_RPM_GPIO                     27 //engine RPM measurement circuit. currently unrouted. 
 #define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO))
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           4.10 // TIRE DIAMETER (23") * PI * 3600 / 63360                                            
