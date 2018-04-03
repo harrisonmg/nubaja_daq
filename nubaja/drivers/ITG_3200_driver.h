@@ -78,12 +78,15 @@ void itg_3200_config() {
     ERROR_HANDLE_ME(i2c_write_byte(PORT_0, GYRO_SLAVE_ADDR,DLPF_FS_REG,DLPF));
 }
 
-void itg_3200_test(int port_num, uint8_t slave_address, int reg) {
+void itg_3200_read(int port_num, uint8_t slave_address, int reg) {
+
     struct sensor_output_t itg_3200_output; 
+
     ERROR_HANDLE_ME(i2c_read_3_reg(port_num, slave_address, reg, &itg_3200_output));
-    add_s_16b_to_buffer(f_buf,(itg_3200_output.reg_0 * GYRO_SCALE));
-    add_s_16b_to_buffer(f_buf,(itg_3200_output.reg_1 * GYRO_SCALE));
-    add_s_16b_to_buffer(f_buf,(itg_3200_output.reg_2 * GYRO_SCALE));
+    add_s_16b_to_buffer(f_buf,itg_3200_output.reg_0);
+    add_s_16b_to_buffer(f_buf,itg_3200_output.reg_1);
+    add_s_16b_to_buffer(f_buf,itg_3200_output.reg_2);
+    buffer_newline(f_buf);
 }
 
 #endif

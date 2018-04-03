@@ -13,7 +13,7 @@
 #include "../../drivers/nubaja_adc.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) LAB; 
+Runmode_t runMode = (Runmode_t) LAB_LOG; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
@@ -62,7 +62,7 @@ void config() {
     memset(err_buf,0,strlen(err_buf));
 
     //i2c module configs
-    // i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
+    i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
     i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
         
     //start confirmation flasher
@@ -84,10 +84,10 @@ void config() {
         AS1115_config(PORT_1);
 
         //gyro 
-        // itg_3200_config();
+        itg_3200_config();
 
         //IMU
-        // LSM6DSM_config();
+        LSM6DSM_config();
 
     }
 
@@ -147,10 +147,10 @@ void control_inertia() {
     if ( SENSOR_ENABLE ) {
 
         // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
-        itg_3200_test(PORT_0, GYRO_SLAVE_ADDR, XH);
-        // ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, GYRO_SLAVE_ADDR, XH,NULL));
-        // ERROR_HANDLE_ME(i2c_read_3_reg(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G,NULL));
-
+        itg_3200_read(PORT_0, GYRO_SLAVE_ADDR, XH);
+        LSM6DSM_read(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
+        LSM6DSM_read(PORT_0, IMU_SLAVE_ADDR, OUTX_L_XL);
+        // LSM6DSM_read_both(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
         // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
         // add_12b_to_buffer(f_buf,adc_raw); 
         // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
@@ -176,8 +176,8 @@ void control_thread()
     {
         if ((xQueueReceive(timer_queue, &evt, 0)) == pdTRUE) //0 or port max delay? 
         { 
-            control_dyno(evt);
-            // control_inertia();
+            // control_dyno(evt);
+            control_inertia();
         }
     }
 }
@@ -201,6 +201,7 @@ void timeout_thread(void* task) {
             }
             dump_to_file(f_buf,err_buf,1);
             flasher(L);
+            display_disable(PORT_1);
             // gpio_kill(1,FLASHER_GPIO);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);

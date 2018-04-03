@@ -52,6 +52,9 @@ struct sensor_output_t {
     int16_t reg_0;
     int16_t reg_1;
     int16_t reg_2;
+    int16_t reg_3;
+    int16_t reg_4;
+    int16_t reg_5;
 };
 
 /*
@@ -202,10 +205,10 @@ int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg, struct sensor_o
         output_container->reg_1 = (int16_t) data_1;
         output_container->reg_2 = (int16_t) data_2;
         
-        add_16b_to_buffer(f_buf,data_0);
-        add_16b_to_buffer(f_buf,data_1);
-        add_16b_to_buffer(f_buf,data_2);    
-        buffer_newline(f_buf); 
+        // add_16b_to_buffer(f_buf,data_0);
+        // add_16b_to_buffer(f_buf,data_1);
+        // add_16b_to_buffer(f_buf,data_2);    
+        // buffer_newline(f_buf); 
            
         free(data_h_0); 
         free(data_l_0);
@@ -213,6 +216,158 @@ int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg, struct sensor_o
         free(data_l_1);
         free(data_h_2); 
         free(data_l_2);   
+
+        return SUCCESS;
+    }
+}
+
+/*
+* reads 3 registers as a burst read
+* should be faster than calling itg_read 3 times sequentially
+*/
+int i2c_read_3_reg_lh(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
+{
+    int ret;
+    uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_0 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_1 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_1 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_2 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_2 = (uint8_t*) malloc(DATA_LENGTH);
+    
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_read_byte(cmd, data_l_0, ACK);    
+    i2c_master_read_byte(cmd, data_h_0, ACK); 
+    
+    i2c_master_read_byte(cmd, data_l_1, ACK); 
+    i2c_master_read_byte(cmd, data_h_1, ACK); 
+
+    i2c_master_read_byte(cmd, data_l_2, ACK); 
+    i2c_master_read_byte(cmd, data_h_2, NACK);
+    
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd); 
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c read failed");
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+        return I2C_READ_FAILED; // dead sensor            
+    } else {
+        uint16_t data_0 = (*data_h_0 << 8 | *data_l_0); 
+        uint16_t data_1 = (*data_h_1 << 8 | *data_l_1); 
+        uint16_t data_2 = (*data_h_2 << 8 | *data_l_2); 
+        
+        output_container->reg_0 = (int16_t) data_0;
+        output_container->reg_1 = (int16_t) data_1;
+        output_container->reg_2 = (int16_t) data_2;
+        
+        // add_16b_to_buffer(f_buf,data_0);
+        // add_16b_to_buffer(f_buf,data_1);
+        // add_16b_to_buffer(f_buf,data_2);    
+        // buffer_newline(f_buf); 
+           
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+
+        return SUCCESS;
+    }
+}
+
+/*
+* reads 6 registers as a burst read
+*/
+int i2c_read_6_reg_lh(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
+{
+    int ret;
+    uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_0 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_1 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_1 = (uint8_t*) malloc(DATA_LENGTH);    
+    uint8_t* data_h_2 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_2 = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t* data_h_3 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_3 = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t* data_h_4 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_4 = (uint8_t*) malloc(DATA_LENGTH);
+    uint8_t* data_h_5 = (uint8_t*) malloc(DATA_LENGTH); 
+    uint8_t* data_l_5 = (uint8_t*) malloc(DATA_LENGTH);
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK); 
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_read_byte(cmd, data_l_0, ACK);    
+    i2c_master_read_byte(cmd, data_h_0, ACK); 
+    
+    i2c_master_read_byte(cmd, data_l_1, ACK); 
+    i2c_master_read_byte(cmd, data_h_1, ACK); 
+
+    i2c_master_read_byte(cmd, data_l_2, ACK); 
+    i2c_master_read_byte(cmd, data_h_2, NACK);
+    
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd); 
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c read failed");
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+        return I2C_READ_FAILED; // dead sensor            
+    } else {
+        uint16_t data_0 = (*data_h_0 << 8 | *data_l_0); 
+        uint16_t data_1 = (*data_h_1 << 8 | *data_l_1); 
+        uint16_t data_2 = (*data_h_2 << 8 | *data_l_2); 
+        uint16_t data_3 = (*data_h_3 << 8 | *data_l_3); 
+        uint16_t data_4 = (*data_h_4 << 8 | *data_l_4); 
+        uint16_t data_5 = (*data_h_5 << 8 | *data_l_5); 
+        
+        output_container->reg_0 = (int16_t) data_0;
+        output_container->reg_1 = (int16_t) data_1;
+        output_container->reg_2 = (int16_t) data_2;
+        output_container->reg_3 = (int16_t) data_3;
+        output_container->reg_4 = (int16_t) data_4;
+        output_container->reg_5 = (int16_t) data_5;
+        
+        // add_16b_to_buffer(f_buf,data_0);
+        // add_16b_to_buffer(f_buf,data_1);
+        // add_16b_to_buffer(f_buf,data_2);    
+        // buffer_newline(f_buf); 
+           
+        free(data_h_0); 
+        free(data_l_0);
+        free(data_h_1); 
+        free(data_l_1);
+        free(data_h_2); 
+        free(data_l_2);   
+        free(data_h_3); 
+        free(data_l_3);   
+        free(data_h_4); 
+        free(data_l_4);   
+        free(data_h_5); 
+        free(data_l_5);   
 
         return SUCCESS;
     }

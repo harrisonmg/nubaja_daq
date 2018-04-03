@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <inttypes.h>
 
 //kernel
 #include "freertos/FreeRTOS.h"
@@ -208,10 +209,15 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
  * adds 4 hex digits to the end of the buffer
  * designed for use with I2C reads of the itg-3200
  * which has 16b registers
+ * convert in excel using MOD(HEX2DEC(ENTER_CELL_HERE)+2^15,2^16)-2^15
  */
 void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
     char formatted_string [17]; //number of bits + 1
-    sprintf(formatted_string,"%04x",i_to_add);
+    if (i_to_add >= 0) {
+        sprintf(formatted_string,"%04x",i_to_add);
+    } else if (i_to_add < 0) {
+        sprintf(formatted_string,"%04x",(uint16_t) i_to_add);    
+    }
     strcat(buf,formatted_string);
     strcat(buf," ");
     buffer_idx+=5;

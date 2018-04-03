@@ -48,7 +48,7 @@
 #define CTRL1_XL                            0x10
 #define CTRL8_XL                            0x17
 #define CTRL2_G                             0x11
-#define IMU_SLAVE_ADDR 		            0x6a
+#define IMU_SLAVE_ADDR                      0x6a
 #define IMU_GYRO_FS                         2000 // full scale: +/- 2000 degrees / sec
 #define IMU_GYRO_SCALE                      (IMU_GYRO_FS / 32767)
 #define IMU_XL_FS                           16 // full scale: +/- 16 g's
@@ -90,14 +90,30 @@ void LSM6DSM_config() {
 
 }
 
-void LSM6DSM_gyro_test(int port_num, uint8_t slave_address, int reg) {
+void LSM6DSM_read(int port_num, uint8_t slave_address, int reg) {
 
     struct sensor_output_t LSM6DSM_output; 
 
-    ERROR_HANDLE_ME(i2c_read_3_reg(port_num, slave_address, reg, &LSM6DSM_output)); //this function doesn't work properly with the IMU - order of high and low registers is wrong
-    add_s_16b_to_buffer(f_buf,(LSM6DSM_output.reg_0 * IMU_GYRO_SCALE));
-    add_s_16b_to_buffer(f_buf,(LSM6DSM_output.reg_1 * IMU_GYRO_SCALE));
-    add_s_16b_to_buffer(f_buf,(LSM6DSM_output.reg_2 * IMU_GYRO_SCALE));
+    ERROR_HANDLE_ME(i2c_read_3_reg_lh(port_num, slave_address, reg, &LSM6DSM_output)); //this function doesn't work properly with the IMU - order of high and low registers is wrong
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_0);
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_1);
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_2);
+    buffer_newline(f_buf); 
+
+}
+
+void LSM6DSM_read_both(int port_num, uint8_t slave_address, int reg) {
+
+    struct sensor_output_t LSM6DSM_output; 
+
+    ERROR_HANDLE_ME(i2c_read_3_reg_lh(port_num, slave_address, reg, &LSM6DSM_output)); //this function doesn't work properly with the IMU - order of high and low registers is wrong
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_0);
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_1);
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_2);
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_3);
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_4);
+    add_s_16b_to_buffer(f_buf,LSM6DSM_output.reg_5);
+    buffer_newline(f_buf); 
 
 }
 
