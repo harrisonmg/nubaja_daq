@@ -31,6 +31,7 @@
 #define I2C_MASTER_RX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
 #define NORMAL_MODE                         100000           /*!< I2C master clock frequency */
 #define FAST_MODE                           400000           /*!< I2C master clock frequency */
+#define FAST_MODE_PLUS                      1000000           /*!< I2C master clock frequency */
 #define WRITE_BIT                           I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT                            I2C_MASTER_READ  /*!< I2C master read */
 #define ACK_CHECK_EN                        0x1              /*!< I2C master will check ack from slave*/
@@ -222,9 +223,10 @@ int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg, struct sensor_o
 }
 
 /*
-* reads 3 registers as a burst read
-* should be faster than calling itg_read 3 times sequentially
-*/
+ * reads 3 registers as a burst read
+ * designed for use with LSM6DSM since its registers are ordered low, high - otherwise mostly 
+ * identical to i2c_read_3_reg, etc. 
+ */
 int i2c_read_3_reg_lh(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
 {
     int ret;
@@ -290,8 +292,10 @@ int i2c_read_3_reg_lh(int port_num, uint8_t slave_address, int reg, struct senso
 }
 
 /*
-* reads 6 registers as a burst read
-*/
+ * reads 6 registers as a burst read
+ * designed for use with LSM6DSM since its registers are ordered low, high - otherwise mostly 
+ * identical to i2c_read_3_reg, etc. 
+ */
 int i2c_read_6_reg_lh(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
 {
     int ret;
@@ -321,13 +325,23 @@ int i2c_read_6_reg_lh(int port_num, uint8_t slave_address, int reg, struct senso
     i2c_master_read_byte(cmd, data_h_1, ACK); 
 
     i2c_master_read_byte(cmd, data_l_2, ACK); 
-    i2c_master_read_byte(cmd, data_h_2, NACK);
+    i2c_master_read_byte(cmd, data_h_2, ACK);
     
+    i2c_master_read_byte(cmd, data_l_3, ACK); 
+    i2c_master_read_byte(cmd, data_h_3, ACK);
+
+    i2c_master_read_byte(cmd, data_l_4, ACK); 
+    i2c_master_read_byte(cmd, data_h_4, ACK);
+
+    i2c_master_read_byte(cmd, data_l_5, ACK); 
+    i2c_master_read_byte(cmd, data_h_5, NACK);    
+
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd); 
 
     if (ret != ESP_OK) {
+
         ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c read failed");
         free(data_h_0); 
         free(data_l_0);
@@ -335,8 +349,16 @@ int i2c_read_6_reg_lh(int port_num, uint8_t slave_address, int reg, struct senso
         free(data_l_1);
         free(data_h_2); 
         free(data_l_2);   
-        return I2C_READ_FAILED; // dead sensor            
+        free(data_h_3); 
+        free(data_l_3);   
+        free(data_h_4); 
+        free(data_l_4);   
+        free(data_h_5); 
+        free(data_l_5); 
+        return I2C_READ_FAILED; // dead sensor   
+
     } else {
+
         uint16_t data_0 = (*data_h_0 << 8 | *data_l_0); 
         uint16_t data_1 = (*data_h_1 << 8 | *data_l_1); 
         uint16_t data_2 = (*data_h_2 << 8 | *data_l_2); 

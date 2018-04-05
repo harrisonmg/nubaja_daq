@@ -101,7 +101,7 @@ int data_to_file(char buffer[],int unmount) {
     }
 
     memset(buffer,0,strlen(buffer));  
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "data buffer dumped");    
+    // ESP_LOGI(NUBAJA_LOGGING_TAG, "data buffer dumped");    
     return SUCCESS;
 
 }
@@ -143,7 +143,7 @@ int err_to_file(char err_buffer[],int unmount) {
     }
 
     memset(err_buf,0,strlen(err_buf)); 
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "err buf dumped");    
+    // ESP_LOGI(NUBAJA_LOGGING_TAG, "err buf dumped");    
     return SUCCESS;
 
 }
@@ -187,6 +187,10 @@ void ERROR_HANDLE_ME(int err_num) {
             break; 
         case 3: //file dump error
             strcpy(msg, "file create error\n");
+            record_error(err_buf,msg);
+            break;             
+        case 69: //file dump error
+            strcpy(msg, "houston we have a problem\n");
             record_error(err_buf,msg);
             break;             
         default: 

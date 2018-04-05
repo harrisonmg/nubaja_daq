@@ -16,6 +16,7 @@
 typedef enum runmode_t {
 	LAB = 0b0010,
 	LAB_LOG = 0b0011,
+	LAB_ERR = 0b1010,
 	LAB_LOG_ERR = 0b1011,
 	LAB_WIFI = 0b0110,
 	FIELD = 0b1111,
