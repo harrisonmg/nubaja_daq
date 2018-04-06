@@ -13,7 +13,7 @@
 #include "../../drivers/nubaja_adc.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) LAB_LOG_ERR; 
+Runmode_t runMode = (Runmode_t) FIELD; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
@@ -63,7 +63,7 @@ void config() {
     memset(err_buf,0,strlen(err_buf));
 
     //i2c module configs
-    i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
+    // i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
     // i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
         
     //start confirmation flasher
@@ -119,8 +119,9 @@ void control_dyno(timer_event_t evt) {
                 float period = (float) (curr_time - old_time) / TIMER_SCALE;
                 float v_car = MPH_SCALE / period;
                 old_time = curr_time; 
-                display_speed(PORT_1, v_car);
+                // display_speed(PORT_1, v_car);
                 printf("speed: %f intr: %08x\n",v_car,gpio_num);
+                
 
             } 
 
@@ -130,11 +131,13 @@ void control_dyno(timer_event_t evt) {
                 float period = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
                 float RPM = RPM_SCALE / period;
                 old_time_RPM = curr_time_RPM; 
-                display_RPM(PORT_1, RPM);
+                // display_RPM(PORT_1, RPM);
                 printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
                 add_32b_to_buffer(f_buf,RPM);
+
                 
-            }   
+            } 
+            buffer_newline(f_buf);  
         }
     }
 }
@@ -150,9 +153,9 @@ void control_inertia() {
         // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
         
         // itg_3200_read(PORT_0, GYRO_SLAVE_ADDR, XH);
-        LSM6DSM_read(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
+        // LSM6DSM_read(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
         // LSM6DSM_read(PORT_0, IMU_SLAVE_ADDR, OUTX_L_XL);
-        // LSM6DSM_read_both(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
+        LSM6DSM_read_both(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
         
         // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
         // add_12b_to_buffer(f_buf,adc_raw); 
