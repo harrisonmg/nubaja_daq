@@ -53,7 +53,7 @@
 #define FILE_CREATE_ERROR                   3
 
 //buffer config
-#define SIZE                                2000
+#define SIZE                                5000 //in bytes
 
 //vars
 static const char *NUBAJA_LOGGING_TAG = "NUBAJA_LOGGING";
@@ -209,7 +209,7 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
     sprintf(formatted_string,"%03x",i_to_add);
     strcat(buf,formatted_string);
     strcat(buf," ");
-    buffer_idx+=4;
+    buffer_idx+=13;
     if (buffer_idx >= SIZE) {
         buffer_idx = 0;
         ERROR_HANDLE_ME(data_to_file(buf,0)); 
@@ -227,7 +227,7 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
     sprintf(formatted_string,"%04x",i_to_add);
     strcat(buf,formatted_string);
     strcat(buf," ");
-    buffer_idx+=5;
+    buffer_idx+=17;
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
@@ -250,7 +250,7 @@ void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
     }
     strcat(buf,formatted_string);
     strcat(buf," ");
-    buffer_idx+=5;
+    buffer_idx+=17;
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
@@ -267,7 +267,7 @@ void add_32b_to_buffer (char buf[],float f_to_add) {
     sprintf(formatted_string,"%08x",i_to_add);
     strcat(buf,formatted_string);
     strcat(buf," ");
-    buffer_idx+=9;
+    buffer_idx+=33;
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
