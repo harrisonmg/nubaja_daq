@@ -5,8 +5,8 @@
 
 //DISPLAY 
 #define DIGIT_0                             0x1 
-#define DIGIT_1                             0x3 //fuck u harrison
-#define DIGIT_2                             0x2 //fuck u harrison
+#define DIGIT_1                             0x2
+#define DIGIT_2                             0x3
 #define DIGIT_3                             0x4
 #define AS1115_SLAVE_ADDR                   0x3
 

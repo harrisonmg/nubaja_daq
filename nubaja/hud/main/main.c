@@ -13,7 +13,7 @@
 #include "../../drivers/nubaja_adc.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) FIELD; 
+Runmode_t runMode = (Runmode_t) LAB; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
@@ -63,8 +63,8 @@ void config() {
     memset(err_buf,0,strlen(err_buf));
 
     //i2c module configs
-    // i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
-    // i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+    i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
+    i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
         
     //start confirmation flasher
     flasher_init(FLASHER_GPIO);
@@ -82,7 +82,7 @@ void config() {
         config_gpio();
         
         //display driver config
-        // AS1115_config(PORT_1);
+        AS1115_config(PORT_1);
 
         //gyro 
         // itg_3200_config();
