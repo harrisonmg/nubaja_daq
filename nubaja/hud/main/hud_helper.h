@@ -48,7 +48,7 @@
 #define ENGINE_RPM_GPIO                     27 //engine RPM measurement circuit. currently unrouted. 
 #define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO))
 #define ESP_INTR_FLAG_DEFAULT               0
-#define MPH_SCALE                           4.10 // TIRE DIAMETER (23") * PI * 3600 / 63360                                            
+#define MPH_SCALE                           3.927 // TIRE DIAMETER (22") * PI * 3600 / 63360                                            
 #define RPM_SCALE                           60 //RPM = 60 / period
 #define FLASHER_GPIO                        25
 #define H                                   1
@@ -67,7 +67,7 @@
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define CONTROL_LOOP_PERIOD                 .001   // control loop period for timer group 0 timer 0 in secondss
-#define PROGRAM_LENGTH                      30 // program length for timer group 0 timer 1 in seconds
+#define PROGRAM_LENGTH                      600 // program length for timer group 0 timer 1 in seconds
 
   
 

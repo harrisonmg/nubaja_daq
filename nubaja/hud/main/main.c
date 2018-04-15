@@ -13,7 +13,7 @@
 #include "../../drivers/nubaja_adc.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) LAB; 
+Runmode_t runMode = (Runmode_t) FIELD; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
@@ -30,6 +30,7 @@ char f_buf[SIZE]; //DATA BUFFER
 char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
+int disp_count = 0;
 
 uint64_t old_time = 0;
 uint64_t old_time_RPM = 0;
@@ -64,7 +65,7 @@ void config() {
 
     //i2c module configs
     i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
-    i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+    // i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
         
     //start confirmation flasher
     flasher_init(FLASHER_GPIO);
@@ -82,7 +83,7 @@ void config() {
         config_gpio();
         
         //display driver config
-        AS1115_config(PORT_1);
+        // AS1115_config(PORT_1);
 
         //gyro 
         // itg_3200_config();
@@ -116,11 +117,13 @@ void control_dyno(timer_event_t evt) {
             if (gpio_num == HALL_EFF_GPIO) { //hall effect
 
                 uint64_t curr_time = evt.timer_counts;
-                float period = (float) (curr_time - old_time) / TIMER_SCALE;
-                float v_car = MPH_SCALE / period;
+                float period_speed = (float) (curr_time - old_time) / TIMER_SCALE;
+                float v_car = MPH_SCALE / period_speed;
                 old_time = curr_time; 
-                // display_speed(PORT_1, v_car);
-                printf("speed: %f intr: %08x\n",v_car,gpio_num);
+                display_speed(PORT_1, v_car);
+                // printf("speed: %f intr: %08x\n",v_car,gpio_num);
+                add_32b_to_buffer(f_buf,v_car,buffer_idx );
+                buffer_newline(f_buf); 
                 
 
             } 
@@ -128,16 +131,21 @@ void control_dyno(timer_event_t evt) {
             if (gpio_num == ENGINE_RPM_GPIO) { //engine RPM measuring circuit
                 
                 uint64_t curr_time_RPM = evt.timer_counts;
-                float period = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
-                float RPM = RPM_SCALE / period;
+                float period_RPM = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
+                float RPM = RPM_SCALE / period_RPM;
                 old_time_RPM = curr_time_RPM; 
-                // display_RPM(PORT_1, RPM);
-                printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
-                add_32b_to_buffer(f_buf,RPM);
+                disp_count++;
+                if (disp_count > 10) {
+                    disp_count = 0;
+                    display_RPM(PORT_1, RPM);
+                }
+                // printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
+                add_32b_to_err_buffer(err_buf,RPM,err_buffer_idx);
+                buffer_newline(err_buf); 
 
                 
             } 
-            buffer_newline(f_buf);  
+             
         }
     }
 }
@@ -182,8 +190,8 @@ void control_thread()
     {
         if ((xQueueReceive(timer_queue, &evt, 0)) == pdTRUE) //0 or port max delay? 
         { 
-            // control_dyno(evt);
-            control_inertia();
+            control_dyno(evt);
+            // control_inertia();
         }
     }
 }
@@ -208,8 +216,11 @@ void timeout_thread(void* task) {
             err_to_file(err_buf,1); //err_to_file called first here since data_to_file actually unmounts the SD card 
             data_to_file(f_buf,1);
             flasher(L);
+            i2c_write_byte(PORT_1, AS1115_SLAVE_ADDR,DIGIT_3,0xd);
+            i2c_write_byte(PORT_1, AS1115_SLAVE_ADDR,DIGIT_2,0xd);
+            i2c_write_byte(PORT_1, AS1115_SLAVE_ADDR,DIGIT_1,0xe);
+            i2c_write_byte(PORT_1, AS1115_SLAVE_ADDR,DIGIT_0,0xd); 
             // display_disable(PORT_1);
-            // gpio_kill(1,FLASHER_GPIO);
             ESP_LOGI(MAIN_TAG, "goodbye!");
             vTaskSuspend(NULL);
 
@@ -236,18 +247,24 @@ void app_main() {
     if (COMMS_ENABLE == 1) {
 
         commsSemaphore = xSemaphoreCreateBinary();
-        wifi_config();   
+        i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+        AS1115_config(PORT_1);
+        display_hex_word(PORT_1,AS1115_SLAVE_ADDR,0xf,0xe,0xe,0xd);   
+        wifi_config();        
 
     } else if (COMMS_ENABLE == 0) {
 
         commsSemaphore = xSemaphoreCreateBinary();
+        i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+        AS1115_config(PORT_1); 
+        display_hex_word(PORT_1,AS1115_SLAVE_ADDR,0xd,0xa,0xd,0x5);   
         xSemaphoreGive(commsSemaphore);
 
     }
        
     //DO MAIN TASKS
     if (xSemaphoreTake(commsSemaphore, portMAX_DELAY) == pdTRUE) {
-
+        display_hex_word(PORT_1,AS1115_SLAVE_ADDR,0xf,0xe,0xd,0xd); 
         config();
         TaskHandle_t ctrlHandle = NULL;
         TaskHandle_t endHandle = NULL;

@@ -27,15 +27,11 @@ void AS1115_config (int port_num) {
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0x9,0xff); //decode mode enabled for all digits
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0xa,0x0e); //global intensity set to 15/16
     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,0xb,0x3); //scan limit set to only display 4 digits 
-    
-    // for (int j = 0; j<0xf; j++) {
-    //     i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_3,j);        
-    // }
 
-    i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_3,0x5);
-    i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_2,0xd);
-    i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_1,0xa);
-    i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_0,0xd);
+    // i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_3,0x5);
+    // i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_2,0xd);
+    // i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_1,0xa);
+    // i2c_write_byte(port_num, AS1115_SLAVE_ADDR,DIGIT_0,0xd);
 
 }
 
@@ -47,6 +43,15 @@ void AS1115_config (int port_num) {
 void AS1115_display_write(int port_num, uint8_t slave_addr, uint8_t digit, uint8_t value) {
 
     i2c_write_byte(port_num, slave_addr, digit, value);
+
+}
+
+void display_hex_word(int port_num, uint8_t slave_addr, uint8_t digit0_val, uint8_t digit1_val, uint8_t digit2_val, uint8_t digit3_val) {
+
+    AS1115_display_write(port_num, slave_addr,DIGIT_3,digit3_val);
+    AS1115_display_write(port_num, slave_addr,DIGIT_2,digit2_val);
+    AS1115_display_write(port_num, slave_addr,DIGIT_1,digit1_val);    
+    AS1115_display_write(port_num, slave_addr,DIGIT_0,digit0_val);
 
 }
 
@@ -62,10 +67,10 @@ void display_speed (int port_num, float speed) {
 
 void display_RPM (int port_num, float rpm) {
 
-    uint8_t rpm_3 = (uint32_t) rpm % 10;
-    uint8_t rpm_2 = (uint32_t) rpm_3 % 10;
-    uint8_t rpm_1 = (uint32_t) rpm_2 % 10; 
-    uint8_t rpm_0 = (uint32_t) rpm_1 % 10;
+    uint8_t rpm_3 = (uint32_t) rpm % 10; 
+    uint8_t rpm_2 = ( (uint32_t) rpm / 10) % 10;     
+    uint8_t rpm_1 = ( (uint32_t) rpm / 100) % 10; 
+    uint8_t rpm_0 = ( (uint32_t) rpm / 1000) % 10; 
 
     AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_3,rpm_3);
     AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);                  
