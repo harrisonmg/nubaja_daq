@@ -69,7 +69,6 @@ extern int ERROR_ENABLE;
  * UNMOUNTS SD CARD WHEN UNMOUNT IS TRUE
  */
 int data_to_file(char buffer[],int unmount) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "data_to_file");    
     FILE *fp;
 
     if(LOGGING_ENABLE) {
@@ -101,8 +100,8 @@ int data_to_file(char buffer[],int unmount) {
 
     }
 
-    //memset(buffer,0,strlen(buffer));
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "data_to_file done");    
+    memset(buffer,0,strlen(buffer));  
+    // ESP_LOGI(NUBAJA_LOGGING_TAG, "data buffer dumped");    
     return SUCCESS;
 
 }
@@ -112,7 +111,6 @@ int data_to_file(char buffer[],int unmount) {
  * DOES NOT UNMOUNT SD CARD WHEN UNMOUNT IS TRUE
  */
 int err_to_file(char err_buffer[],int unmount) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "err_to_file");    
     FILE *fp;
 
     if(ERROR_ENABLE) {
@@ -148,14 +146,12 @@ int err_to_file(char err_buffer[],int unmount) {
     // ESP_LOGI(NUBAJA_LOGGING_TAG, "err buf dumped");    
     return SUCCESS;
 
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "err_to_file done");    
 }
 
 /*
 * adds error into the error buffer for later storage 
 */
 void record_error(char err_buffer[], char err_msg[]) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "record_error");    
 
     int length = strlen(err_msg);
     strcat(err_buf,err_msg);
@@ -168,7 +164,6 @@ void record_error(char err_buffer[], char err_msg[]) {
         err_to_file(err_buf,0);  
 
     } 
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "record_error done");    
 
 }
 
@@ -210,7 +205,6 @@ void ERROR_HANDLE_ME(int err_num) {
  * designed with use case of adc read in mind (12b resolution)
  */
 void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer");    
     char formatted_string [13]; //number of bits + 1
     sprintf(formatted_string,"%03x",i_to_add);
     strcat(buf,formatted_string);
@@ -220,7 +214,6 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
         buffer_idx = 0;
         ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }   
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer done");    
 }
 
 /*
@@ -230,7 +223,6 @@ void add_12b_to_buffer (char buf[],uint16_t i_to_add) {
  * which has 16b registers
  */
 void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer");    
     char formatted_string [17]; //number of bits + 1
     sprintf(formatted_string,"%04x",i_to_add);
     strcat(buf,formatted_string);
@@ -240,7 +232,6 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }    
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer done");    
 }
 
 /*
@@ -251,7 +242,6 @@ void add_16b_to_buffer (char buf[],uint16_t i_to_add) {
  * convert in excel using MOD(HEX2DEC(ENTER_CELL_HERE)+2^15,2^16)-2^15
  */
 void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer");    
     char formatted_string [17]; //number of bits + 1
     if (i_to_add >= 0) {
         sprintf(formatted_string,"%04x",i_to_add);
@@ -265,7 +255,6 @@ void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }    
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer done");    
 }
 
 /*
@@ -273,7 +262,6 @@ void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
  * adds 8 hex digits to the end of the buffer
  */
 void add_32b_to_buffer (char buf[],float f_to_add, int idx) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer");    
     char formatted_string [33]; //number of bits + 1
     uint32_t i_to_add = (uint32_t) f_to_add;
     sprintf(formatted_string,"%08x",i_to_add);
@@ -284,11 +272,9 @@ void add_32b_to_buffer (char buf[],float f_to_add, int idx) {
        idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }    
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer done");    
 }
 
 void add_32b_to_err_buffer (char buf[],float f_to_add, int idx) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer");    
     char formatted_string [33]; //number of bits + 1
     uint32_t i_to_add = (uint32_t) f_to_add;
     sprintf(formatted_string,"%08x",i_to_add);
@@ -299,7 +285,6 @@ void add_32b_to_err_buffer (char buf[],float f_to_add, int idx) {
        idx = 0;
        ERROR_HANDLE_ME(err_to_file(buf,0)); 
     }    
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "adding to buffer done");    
 }
 
 // void add_32b_to_buffer_2 (char buf[],float f_to_add) {
@@ -316,7 +301,6 @@ void add_32b_to_err_buffer (char buf[],float f_to_add, int idx) {
 // }
 
 void buffer_newline(char buf[]) {
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "buffer_newline");    
     char newline [] = {'\n'}; //number of bits + 1
     strcat(buf,newline);
     strcat(buf," ");
@@ -325,7 +309,6 @@ void buffer_newline(char buf[]) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
     } 
-    ESP_LOGI(NUBAJA_LOGGING_TAG, "buffer_newline done");    
 }
 
 /*
