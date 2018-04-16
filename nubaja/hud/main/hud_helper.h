@@ -104,7 +104,6 @@ typedef struct {
 */
 void gpio_kill(int num,...)
 {
-    ESP_LOGI("NUBAJA_HELPER", "gpio_kill");
     va_list valist;
     va_start(valist, num);
 
@@ -113,7 +112,6 @@ void gpio_kill(int num,...)
         gpio_set_direction(va_arg(valist, int), GPIO_MODE_INPUT);          
     }
     va_end(valist);   
-    ESP_LOGI("NUBAJA_HELPER", "gpio_kill done");
 }
 
 /*
@@ -135,10 +133,8 @@ void flasher_init(int flasher_gpio_num) {
 * ISR for GPIO based interrupt. interrupt is configured via config_gpio
 */
 static void IRAM_ATTR gpio_isr_handler(void* arg) {
-    ESP_LOGI("NUBAJA_HELPER", "gpio_isr_handler");
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(gpio_queue, &gpio_num, NULL);
-    ESP_LOGI("NUBAJA_HELPER", "gpio_isr_handler done");
 }
 
 /*
@@ -165,7 +161,6 @@ void config_gpio() {
  * also unblocks end_program task at appropriate time decided by PROGRAM_LENGTH
  */
 void IRAM_ATTR timer_group0_isr(void *para) {
-    ESP_LOGI("NUBAJA_HELPER", "timer_group0_isr");
     timer_event_t evt;
     uint32_t intr_status = TIMERG0.int_st_timers.val;
 
@@ -185,7 +180,6 @@ void IRAM_ATTR timer_group0_isr(void *para) {
 
     // send the event data back to the main program task
     xQueueSendFromISR(timer_queue, &evt, NULL);
-    ESP_LOGI("NUBAJA_HELPER", "timer_group0_isr done");
 }
 
 
