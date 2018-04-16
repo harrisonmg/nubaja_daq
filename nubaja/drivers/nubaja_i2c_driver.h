@@ -80,7 +80,6 @@ void i2c_master_config(int port_num, int clk, int sda, int scl) {
  * writes a single byte of data to a register using I2C protocol 
  */
 int i2c_write_byte(int port_num, uint8_t slave_address, uint8_t reg, uint8_t data) {
-    ESP_LOGI("I2C_DRIVER", "i2c_write_byte");
     int ret; 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);    
@@ -96,11 +95,9 @@ int i2c_write_byte(int port_num, uint8_t slave_address, uint8_t reg, uint8_t dat
     } else { 
         return SUCCESS;
     }
-    ESP_LOGI("I2C_DRIVER", "i2c_write_byte done");
 }   
 
 int i2c_write_byte_dis(int port_num, uint8_t slave_address, uint8_t reg, uint8_t data) {
-    ESP_LOGI("I2C_DRIVER", "i2c_write_byte_dis");
     int ret; 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);    
@@ -116,7 +113,6 @@ int i2c_write_byte_dis(int port_num, uint8_t slave_address, uint8_t reg, uint8_t
     } else { 
         return SUCCESS;
     }
-    ESP_LOGI("I2C_DRIVER", "i2c_write_byte_dis done");
 } 
 
 /*
@@ -126,7 +122,6 @@ int i2c_write_byte_dis(int port_num, uint8_t slave_address, uint8_t reg, uint8_t
  */
 int i2c_read_2_byte(int port_num, uint8_t slave_address, int reg) 
 {
-    ESP_LOGI("I2C_DRIVER", "i2c_read_2_byte");
     int ret;
     uint8_t* data_h = (uint8_t*) malloc(DATA_LENGTH); //comment out for one byte read
     uint8_t* data_l = (uint8_t*) malloc(DATA_LENGTH);
@@ -157,7 +152,6 @@ int i2c_read_2_byte(int port_num, uint8_t slave_address, int reg)
         free(data_l);
         return SUCCESS;
     }
-    ESP_LOGI("I2C_DRIVER", "i2c_read_2_byte done");
 }
 
 /*
@@ -166,7 +160,6 @@ int i2c_read_2_byte(int port_num, uint8_t slave_address, int reg)
 */
 int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
 {
-    ESP_LOGI("I2C_DRIVER", "i2c_read_3_reg");
     int ret;
     uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
     uint8_t* data_l_0 = (uint8_t*) malloc(DATA_LENGTH);    
@@ -227,7 +220,6 @@ int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg, struct sensor_o
 
         return SUCCESS;
     }
-    ESP_LOGI("I2C_DRIVER", "i2c_read_3_reg done");
 }
 
 /*
@@ -237,7 +229,6 @@ int i2c_read_3_reg(int port_num, uint8_t slave_address, int reg, struct sensor_o
  */
 int i2c_read_3_reg_lh(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
 {
-    ESP_LOGI("I2C_DRIVER", "i2c_read_3_reg_lh");
     int ret;
     uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
     uint8_t* data_l_0 = (uint8_t*) malloc(DATA_LENGTH);    
@@ -298,7 +289,6 @@ int i2c_read_3_reg_lh(int port_num, uint8_t slave_address, int reg, struct senso
 
         return SUCCESS;
     }
-    ESP_LOGI("I2C_DRIVER", "i2c_read_3_reg_lh end");
 }
 
 /*
@@ -308,7 +298,6 @@ int i2c_read_3_reg_lh(int port_num, uint8_t slave_address, int reg, struct senso
  */
 int i2c_read_6_reg_lh(int port_num, uint8_t slave_address, int reg, struct sensor_output_t *output_container) 
 {
-    ESP_LOGI("I2C_DRIVER", "i2c_read_6_reg_lh");
     int ret;
     uint8_t* data_h_0 = (uint8_t*) malloc(DATA_LENGTH); 
     uint8_t* data_l_0 = (uint8_t*) malloc(DATA_LENGTH);    
@@ -404,7 +393,6 @@ int i2c_read_6_reg_lh(int port_num, uint8_t slave_address, int reg, struct senso
 
         return SUCCESS;
     }
-    ESP_LOGI("I2C_DRIVER", "i2c_read_6_reg_lh done");
 }
 
 #endif
