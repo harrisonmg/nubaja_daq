@@ -38,7 +38,7 @@
 #include "esp_spi_flash.h"
 
 //custom
-#include </home/sparky/esp/esp-idf/nubaja/drivers/nubaja_logging.h>
+#include "../../drivers/nubaja_logging.h"
 /* 
 * defines
 */ 
@@ -66,7 +66,7 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_PERIOD                 .001   // control loop period for timer group 0 timer 0 in secondss
+#define CONTROL_LOOP_PERIOD                 .005   // control loop period for timer group 0 timer 0 in secondss
 #define PROGRAM_LENGTH                      600 // program length for timer group 0 timer 1 in seconds
 
   
