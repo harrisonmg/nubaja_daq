@@ -76,8 +76,12 @@ void display_RPM (int port_num, float rpm) {
 void display_temp (int port_num, float temp) {
     uint8_t temp_l = (uint32_t) temp % 10; 
     uint8_t temp_h = ( (uint32_t) temp / 10) % 10; 
-    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_2,temp_l);
-    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_3,temp_h);     
+    uint8_t temp_hh = ( (uint32_t) temp / 100) % 10; 
+    uint8_t temp_hhh = ( (uint32_t) temp / 1000) % 10; 
+    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_0,temp_l);
+    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_1,temp_h);     
+    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_2,temp_hh);
+    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_3,temp_hhh);
 }
 
 void display_disable(int port_num) {
