@@ -23,7 +23,8 @@ int ERROR_ENABLE;
 SemaphoreHandle_t killSemaphore = NULL;
 SemaphoreHandle_t commsSemaphore = NULL;
 xQueueHandle timer_queue = NULL;
-xQueueHandle gpio_queue = NULL;
+xQueueHandle mph_queue = NULL;
+xQueueHandle rpm_queue = NULL;
 static const char *MAIN_TAG = "MAIN";
 
 char f_buf[SIZE]; //DATA BUFFER
@@ -58,7 +59,8 @@ void config() {
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
 
-    gpio_queue = xQueueCreate(10, sizeof(uint32_t));
+    mph_queue = xQueueCreate(10, sizeof(uint32_t));
+    rpm_queue = xQueueCreate(10, sizeof(uint32_t));
     timer_queue = xQueueCreate(10, sizeof(timer_event_t));
 
     memset(f_buf,0,strlen(f_buf));
@@ -66,7 +68,6 @@ void config() {
 
     //i2c module configs
     i2c_master_config(PORT_0,FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO); //for IMU / GYRO
-    // i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
         
     //start confirmation flasher
     flasher_init(FLASHER_GPIO);
@@ -81,9 +82,6 @@ void config() {
         //GPIO config
         config_gpio();
         
-        //display driver config
-        // AS1115_config(PORT_1);
-
         //gyro 
         // itg_3200_config();
 
@@ -107,44 +105,46 @@ void config() {
  * Additionally, a thermistor is measured and its temperature display and recorded 
  */
 void control_dyno(timer_event_t evt) {
-    uint32_t gpio_num;
+    uint32_t gpio_num_mph;
+    uint32_t gpio_num_rpm;
 
     if ( SENSOR_ENABLE ) {
         
-        if ((xQueueReceive(gpio_queue, &gpio_num, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
+        if ((xQueueReceive(mph_queue, &gpio_num_mph, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
             
-            if (gpio_num == HALL_EFF_GPIO) { //hall effect
+            // if (gpio_num == HALL_EFF_GPIO) { //hall effect
 
-                uint64_t curr_time = evt.timer_counts;
-                float period_speed = (float) (curr_time - old_time) / TIMER_SCALE;
-                float v_car = MPH_SCALE / period_speed;
-                old_time = curr_time; 
-                // display_speed(PORT_1, v_car);
-                // printf("speed: %f intr: %08x\n",v_car,gpio_num);
-                add_32b_to_buffer(f_buf,v_car );
-                buffer_newline(f_buf); 
+            uint64_t curr_time = evt.timer_counts;
+            float period_speed = (float) (curr_time - old_time) / TIMER_SCALE;
+            float v_car = MPH_SCALE / period_speed;
+            old_time = curr_time; 
+            // display_speed(PORT_1, v_car);
+            // printf("speed: %f intr: %08x\n",v_car,gpio_num);
+            add_32b_to_buffer(f_buf,v_car );
+            buffer_newline(f_buf); 
                 
 
-            } 
+            // } 
+        }
 
-            if (gpio_num == ENGINE_RPM_GPIO) { //engine RPM measuring circuit
-                
-                uint64_t curr_time_RPM = evt.timer_counts;
-                float period_RPM = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
-                float RPM = RPM_SCALE / period_RPM;
-                old_time_RPM = curr_time_RPM; 
-                disp_count++;
-                if (disp_count > 5) {
-                    disp_count = 0;
-                    display_RPM(PORT_1, RPM);
-                }
-                
-                // printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
-                add_32b_to_err_buffer(err_buf,RPM);
-                err_buffer_newline(err_buf); 
+        if ((xQueueReceive(rpm_queue, &gpio_num_rpm, 0)) == pdTRUE) {
 
+            // if (gpio_num == ENGINE_RPM_GPIO) { //engine RPM measuring circuit
                 
-            }              
+            uint64_t curr_time_RPM = evt.timer_counts;
+            float period_RPM = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
+            float RPM = RPM_SCALE / period_RPM;
+            old_time_RPM = curr_time_RPM; 
+            disp_count++;
+            if (disp_count > 5) {
+                disp_count = 0;
+                display_RPM(PORT_1, RPM);
+            }
+            
+            // printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
+            add_32b_to_err_buffer(err_buf,RPM);
+            err_buffer_newline(err_buf);  
+            // }              
         }
 
         // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)

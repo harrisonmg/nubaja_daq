@@ -81,7 +81,8 @@ extern char err_buf[];
 extern int buffer_idx;
 extern int err_buffer_idx;
 extern xQueueHandle timer_queue;
-extern xQueueHandle gpio_queue;
+extern xQueueHandle mph_queue;
+extern xQueueHandle rpm_queue;
 extern SemaphoreHandle_t killSemaphore;
 extern SemaphoreHandle_t commsSemaphore;
 extern int program_len;
@@ -129,15 +130,21 @@ void flasher_init(int flasher_gpio_num) {
 /*
 * ISR for GPIO based interrupt. interrupt is configured via config_gpio
 */
-static void IRAM_ATTR gpio_isr_handler(void* arg) {
+static void IRAM_ATTR mph_isr_handler(void* arg) {
     uint32_t gpio_num = (uint32_t) arg;
-    xQueueSendFromISR(gpio_queue, &gpio_num, NULL);
+    xQueueSendFromISR(mph_queue, &gpio_num, NULL);
+}
+
+static void IRAM_ATTR rpm_isr_handler(void* arg) {
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(rpm_queue, &gpio_num, NULL);
 }
 
 /*
 * configures a GPIO pin for an interrupt on a rising edge
 */
 void config_gpio() {
+    
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_PIN_INTR_POSEDGE; //interrupt of rising edge
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL; //bit mask of the pins
@@ -146,10 +153,10 @@ void config_gpio() {
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
-    gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT); //install gpio isr service
-    gpio_isr_handler_add(HALL_EFF_GPIO, gpio_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
-    gpio_isr_handler_add(ENGINE_RPM_GPIO, gpio_isr_handler, (void*) ENGINE_RPM_GPIO); 
-    // gpio_set_intr_type(HALL_EFF_GPIO,GPIO_PIN_INTR_NEGEDGE);
+    gpio_install_isr_service(ESP_INTR_FLAG_EDGE); //install gpio isr service
+    gpio_isr_handler_add(HALL_EFF_GPIO, mph_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
+    gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO); 
+    
 }
 
 /*
