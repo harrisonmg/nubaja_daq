@@ -130,12 +130,12 @@ void flasher_init(int flasher_gpio_num) {
 /*
 * ISR for GPIO based interrupt. interrupt is configured via config_gpio
 */
-static void IRAM_ATTR mph_isr_handler(void* arg) {
+static void mph_isr_handler(void* arg) {
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(mph_queue, &gpio_num, NULL);
 }
 
-static void IRAM_ATTR rpm_isr_handler(void* arg) {
+static void rpm_isr_handler(void* arg) {
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(rpm_queue, &gpio_num, NULL);
 }
@@ -153,7 +153,7 @@ void config_gpio() {
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
-    gpio_install_isr_service(ESP_INTR_FLAG_EDGE); //install gpio isr service
+    gpio_install_isr_service(0); //install gpio isr service
     gpio_isr_handler_add(HALL_EFF_GPIO, mph_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
     gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO); 
     

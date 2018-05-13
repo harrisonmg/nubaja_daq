@@ -50,7 +50,7 @@ void display_hex_word(int port_num, uint8_t slave_addr, uint8_t digit0_val, uint
 
 }
 
-void display_speed (int port_num, float speed) {
+void display_speed (int port_num, double speed) {
 
 	uint8_t v_car_l = (uint32_t) speed % 10; 
 	uint8_t v_car_h = ( (uint32_t) speed / 10) % 10; 
@@ -60,17 +60,17 @@ void display_speed (int port_num, float speed) {
 
 }
 
-void display_RPM (int port_num, float rpm) {
+void display_RPM (int port_num, double rpm) {
 
-    uint8_t rpm_3 = (uint32_t) rpm % 10; 
-    uint8_t rpm_2 = ( (uint32_t) rpm / 10) % 10;     
-    uint8_t rpm_1 = ( (uint32_t) rpm / 100) % 10; 
-    uint8_t rpm_0 = ( (uint32_t) rpm / 1000) % 10; 
+    uint8_t rpm_3 = (uint64_t) rpm % 10; 
+    uint8_t rpm_2 = ( (uint64_t) rpm / 10) % 10;     
+    uint8_t rpm_1 = ( (uint64_t) rpm / 100) % 10; 
+    uint8_t rpm_0 = ( (uint64_t) rpm / 1000) % 10; 
 
     AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_3,rpm_3);
-    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);                  
+    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);
     AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_1,rpm_1);
-    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);	
+    AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);
     
 }
 

@@ -13,7 +13,7 @@
 #include "../../drivers/nubaja_adc.h"
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) FIELD; 
+Runmode_t runMode = (Runmode_t) LAB_LOG_ERR; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
