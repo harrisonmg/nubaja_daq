@@ -97,6 +97,39 @@ int i2c_write_byte(int port_num, uint8_t slave_address, uint8_t reg, uint8_t dat
     }
 }   
 
+/*
+ * writes a four bytes of data to a four registers using I2C protocol 
+ */
+int i2c_write4_byte(int port_num, uint8_t slave_address, 
+    uint8_t reg_0, uint8_t data_0, 
+    uint8_t reg_1, uint8_t data_1,
+    uint8_t reg_2, uint8_t data_2,
+    uint8_t reg_3, uint8_t data_3) {
+
+    int ret; 
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);    
+    i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg_0, ACK); 
+    i2c_master_write_byte(cmd, data_0, ACK); 
+    i2c_master_write_byte(cmd, reg_1, ACK); 
+    i2c_master_write_byte(cmd, data_1, ACK); 
+    i2c_master_write_byte(cmd, reg_2, ACK); 
+    i2c_master_write_byte(cmd, data_2, ACK); 
+    i2c_master_write_byte(cmd, reg_3, ACK); 
+    i2c_master_write_byte(cmd, data_3, ACK);     
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
+    i2c_cmd_link_delete(cmd);  
+    if (ret != ESP_OK) {
+        ESP_LOGE(NUBAJA_I2C_DRIVER_TAG,"i2c write failed");
+        return I2C_READ_FAILED; //dead sensor
+    } else { 
+        return SUCCESS;
+    }
+
+} 
+
 int i2c_write_byte_dis(int port_num, uint8_t slave_address, uint8_t reg, uint8_t data) {
     int ret; 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();

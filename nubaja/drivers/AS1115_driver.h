@@ -71,6 +71,12 @@ void display_RPM (int port_num, double rpm) {
     AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_2,rpm_2);
     AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_1,rpm_1);
     AS1115_display_write(port_num, AS1115_SLAVE_ADDR,DIGIT_0,rpm_0);
+
+    i2c_write4_byte(port_num, AS1115_SLAVE_ADDR, 
+    DIGIT_3, rpm_3, 
+    DIGIT_2, rpm_2,
+    DIGIT_1, rpm_1,
+    DIGIT_0, rpm_0);
     
 }
 
