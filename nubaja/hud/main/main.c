@@ -12,6 +12,14 @@
 #include "../../drivers/nubaja_runmodes.h"
 #include "../../drivers/nubaja_adc.h"
 
+/* TODO: 
+
+Try upping the i2c clock speed for the display driver
+Investigate multi-byte writes to further increase speed 
+Log uint64_t instead of float conversions 
+
+*/
+
 //run mode - see nubaja_runmodes.h for enumeration
 Runmode_t runMode = (Runmode_t) LAB_LOG_ERR; 
 int COMMS_ENABLE;
@@ -110,46 +118,50 @@ void control_dyno(timer_event_t evt) {
 
     if ( SENSOR_ENABLE ) {
         
-        if ((xQueueReceive(mph_queue, &gpio_num_mph, 0)) == pdTRUE) { //0 or portMAX_DELAY here?
+        if ((xQueueReceive(mph_queue, &gpio_num_mph, 0)) == pdTRUE) { 
             
-            // if (gpio_num == HALL_EFF_GPIO) { //hall effect
-
             uint64_t curr_time = evt.timer_counts;
-            float period_speed = (float) (curr_time - old_time) / TIMER_SCALE;
-            float v_car = MPH_SCALE / period_speed;
+            uint64_t period_speed = curr_time - old_time;
+
+            // double period_speed = (double) (curr_time - old_time) / TIMER_SCALE;
+            // double v_car = (double) MPH_SCALE / period_speed;
+
             old_time = curr_time; 
+
             // display_speed(PORT_1, v_car);
             // printf("speed: %f intr: %08x\n",v_car,gpio_num);
-            add_32b_to_buffer(f_buf,v_car );
-            buffer_newline(f_buf); 
-                
 
-            // } 
+            // add_32b_to_buffer(f_buf,v_car );
+            add_uint64_t_to_buffer(f_buf, period_speed);
+
         }
 
         if ((xQueueReceive(rpm_queue, &gpio_num_rpm, 0)) == pdTRUE) {
 
-            // if (gpio_num == ENGINE_RPM_GPIO) { //engine RPM measuring circuit
-                
             uint64_t curr_time_RPM = evt.timer_counts;
-            float period_RPM = (float) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
-            float RPM = RPM_SCALE / period_RPM;
+            uint64_t period_RPM = curr_time_RPM - old_time_RPM;
+
+            // double period_RPM = (double) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
+            // double RPM = (double) RPM_SCALE / period_RPM;
+
             old_time_RPM = curr_time_RPM; 
-            disp_count++;
-            if (disp_count > 5) {
-                disp_count = 0;
-                display_RPM(PORT_1, RPM);
-            }
             
-            // printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
-            add_32b_to_err_buffer(err_buf,RPM);
-            err_buffer_newline(err_buf);  
-            // }              
+            // disp_count++;
+            // if (disp_count > 5) {
+            //     disp_count = 0;
+            //     display_RPM(PORT_1, RPM);
+            // }
+            
+            // printf("RPM: %f intr: %08x\n",RPM,gpio_num);    
+
+            // add_32b_to_err_buffer(err_buf,RPM);
+            add_uint64_t_to_err_buffer(err_buf, period_RPM);
+
         }
 
         // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
         // add_12b_to_buffer(f_buf,adc_raw); 
-        // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
+        // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature
         // float temp = (adc_v - THERM_B) / THERM_M;
         // printf("temp: %f\n",temp);                 
         // display_temp(PORT_1,temp);
@@ -235,7 +247,7 @@ void app_main() {
     ESP_LOGI(MAIN_TAG,"Error enable is: %d",ERROR_ENABLE);
 
     //init display
-    i2c_master_config(PORT_1,FAST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+    i2c_master_config(PORT_1,FAST_MODE_PLUS, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
     AS1115_config(PORT_1);
 
     //INIT UDP SERVER FOR WIFI CONTROL (OR NOT)

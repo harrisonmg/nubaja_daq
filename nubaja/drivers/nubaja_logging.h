@@ -56,6 +56,7 @@
 #define SIZE                                5000 //in bytes
 
 //vars
+char newline [] = {'\n'};
 static const char *NUBAJA_LOGGING_TAG = "NUBAJA_LOGGING";
 extern char f_buf[];
 extern char err_buf[];
@@ -266,6 +267,7 @@ void add_32b_to_buffer (char buf[],float f_to_add) {
     uint32_t i_to_add = (uint32_t) f_to_add;
     sprintf(formatted_string,"%08x",i_to_add);
     strcat(buf,formatted_string);
+    strcat(buf,newline);
     strcat(buf," ");
     buffer_idx+=33;
     if (buffer_idx >= SIZE) {
@@ -279,6 +281,7 @@ void add_32b_to_err_buffer (char buf[],float f_to_add) {
     uint32_t i_to_add = (uint32_t) f_to_add;
     sprintf(formatted_string,"%08x",i_to_add);
     strcat(buf,formatted_string);
+    strcat(buf,newline);
     strcat(buf," ");
     err_buffer_idx+=33;
     if (err_buffer_idx >= SIZE) {
@@ -287,21 +290,39 @@ void add_32b_to_err_buffer (char buf[],float f_to_add) {
     }    
 }
 
-// void add_32b_to_buffer_2 (char buf[],float f_to_add) {
-//     char formatted_string [33]; //number of bits + 1
-//     uint32_t i_to_add = (uint32_t) f_to_add;
-//     sprintf(formatted_string,"%08x",i_to_add);
-//     strcat(buf,formatted_string);
-//     strcat(buf," ");
-//     err_buffer_idx+=33;
-//     if (err_buffer_idx >= SIZE) {
-//        err_buffer_idx = 0;
-//        ERROR_HANDLE_ME(err_to_file(err_buf,0)); 
-//     }    
-// }
+void add_uint64_t_to_buffer (char buf[], uint64_t i_to_add) {
+    char formatted_string [67]; //number of bits + 1
+    uint32_t high = (uint32_t) i_to_add >> 32;
+    uint32_t low = (uint32_t) i_to_add;
+    sprintf(formatted_string,"%08x",high);
+    sprintf(formatted_string,"%08x",low);
+    strcat(buf,formatted_string);
+    strcat(buf,newline);
+    strcat(buf," ");
+    buffer_idx+=67;
+    if (buffer_idx >= SIZE) {
+       buffer_idx = 0;
+       ERROR_HANDLE_ME(data_to_file(buf,0)); 
+    }      
+}
+
+void add_uint64_t_to_err_buffer (char buf[], uint64_t i_to_add) {
+    char formatted_string [67]; //number of bits + 1
+    uint32_t high = (uint32_t) i_to_add >> 32;
+    uint32_t low = (uint32_t) i_to_add;
+    sprintf(formatted_string,"%08x",high);
+    sprintf(formatted_string,"%08x",low);
+    strcat(buf,formatted_string);
+    strcat(buf,newline);
+    strcat(buf," ");
+    err_buffer_idx+=67;
+    if (err_buffer_idx >= SIZE) {
+       err_buffer_idx = 0;
+       ERROR_HANDLE_ME(err_to_file(buf,0)); 
+    }      
+}
 
 void buffer_newline(char buf[]) {
-    char newline [] = {'\n'}; //number of bits + 1
     strcat(buf,newline);
     strcat(buf," ");
     buffer_idx+=strlen(newline);
@@ -312,7 +333,6 @@ void buffer_newline(char buf[]) {
 }
 
 void err_buffer_newline(char buf[]) {
-    char newline [] = {'\n'}; //number of bits + 1
     strcat(buf,newline);
     strcat(buf," ");
     err_buffer_idx+=strlen(newline);
