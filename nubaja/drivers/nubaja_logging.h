@@ -292,8 +292,8 @@ void add_32b_to_err_buffer (char buf[],float f_to_add) {
 
 void add_uint64_t_to_buffer (char buf[], uint64_t i_to_add) {
     char formatted_string [67]; //number of bits + 1
-    uint32_t high = (uint32_t) i_to_add >> 32;
-    uint32_t low = (uint32_t) i_to_add;
+    uint32_t high = i_to_add && 0xffffffff00000000 >> 32;
+    uint32_t low = i_to_add && 0x00000000ffffffff;
     sprintf(formatted_string,"%08x",high);
     sprintf(formatted_string,"%08x",low);
     strcat(buf,formatted_string);
@@ -308,8 +308,8 @@ void add_uint64_t_to_buffer (char buf[], uint64_t i_to_add) {
 
 void add_uint64_t_to_err_buffer (char buf[], uint64_t i_to_add) {
     char formatted_string [67]; //number of bits + 1
-    uint32_t high = (uint32_t) i_to_add >> 32;
-    uint32_t low = (uint32_t) i_to_add;
+    uint32_t high = i_to_add && 0xffffffff00000000 >> 32;
+    uint32_t low = i_to_add && 0x00000000ffffffff;
     sprintf(formatted_string,"%08x",high);
     sprintf(formatted_string,"%08x",low);
     strcat(buf,formatted_string);

@@ -31,6 +31,7 @@
 #define I2C_MASTER_RX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
 #define NORMAL_MODE                         100000           /*!< I2C master clock frequency */
 #define FAST_MODE                           400000           /*!< I2C master clock frequency */
+#define TEST_MODE                           800000           /*!< I2C master clock frequency */
 #define FAST_MODE_PLUS                      1000000           /*!< I2C master clock frequency */
 #define WRITE_BIT                           I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT                            I2C_MASTER_READ  /*!< I2C master read */

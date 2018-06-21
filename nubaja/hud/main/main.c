@@ -247,7 +247,7 @@ void app_main() {
     ESP_LOGI(MAIN_TAG,"Error enable is: %d",ERROR_ENABLE);
 
     //init display
-    i2c_master_config(PORT_1,FAST_MODE_PLUS, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+    i2c_master_config(PORT_1,TEST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
     AS1115_config(PORT_1);
 
     //INIT UDP SERVER FOR WIFI CONTROL (OR NOT)
