@@ -14,14 +14,12 @@
 
 /* TODO: 
 
-Try upping the i2c clock speed for the display driver
-Investigate multi-byte writes to further increase speed 
 Log uint64_t instead of float conversions 
 
 */
 
 //run mode - see nubaja_runmodes.h for enumeration
-Runmode_t runMode = (Runmode_t) LAB_LOG_ERR; 
+Runmode_t runMode = (Runmode_t) LAB; 
 int COMMS_ENABLE;
 int SENSOR_ENABLE;
 int LOGGING_ENABLE;
@@ -30,9 +28,6 @@ int ERROR_ENABLE;
 //vars
 SemaphoreHandle_t killSemaphore = NULL;
 SemaphoreHandle_t commsSemaphore = NULL;
-xQueueHandle timer_queue = NULL;
-xQueueHandle mph_queue = NULL;
-xQueueHandle rpm_queue = NULL;
 static const char *MAIN_TAG = "MAIN";
 
 char f_buf[SIZE]; //DATA BUFFER
@@ -40,8 +35,18 @@ char err_buf[SIZE]; //ERROR BUFFER
 int buffer_idx = 0;
 int err_buffer_idx = 0;
 
-uint64_t old_time = 0;
-uint64_t old_time_RPM = 0;
+//interrupt flags
+int MPH_FLAG = 0;
+int RPM_FLAG = 0;
+int TIMER_FLAG = 0; 
+
+//timer index
+int timer_idx = 0;
+
+// uint64_t old_time = 0;
+// uint64_t old_time_RPM = 0;
+int old_time = 0;
+int old_time_RPM = 0;
 int program_len = 60;
 char *DHCP_IP;
 
@@ -51,25 +56,9 @@ int disp_count = 0;
  * configures all necessary modules using respective config functions
  */
 void config() {
-    //timer config
-    timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-
-    if (COMMS_ENABLE == 1) {
-
-        timer_setup(1,0,program_len); //program length timer 
-
-    } else {
-
-        timer_setup(1,0,PROGRAM_LENGTH); //program length timer 
-
-    }
 
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
-
-    mph_queue = xQueueCreate(10, sizeof(uint32_t));
-    rpm_queue = xQueueCreate(10, sizeof(uint32_t));
-    timer_queue = xQueueCreate(10, sizeof(timer_event_t));
 
     memset(f_buf,0,strlen(f_buf));
     memset(err_buf,0,strlen(err_buf));
@@ -80,7 +69,7 @@ void config() {
     //start confirmation flasher
     flasher_init(FLASHER_GPIO);
     flasher(H);
-
+    
     if ( SENSOR_ENABLE ) {
         
         //adc config
@@ -112,51 +101,46 @@ void config() {
  * subsequently used to calculate vehicle speed 
  * Additionally, a thermistor is measured and its temperature display and recorded 
  */
-void control_dyno(timer_event_t evt) {
-    uint32_t gpio_num_mph;
-    uint32_t gpio_num_rpm;
+// void control_dyno(timer_event_t evt) {
+void control_dyno(  ) {
 
     if ( SENSOR_ENABLE ) {
         
-        if ((xQueueReceive(mph_queue, &gpio_num_mph, 0)) == pdTRUE) { 
-            
-            uint64_t curr_time = evt.timer_counts;
-            uint64_t period_speed = curr_time - old_time;
+        if ( MPH_FLAG ) { 
 
-            // double period_speed = (double) (curr_time - old_time) / TIMER_SCALE;
-            // double v_car = (double) MPH_SCALE / period_speed;
+            MPH_FLAG = 0;
 
+            int curr_time = timer_idx;
+            int period_speed_ms = curr_time - old_time;
+            double v_car = (double) MPH_SCALE / (double) (period_speed_ms * .001) ;
             old_time = curr_time; 
 
-            // display_speed(PORT_1, v_car);
-            // printf("speed: %f intr: %08x\n",v_car,gpio_num);
+            display_speed(PORT_1, v_car);
+            printf("speed: %f\n",v_car);
 
-            // add_32b_to_buffer(f_buf,v_car );
-            add_uint64_t_to_buffer(f_buf, period_speed);
+            add_32b_to_buffer(f_buf,v_car );
 
         }
+        
+        if ( RPM_FLAG ) {
 
-        if ((xQueueReceive(rpm_queue, &gpio_num_rpm, 0)) == pdTRUE) {
+            RPM_FLAG = 0;
 
-            uint64_t curr_time_RPM = evt.timer_counts;
-            uint64_t period_RPM = curr_time_RPM - old_time_RPM;
-
-            // double period_RPM = (double) (curr_time_RPM - old_time_RPM) / TIMER_SCALE;
-            // double RPM = (double) RPM_SCALE / period_RPM;
-
+            int curr_time_RPM = timer_idx;
+            int period_RPM_ms = curr_time_RPM - old_time_RPM;
             old_time_RPM = curr_time_RPM; 
+            double RPM = (double) RPM_SCALE / (double) (period_RPM_ms * .001);
             
-            // disp_count++;
-            // if (disp_count > 5) {
-            //     disp_count = 0;
-            //     display_RPM(PORT_1, RPM);
-            // }
+            disp_count++;
+            if (disp_count > 5) {
+                disp_count = 0;
+                printf("RPM: %.5f\n",RPM);
+                display_RPM(PORT_1, RPM);
+            }
             
-            // printf("RPM: %f intr: %08x\n",RPM,gpio_num);    
-
-            // add_32b_to_err_buffer(err_buf,RPM);
-            add_uint64_t_to_err_buffer(err_buf, period_RPM);
-
+            // printf("RPM: %f\n",RPM);    
+            add_32b_to_err_buffer(err_buf,RPM);
+            
         }
 
         // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
@@ -191,13 +175,29 @@ void control_inertia() {
  */
 void control_thread() 
 {
-    timer_event_t evt;
-    while (1) 
+    
+    while (1) //put GPIO-driven toggle here
     {
-        if ((xQueueReceive(timer_queue, &evt, 0)) == pdTRUE) //0 or port max delay? 
+        
+        if ( TIMER_FLAG )
         { 
-            control_dyno(evt);
+            
+            TIMER_FLAG = 0;
+            timer_idx++; 
+
+            //ensure timer_idx does not overflow, limit to 10s
+            if ( timer_idx >= 10000 ) 
+            { 
+                
+                timer_idx = 0; 
+                old_time = 0;
+                old_time_RPM = 0;
+
+            }
+
+            control_dyno();
             // control_inertia();
+
         }
     }
 }
@@ -247,7 +247,7 @@ void app_main() {
     ESP_LOGI(MAIN_TAG,"Error enable is: %d",ERROR_ENABLE);
 
     //init display
-    i2c_master_config(PORT_1,TEST_MODE, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
+    i2c_master_config(PORT_1,FAST_MODE_PLUS, I2C_MASTER_1_SDA_IO,I2C_MASTER_1_SCL_IO); //for AS1115
     AS1115_config(PORT_1);
 
     //INIT UDP SERVER FOR WIFI CONTROL (OR NOT)
@@ -271,10 +271,8 @@ void app_main() {
         display_hex_word(PORT_1,AS1115_SLAVE_ADDR,0xf,0xe,0xd,0xd); 
         config();
         TaskHandle_t ctrlHandle = NULL;
-        TaskHandle_t endHandle = NULL;
         ESP_LOGI(MAIN_TAG, "Creating tasks");
         xTaskCreate(control_thread, "control", 2048, NULL, (configMAX_PRIORITIES-1), &ctrlHandle);
-        xTaskCreate(timeout_thread, "timeout", 2048, ctrlHandle, (configMAX_PRIORITIES-2),&endHandle);
 
     } 
 

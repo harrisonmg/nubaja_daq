@@ -31,7 +31,6 @@
 #define I2C_MASTER_RX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
 #define NORMAL_MODE                         100000           /*!< I2C master clock frequency */
 #define FAST_MODE                           400000           /*!< I2C master clock frequency */
-#define TEST_MODE                           800000           /*!< I2C master clock frequency */
 #define FAST_MODE_PLUS                      1000000           /*!< I2C master clock frequency */
 #define WRITE_BIT                           I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT                            I2C_MASTER_READ  /*!< I2C master read */
@@ -102,10 +101,11 @@ int i2c_write_byte(int port_num, uint8_t slave_address, uint8_t reg, uint8_t dat
  * writes a four bytes of data to a four registers using I2C protocol 
  */
 int i2c_write4_byte(int port_num, uint8_t slave_address, 
-    uint8_t reg_0, uint8_t data_0, 
-    uint8_t reg_1, uint8_t data_1,
-    uint8_t reg_2, uint8_t data_2,
-    uint8_t reg_3, uint8_t data_3) {
+    uint8_t reg_0, 
+    uint8_t data_0, 
+    uint8_t data_1,
+    uint8_t data_2,
+    uint8_t data_3) {
 
     int ret; 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
@@ -113,12 +113,9 @@ int i2c_write4_byte(int port_num, uint8_t slave_address,
     i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, reg_0, ACK); 
     i2c_master_write_byte(cmd, data_0, ACK); 
-    i2c_master_write_byte(cmd, reg_1, ACK); 
     i2c_master_write_byte(cmd, data_1, ACK); 
-    i2c_master_write_byte(cmd, reg_2, ACK); 
     i2c_master_write_byte(cmd, data_2, ACK); 
-    i2c_master_write_byte(cmd, reg_3, ACK); 
-    i2c_master_write_byte(cmd, data_3, ACK);     
+    i2c_master_write_byte(cmd, data_3, NACK);     
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS); 
     i2c_cmd_link_delete(cmd);  
