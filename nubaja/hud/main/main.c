@@ -38,7 +38,7 @@ int err_buffer_idx = 0;
 //interrupt flags
 int MPH_FLAG = 0;
 int RPM_FLAG = 0;
-int TIMER_FLAG = 0; 
+int CLK = 0; 
 
 //timer index
 int timer_idx = 0;
@@ -118,7 +118,7 @@ void control_dyno(  ) {
             display_speed(PORT_1, v_car);
             printf("speed: %f\n",v_car);
 
-            add_32b_to_buffer(f_buf,v_car );
+            add_32b_to_buffer(f_buf,v_car);
 
         }
         
@@ -179,10 +179,10 @@ void control_thread()
     while (1) //put GPIO-driven toggle here
     {
         
-        if ( TIMER_FLAG )
+        if ( CLK )
         { 
             
-            TIMER_FLAG = 0;
+            CLK = 0;
             timer_idx++; 
 
             //ensure timer_idx does not overflow, limit to 10s

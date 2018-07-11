@@ -87,7 +87,7 @@ extern int program_len;
 extern char *DHCP_IP;
 extern int MPH_FLAG;
 extern int RPM_FLAG; 
-extern int TIMER_FLAG;
+extern int CLK;
 
 /*****************************************************/
 
@@ -139,7 +139,7 @@ static void rpm_isr_handler(void* arg) {
 
 static void timer_isr_handler(void* arg) {
 
-    TIMER_FLAG = 1;
+    CLK = 1;
 
 }
 
