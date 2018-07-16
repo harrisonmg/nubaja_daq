@@ -46,7 +46,8 @@
 //GPIO 
 #define HALL_EFF_GPIO                       26 //wheel spd hall effect in
 #define ENGINE_RPM_GPIO                     27 //engine RPM measurement circuit. currently unrouted. 
-#define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO))
+#define CLK_GPIO                            33 //connected to 1kHz oscillator
+#define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<CLK_GPIO))
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           3.927 // TIRE DIAMETER (22") * PI * 3600 / 63360                                            
 #define RPM_SCALE                           60 //RPM = 60 / period
@@ -137,7 +138,7 @@ static void rpm_isr_handler(void* arg) {
 
 }
 
-static void timer_isr_handler(void* arg) {
+static void clk_isr_handler(void* arg) {
 
     CLK = 1;
 
@@ -158,8 +159,8 @@ void config_gpio() {
 
     gpio_install_isr_service(0); //install gpio isr service
     gpio_isr_handler_add(HALL_EFF_GPIO, mph_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
-    // gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO); 
-    gpio_isr_handler_add(ENGINE_RPM_GPIO, timer_isr_handler, (void*) ENGINE_RPM_GPIO); 
+    gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO); 
+    gpio_isr_handler_add(CLK_GPIO, clk_isr_handler, (void*) CLK_GPIO); 
     
 }
 

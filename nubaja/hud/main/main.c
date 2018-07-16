@@ -11,10 +11,11 @@
 #include "../../drivers/LSM6DSM_driver.h"
 #include "../../drivers/nubaja_runmodes.h"
 #include "../../drivers/nubaja_adc.h"
+#include "../../drivers/nubaja_temp_driver.h"
 
 /* TODO: 
 
-Log uint64_t instead of float conversions 
+test oscillator w/ engine speed sensor for improved performance
 
 */
 
@@ -143,12 +144,8 @@ void control_dyno(  ) {
             
         }
 
-        // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
-        // add_12b_to_buffer(f_buf,adc_raw); 
-        // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature
-        // float temp = (adc_v - THERM_B) / THERM_M;
-        // printf("temp: %f\n",temp);                 
-        // display_temp(PORT_1,temp);
+        // read_temp();
+
     }
 }
 
@@ -185,7 +182,7 @@ void control_thread()
             CLK = 0;
             timer_idx++; 
 
-            //ensure timer_idx does not overflow, limit to 10s
+            //bound timer_idx to avoid overflow issues
             if ( timer_idx >= 10000 ) 
             { 
                 
@@ -194,6 +191,10 @@ void control_thread()
                 old_time_RPM = 0;
 
             }
+
+            /*
+            * Place real function call here that you want to execute each clock cycle
+            */
 
             control_dyno();
             // control_inertia();
