@@ -165,6 +165,7 @@ void config_gpio() {
     gpio_isr_handler_add(HALL_EFF_GPIO, mph_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
     gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO); 
     gpio_isr_handler_add(CLK_GPIO, clk_isr_handler, (void*) CLK_GPIO); 
+    gpio_isr_handler_add(START_STOP_GPIO, start_stop_isr_handler, (void*) START_STOP_GPIO); 
     
 }
 
