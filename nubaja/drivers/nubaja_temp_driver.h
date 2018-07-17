@@ -12,6 +12,12 @@
 //vars
 // static const char *NUBAJA_TEMP_DRIVER_TAG = "NUBAJA_TEMP_DRIVER";
 
+//THERMISTOR CONFIGS 
+#define THERM_M                             0.024                    
+#define THERM_B                             -0.5371 //(y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
+#define TEMP                                ADC1_CHANNEL_3
+//thermistor pn: NTCALUG02A103F800
+
 void read_temp () { 
 
     uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)

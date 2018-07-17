@@ -39,7 +39,8 @@ int err_buffer_idx = 0;
 //interrupt flags
 int MPH_FLAG = 0;
 int RPM_FLAG = 0;
-int CLK = 0; 
+int CLK = 0;
+int START_STOP = 0; 
 
 //timer index
 int timer_idx = 0;
@@ -173,7 +174,8 @@ void control_inertia() {
 void control_thread() 
 {
     
-    while (1) //put GPIO-driven toggle here
+    // while ( START_STOP ) //GPIO-driven toggle
+    while (1) 
     {
         
         if ( CLK )

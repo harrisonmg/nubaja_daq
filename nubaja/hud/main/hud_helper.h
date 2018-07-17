@@ -47,19 +47,14 @@
 #define HALL_EFF_GPIO                       26 //wheel spd hall effect in
 #define ENGINE_RPM_GPIO                     27 //engine RPM measurement circuit. currently unrouted. 
 #define CLK_GPIO                            33 //connected to 1kHz oscillator
-#define GPIO_INPUT_PIN_SEL                  ((1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<CLK_GPIO))
+#define START_STOP_GPIO                     36 //CONFIRM I CAN USE THIS
+#define GPIO_INPUT_PIN_SEL                  ( (1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<CLK_GPIO) | (1ULL<<START_STOP_GPIO) )               
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           3.927 // TIRE DIAMETER (22") * PI * 3600 / 63360                                            
 #define RPM_SCALE                           60 //RPM = 60 / period
 #define FLASHER_GPIO                        32
 #define H                                   1
 #define L                                   0
-
-//THERMISTOR CONFIGS 
-#define THERM_M                             0.024                    
-#define THERM_B                             -0.5371 //(y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
-#define TEMP                                ADC1_CHANNEL_3
-//thermistor pn: NTCALUG02A103F800
 
 //TIMER CONFIGS
 // #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
@@ -89,6 +84,7 @@ extern char *DHCP_IP;
 extern int MPH_FLAG;
 extern int RPM_FLAG; 
 extern int CLK;
+extern int START_STOP;
 
 /*****************************************************/
 
@@ -144,11 +140,19 @@ static void clk_isr_handler(void* arg) {
 
 }
 
+static void start_stop_isr_handler(void* arg) {
+
+    //do something...
+    START_STOP = ~ START_STOP;
+
+}
+
 /*
 * configures a GPIO pin for an interrupt on a rising edge
 */
 void config_gpio() {
     
+    //config rising-edge interrupt GPIO pins (hall eff, engine rpm, and clk)
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_PIN_INTR_POSEDGE; //interrupt of rising edge
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL; //bit mask of the pins
