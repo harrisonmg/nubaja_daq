@@ -44,8 +44,6 @@
 #define PIN_NUM_CLK                         14
 #define PIN_NUM_CS                          15
 
-
-
 //errors
 #define SUCCESS                             0
 #define I2C_READ_FAILED                     1

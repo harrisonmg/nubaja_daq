@@ -13,7 +13,9 @@
  * BIT 3 is used to enable or disable error recording 
  */
 
-typedef enum runmode_t {
+typedef enum runmode_t 
+{
+
 	LAB = 0b0010,
 	LAB_LOG = 0b0011,
 	LAB_ERR = 0b1010,
@@ -21,6 +23,7 @@ typedef enum runmode_t {
 	LAB_WIFI = 0b0110,
 	FIELD = 0b1111,
 	DEFAULT = 0b000
+	
 } Runmode_t;
 
 #endif

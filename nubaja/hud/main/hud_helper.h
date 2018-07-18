@@ -56,11 +56,8 @@
 #define H                                   1
 #define L                                   0
 
-//TIMER CONFIGS
-// #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
-// #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-// #define CONTROL_LOOP_PERIOD                 .001   // control loop period for timer group 0 timer 0 in secondss
-#define PROGRAM_LENGTH                      300 // program length for timer group 0 timer 1 in seconds
+#define CONTROL_LOOP_PERIOD                 .001   // control loop period
+
 
   
 
@@ -71,7 +68,7 @@
 /* 
 * globals
 */ 
-// static const char *TAG = "HUD_HELPER"; //unused
+
 extern char f_buf[];
 extern char err_buf[];
 extern int buffer_idx;
@@ -113,6 +110,9 @@ void flasher(int level) {
 
 }
 
+/*
+ * sets flasher GPIO as output
+ */
 void flasher_init(int flasher_gpio_num) {
 
     gpio_set_direction(flasher_gpio_num, GPIO_MODE_OUTPUT);
@@ -120,7 +120,7 @@ void flasher_init(int flasher_gpio_num) {
 }
 
 /*
-* ISR for GPIO based interrupt. interrupt is configured via config_gpio
+* ISRs for GPIO based interrupts. interrupts are configured via config_gpio
 */
 static void mph_isr_handler(void* arg) {
 
@@ -143,12 +143,12 @@ static void clk_isr_handler(void* arg) {
 static void start_stop_isr_handler(void* arg) {
 
     //do something...
-    START_STOP = ~ START_STOP;
+    START_STOP = !START_STOP;
 
 }
 
 /*
-* configures a GPIO pin for an interrupt on a rising edge
+* configures GPIO pins for interrupt on rising edge
 */
 void config_gpio() {
     

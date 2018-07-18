@@ -1,15 +1,15 @@
 #ifndef NUBAJA_ADC
 #define NUBAJA_ADC
 
-#define V_REF                               1000
-#define V_FS                                3.6 //change accordingly to ADC_ATTEN_xx_x
-#define ADC_SCALE                           (V_FS / 4096)
-#define ATTENUATION                         ADC_ATTEN_11db
-
 #include "esp_adc_cal.h"
 #include "driver/adc.h"
 #include <stdarg.h>
 #include "nubaja_logging.h"
+
+#define V_REF                               1000
+#define V_FS                                3.6 //change accordingly to ADC_ATTEN_xx_x
+#define ADC_SCALE                           (V_FS / 4096)
+#define ATTENUATION                         ADC_ATTEN_11db
 
 //vars
 extern char f_buf[];
