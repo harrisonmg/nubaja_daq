@@ -45,8 +45,6 @@ int START_STOP = 0;
 //timer index
 int timer_idx = 0;
 
-// uint64_t old_time = 0;
-// uint64_t old_time_RPM = 0;
 int old_time = 0;
 int old_time_RPM = 0;
 int program_len = 60;
@@ -59,6 +57,8 @@ int disp_count = 0;
  */
 void config() 
 {
+
+    timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
 
     //semaphore that blocks end program task 
     killSemaphore = xSemaphoreCreateBinary();
@@ -87,7 +87,7 @@ void config()
         // itg_3200_config();
 
         //IMU
-        LSM6DSM_config();
+        // LSM6DSM_config();
 
     }
 
@@ -265,7 +265,7 @@ void app_main()
     COMMS_ENABLE = (runMode & BIT(2)) >> 2; 
     SENSOR_ENABLE = (runMode & BIT(1)) >> 1; 
     LOGGING_ENABLE = (runMode & BIT(0));  
-    
+
     ESP_LOGI(MAIN_TAG,"Comms enable is: %d",COMMS_ENABLE);
     ESP_LOGI(MAIN_TAG,"Sensor enable is: %d",SENSOR_ENABLE);
     ESP_LOGI(MAIN_TAG,"Logging enable is: %d",LOGGING_ENABLE);

@@ -48,7 +48,8 @@
 #define ENGINE_RPM_GPIO                     27 //engine RPM measurement circuit. currently unrouted. 
 #define CLK_GPIO                            33 //connected to 1kHz oscillator
 #define START_STOP_GPIO                     36 //CONFIRM I CAN USE THIS
-#define GPIO_INPUT_PIN_SEL                  ( (1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<CLK_GPIO) | (1ULL<<START_STOP_GPIO) )               
+// #define GPIO_INPUT_PIN_SEL                  ( (1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<CLK_GPIO) | (1ULL<<START_STOP_GPIO) )               
+#define GPIO_INPUT_PIN_SEL                  ( (1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<START_STOP_GPIO) )               
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           3.927 // TIRE DIAMETER (22") * PI * 3600 / 63360                                            
 #define RPM_SCALE                           60 //RPM = 60 / period
@@ -56,8 +57,10 @@
 #define H                                   1
 #define L                                   0
 
+//TIMER CONFIGS
 #define CONTROL_LOOP_PERIOD                 .001   // control loop period
-
+#define TIMER_DIVIDER                       16  //  Hardware timer clock divider
+#define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 
   
 
@@ -134,11 +137,11 @@ static void rpm_isr_handler(void* arg) {
 
 }
 
-static void clk_isr_handler(void* arg) {
+// static void clk_isr_handler(void* arg) {
 
-    CLK = 1;
+//     CLK = 1;
 
-}
+// }
 
 static void start_stop_isr_handler(void* arg) {
 
@@ -164,9 +167,63 @@ void config_gpio() {
     gpio_install_isr_service(0); //install gpio isr service
     gpio_isr_handler_add(HALL_EFF_GPIO, mph_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
     gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO); 
-    gpio_isr_handler_add(CLK_GPIO, clk_isr_handler, (void*) CLK_GPIO); 
+    // gpio_isr_handler_add(CLK_GPIO, clk_isr_handler, (void*) CLK_GPIO); 
     gpio_isr_handler_add(START_STOP_GPIO, start_stop_isr_handler, (void*) START_STOP_GPIO); 
     
+}
+
+/*
+ * Timer group0 ISR handler
+ * sets ctrl_intr flag high each time alarm occurs, re-enables alarm and sends data to main program task
+ * also unblocks end_program task at appropriate time decided by PROGRAM_LENGTH
+ */
+void IRAM_ATTR timer_group0_isr(void *para) 
+{
+    
+    uint32_t intr_status = TIMERG0.int_st_timers.val;
+
+    TIMERG0.hw_timer[1].update = 1;
+    
+    if ((intr_status & BIT(0))) 
+    {
+        TIMERG0.int_clr_timers.t0 = 1; //clear timer interrupt bit
+        CLK = 1; //raise flag
+    } 
+
+    TIMERG0.hw_timer[0].config.alarm_en = TIMER_ALARM_EN; //re-enable timer for timer 0 which is timing control loop
+
+}
+
+
+/*
+ * sets up timer group 0 timers 0 and 1
+ * timer 0 times the control loop, set up for auto reload upon alarm
+ * timer 1 times the entire program, does not reload on alarm
+ * timer 1 also used to calculate vehicle speed via measurement of time between GPIO interrupts 
+ */
+void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
+{
+    /* Select and initialize basic parameters of the timer */
+    timer_config_t config;
+    config.divider = TIMER_DIVIDER;
+    config.counter_dir = TIMER_COUNT_UP;
+    config.counter_en = TIMER_PAUSE;
+    config.alarm_en = TIMER_ALARM_EN;
+    config.intr_type = TIMER_INTR_LEVEL;
+    config.auto_reload = auto_reload;
+    timer_init(TIMER_GROUP_0, timer_idx, &config);
+
+    /* Timer's counter will initially start from value below.
+       Also, if auto_reload is set, this value will be automatically reload on alarm */
+    timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x0);
+
+    /* Configure the alarm value and the interrupt on alarm. */
+    timer_set_alarm_value(TIMER_GROUP_0, timer_idx, timer_interval_sec * TIMER_SCALE);
+    timer_enable_intr(TIMER_GROUP_0, timer_idx);
+    timer_isr_register(TIMER_GROUP_0, timer_idx, timer_group0_isr, 
+        (void *) timer_idx, ESP_INTR_FLAG_IRAM, NULL);
+
+    timer_start(TIMER_GROUP_0, timer_idx);
 }
 
 /*****************************************************/
