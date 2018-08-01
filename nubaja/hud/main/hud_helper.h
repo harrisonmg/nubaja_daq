@@ -1,24 +1,24 @@
-#ifndef HUD_HELPER
-#define HUD_HELPER
+#ifndef HUD_H_
+#define HUD_H_
 
-/* 
+/*
 * includes
-*/ 
+*/
 
-//standard c shite
+// standard c shite
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
 
-//kernel
+// kernel
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 
-//esp
+// esp
 #include "esp_types.h"
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
@@ -37,8 +37,12 @@
 #include "soc/timer_group_struct.h"
 #include "esp_spi_flash.h"
 
-//custom
+// drivers
+#include "../../drivers/AS1115_driver.h"
+#include "../../drivers/ITG_3200_driver.h"
+#include "../../drivers/LSM6DSM_driver.h"
 #include "../../drivers/nubaja_logging.h"
+<<<<<<< HEAD
 /* 
 * defines
 */ 
@@ -50,15 +54,28 @@
 #define START_STOP_GPIO                     36 //CONFIRM I CAN USE THIS
 // #define GPIO_INPUT_PIN_SEL                  ( (1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<CLK_GPIO) | (1ULL<<START_STOP_GPIO) )               
 #define GPIO_INPUT_PIN_SEL                  ( (1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<START_STOP_GPIO) )               
+=======
+#include "../../drivers/nubaja_runmodes.h"
+#include "../../drivers/nubaja_adc.h"
+#include "../../drivers/nubaja_temp_driver.h"
+
+// GPIO
+#define HALL_EFF_GPIO                       26 // wheel spd hall effect in
+#define ENGINE_RPM_GPIO                     27 // engine RPM measurement circuit. currently unrouted.
+#define CLK_GPIO                            33 // connected to 1kHz oscillator
+#define START_STOP_GPIO                     36 // CONFIRM I CAN USE THIS
+#define GPIO_INPUT_PIN_SEL                  ( (1ULL<<HALL_EFF_GPIO) | (1ULL<<ENGINE_RPM_GPIO) | (1ULL<<CLK_GPIO) | (1ULL<<START_STOP_GPIO) )
+>>>>>>> 2edf858... creates new repo structure, begins refactor of code
 #define ESP_INTR_FLAG_DEFAULT               0
-#define MPH_SCALE                           3.927 // TIRE DIAMETER (22") * PI * 3600 / 63360                                            
-#define RPM_SCALE                           60 //RPM = 60 / period
+#define MPH_SCALE                           3.927 // TIRE DIAMETER (22") * PI * 3600 / 63360
+#define RPM_SCALE                           60 // RPM = 60 / period
 #define FLASHER_GPIO                        32
 #define H                                   1
 #define L                                   0
 
 //TIMER CONFIGS
 #define CONTROL_LOOP_PERIOD                 .001   // control loop period
+<<<<<<< HEAD
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 
@@ -71,6 +88,8 @@
 /* 
 * globals
 */ 
+=======
+>>>>>>> 2edf858... creates new repo structure, begins refactor of code
 
 extern char f_buf[];
 extern char err_buf[];
@@ -82,11 +101,9 @@ extern SemaphoreHandle_t commsSemaphore;
 extern int program_len;
 extern char *DHCP_IP;
 extern int MPH_FLAG;
-extern int RPM_FLAG; 
+extern int RPM_FLAG;
 extern int CLK;
 extern int START_STOP;
-
-/*****************************************************/
 
 /*
 * function designed with variable number of arguments
@@ -99,17 +116,17 @@ void gpio_kill(int num,...)
 
     for (int i=0;i<num;i++) {
         gpio_set_level(va_arg(valist, int), 0);
-        gpio_set_direction(va_arg(valist, int), GPIO_MODE_INPUT);          
+        gpio_set_direction(va_arg(valist, int), GPIO_MODE_INPUT);
     }
-    va_end(valist);   
+    va_end(valist);
 }
 
 /*
  * turns on/off flasher to indicate data is being recorded or not
  */
 void flasher(int level) {
-    
-    gpio_set_level(FLASHER_GPIO,level); //activate relay G6L-1F DC3
+
+    gpio_set_level(FLASHER_GPIO,level); // activate relay G6L-1F DC3
 
 }
 
@@ -127,7 +144,7 @@ void flasher_init(int flasher_gpio_num) {
 */
 static void mph_isr_handler(void* arg) {
 
-    MPH_FLAG = 1; 
+    MPH_FLAG = 1;
 
 }
 
@@ -145,7 +162,7 @@ static void rpm_isr_handler(void* arg) {
 
 static void start_stop_isr_handler(void* arg) {
 
-    //do something...
+    // do something...
     START_STOP = !START_STOP;
 
 }
@@ -154,16 +171,17 @@ static void start_stop_isr_handler(void* arg) {
 * configures GPIO pins for interrupt on rising edge
 */
 void config_gpio() {
-    
-    //config rising-edge interrupt GPIO pins (hall eff, engine rpm, and clk)
+
+    // config rising-edge interrupt GPIO pins (hall eff, engine rpm, and clk)
     gpio_config_t io_conf;
-    io_conf.intr_type = GPIO_PIN_INTR_POSEDGE; //interrupt of rising edge
-    io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL; //bit mask of the pins
-    io_conf.mode = GPIO_MODE_INPUT;//set as input mode    
+    io_conf.intr_type = GPIO_PIN_INTR_POSEDGE; // interrupt of rising edge
+    io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL; // bit mask of the pins
+    io_conf.mode = GPIO_MODE_INPUT;// set as input mode
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
+<<<<<<< HEAD
     gpio_install_isr_service(0); //install gpio isr service
     gpio_isr_handler_add(HALL_EFF_GPIO, mph_isr_handler, (void*) HALL_EFF_GPIO); //hook isr handler for gpio pins
     gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO); 
@@ -229,5 +247,14 @@ void timer_setup(int timer_idx,bool auto_reload, double timer_interval_sec)
 /*****************************************************/
 
 #endif
+=======
+    gpio_install_isr_service(0); // install gpio isr service
+    gpio_isr_handler_add(HALL_EFF_GPIO, mph_isr_handler, (void*) HALL_EFF_GPIO); // hook isr handler for gpio pins
+    gpio_isr_handler_add(ENGINE_RPM_GPIO, rpm_isr_handler, (void*) ENGINE_RPM_GPIO);
+    gpio_isr_handler_add(CLK_GPIO, clk_isr_handler, (void*) CLK_GPIO);
+    gpio_isr_handler_add(START_STOP_GPIO, start_stop_isr_handler, (void*) START_STOP_GPIO);
+>>>>>>> 2edf858... creates new repo structure, begins refactor of code
 
+}
 
+#endif // HUD_H_

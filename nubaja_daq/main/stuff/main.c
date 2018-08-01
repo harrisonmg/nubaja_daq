@@ -29,6 +29,8 @@ int START_STOP = 0;
 // timer index
 int timer_idx = 0;
 
+// uint64_t old_time = 0;
+// uint64_t old_time_RPM = 0;
 int old_time = 0;
 int old_time_RPM = 0;
 int program_len = 60;
@@ -42,13 +44,7 @@ int disp_count = 0;
 void config()
 {
 
-<<<<<<< HEAD
-    timer_setup(0,1,CONTROL_LOOP_PERIOD); //control loop timer
-
-    //semaphore that blocks end program task 
-=======
     // semaphore that blocks end program task
->>>>>>> 2edf858... creates new repo structure, begins refactor of code
     killSemaphore = xSemaphoreCreateBinary();
 
     memset(f_buf,0,strlen(f_buf));
@@ -74,13 +70,8 @@ void config()
         // gyro
         // itg_3200_config();
 
-<<<<<<< HEAD
-        //IMU
-        // LSM6DSM_config();
-=======
         // IMU
         LSM6DSM_config();
->>>>>>> 2edf858... creates new repo structure, begins refactor of code
 
     }
 
@@ -250,16 +241,6 @@ void timeout_thread(void* task)
 /*
 * creates tasks
 */
-<<<<<<< HEAD
-void app_main() 
-{ 
-    
-    //set run mode
-    ERROR_ENABLE = (runMode & BIT(3)) >> 3; 
-    COMMS_ENABLE = (runMode & BIT(2)) >> 2; 
-    SENSOR_ENABLE = (runMode & BIT(1)) >> 1; 
-    LOGGING_ENABLE = (runMode & BIT(0));  
-=======
 void app_main()
 {
 
@@ -268,7 +249,6 @@ void app_main()
     COMMS_ENABLE = (runMode & BIT(2)) >> 2;
     SENSOR_ENABLE = (runMode & BIT(1)) >> 1;
     LOGGING_ENABLE = (runMode & BIT(0));
->>>>>>> 2edf858... creates new repo structure, begins refactor of code
 
     ESP_LOGI(MAIN_TAG,"Comms enable is: %d",COMMS_ENABLE);
     ESP_LOGI(MAIN_TAG,"Sensor enable is: %d",SENSOR_ENABLE);
@@ -285,7 +265,7 @@ void app_main()
 
         commsSemaphore = xSemaphoreCreateBinary();
         display_hex_word(PORT_1,AS1115_SLAVE_ADDR,0xf,0xe,0xe,0xd);
-        /*wifi_config();*/
+        wifi_config();
 
     } else if (COMMS_ENABLE == 0)
     {
