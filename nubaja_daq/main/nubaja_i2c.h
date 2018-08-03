@@ -3,30 +3,30 @@
 
 #include "driver/i2c.h"
 
-#define I2C_MASTER_0_SDA_IO                 23                // gpio number for I2C master data
-#define I2C_MASTER_0_SCL_IO                 22                // gpio number for I2C master clock
-#define I2C_MASTER_1_SDA_IO                 17                // gpio number for I2C master data
-#define I2C_MASTER_1_SCL_IO                 21                // gpio number for I2C master clock
-#define PORT_0                              I2C_NUM_0         // I2C port number for master dev
-#define PORT_1                              I2C_NUM_1         // I2C port number for master dev
-#define I2C_MASTER_TX_BUF_DISABLE           0                 // I2C master do not need buffer
-#define I2C_MASTER_RX_BUF_DISABLE           0                 // I2C master do not need buffer
-#define NORMAL_MODE                         100000            // I2C master clock frequency
-#define FAST_MODE                           400000            // I2C master clock frequency
-#define FAST_MODE_PLUS                      1000000           // I2C master clock frequency
-#define WRITE_BIT                           I2C_MASTER_WRITE  // I2C master write
-#define READ_BIT                            I2C_MASTER_READ   // I2C master read
-#define ACK_CHECK_EN                        0x1               // I2C master will check ack from slave
-#define ACK_CHECK_DIS                       0x0               // I2C master will not check ack from slave
-#define ACK                                 0x0               // I2C ack value
-#define NACK                                0x1               // I2C nack value
-#define DATA_LENGTH                         1                 // bytes
-#define I2C_TASK_LENGTH                     1                 // ms
+#define I2C_MASTER_0_SDA_IO         23                // gpio number for I2C master data
+#define I2C_MASTER_0_SCL_IO         22                // gpio number for I2C master clock
+#define I2C_MASTER_1_SDA_IO         17                // gpio number for I2C master data
+#define I2C_MASTER_1_SCL_IO         21                // gpio number for I2C master clock
+#define PORT_0                      I2C_NUM_0         // I2C port number for master dev
+#define PORT_1                      I2C_NUM_1         // I2C port number for master dev
+#define I2C_MASTER_TX_BUF_DISABLE   0                 // I2C master do not need buffer
+#define I2C_MASTER_RX_BUF_DISABLE   0                 // I2C master do not need buffer
+#define NORMAL_MODE                 100000            // I2C master clock frequency
+#define FAST_MODE                   400000            // I2C master clock frequency
+#define FAST_MODE_PLUS              1000000           // I2C master clock frequency
+#define WRITE_BIT                   I2C_MASTER_WRITE  // I2C master write
+#define READ_BIT                    I2C_MASTER_READ   // I2C master read
+#define ACK_CHECK_EN                0x1               // I2C master will check ack from slave
+#define ACK_CHECK_DIS               0x0               // I2C master will not check ack from slave
+#define ACK                         0x0               // I2C ack value
+#define NACK                        0x1               // I2C nack value
+#define DATA_LENGTH                 1                 // bytes
+#define I2C_TASK_LENGTH             1                 // ms
 
 // return values
-#define I2C_SUCCESS                         0
-#define I2C_WRITE_FAILED                    1
-#define I2C_READ_FAILED                     2
+#define I2C_SUCCESS                 0
+#define I2C_WRITE_FAILED            1
+#define I2C_READ_FAILED             2
 
 // configure one I2C module for operation as an I2C master with internal pullups disabled
 void i2c_master_config(int port_num, int clk, int sda, int scl)

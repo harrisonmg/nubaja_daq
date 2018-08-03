@@ -12,14 +12,11 @@
 #include "nubaja_as1115.h"
 #include "nubaja_lsm6dsm.h"
 
-#define TIMER_DIVIDER   16                                  // hardware timer clock divider
-#define TIMER_SCALE     (TIMER_BASE_CLK / TIMER_DIVIDER)    // convert counter val to sec
-#define DAQ_TIMER_IDX   0                                   // index of daq timer
-#define DAQ_TIMER_HZ    1000                                // frequency of the daq timer in Hz
+#define DAQ_TIMER_GROUP TIMER_GROUP_0  // group of daq timer
+#define DAQ_TIMER_IDX   0              // index of daq timer
+#define DAQ_TIMER_HZ    1000           // frequency of the daq timer in Hz
 
-xQueueHandle timer_queue;   // queue to time the daq task
-xQueueHandle rpm_queue;     // queue for engine rpm values
-xQueueHandle mph_queue;     // queue for wheel speed values
+xQueueHandle timer_queue;              // queue to time the daq task
 
 // interrupt for the daq timer
 void IRAM_ATTR daq_timer_isr(void *para)
@@ -43,42 +40,37 @@ void IRAM_ATTR daq_timer_isr(void *para)
 
 static void daq_timer_init()
 {
+    // how quickly timer ticks, 80 MHz / divider
+    int divider = 100;
+
     // select and initialize basic parameters of the timer
     timer_config_t config;
-    config.divider = TIMER_DIVIDER;
+    config.divider = divider;
     config.counter_dir = TIMER_COUNT_UP;
     config.counter_en = TIMER_PAUSE;
     config.alarm_en = TIMER_ALARM_EN;
     config.intr_type = TIMER_INTR_LEVEL;
-    config.auto_reload = 1;
-    timer_init(TIMER_GROUP_0, DAQ_TIMER_IDX, &config);
+    config.auto_reload = TIMER_AUTORELOAD_EN;
+    timer_init(DAQ_TIMER_GROUP, DAQ_TIMER_IDX, &config);
 
     // timer's counter will initially start from value below
-    timer_set_counter_value(TIMER_GROUP_0, DAQ_TIMER_IDX, 0x00000000ULL);
+    timer_set_counter_value(DAQ_TIMER_GROUP, DAQ_TIMER_IDX, 0x00000000ULL);
 
     // configure the alarm value and the interrupt on alarm
-    timer_set_alarm_value(TIMER_GROUP_0, DAQ_TIMER_IDX, ((double) 1 / DAQ_TIMER_HZ) * TIMER_SCALE);
-    timer_enable_intr(TIMER_GROUP_0, DAQ_TIMER_IDX);
-    timer_isr_register(TIMER_GROUP_0, DAQ_TIMER_IDX, daq_timer_isr,
-        NULL, ESP_INTR_FLAG_IRAM, NULL);
+    timer_set_alarm_value(DAQ_TIMER_GROUP, DAQ_TIMER_IDX, TIMER_BASE_CLK / divider / DAQ_TIMER_HZ);
+    timer_enable_intr(DAQ_TIMER_GROUP, DAQ_TIMER_IDX);
+    timer_isr_register(DAQ_TIMER_GROUP, DAQ_TIMER_IDX, daq_timer_isr, NULL, ESP_INTR_FLAG_IRAM, NULL);
 
-    timer_start(TIMER_GROUP_0, DAQ_TIMER_IDX);
+    timer_start(DAQ_TIMER_GROUP, DAQ_TIMER_IDX);
 }
 
 // task to run the main daq system based on a timer
 static void daq_task(void *arg)
 {
     // initial config
+
     // rpm, mph, logging toggle, and flasher are gpio
-    configure_gpio(rpm_queue, mph_queue);
-
-    // keep track of ticks for rpm and mph
-    int last_rpm_ticks, last_mph_ticks;
-    last_rpm_ticks = last_mph_ticks = xTaskGetTickCount();
-
-    // initial values of displayable values
-    float rpm, mph, temp;
-    rpm = mph = temp = 0;
+    configure_gpio();
 
     // init display
     i2c_master_config(PORT_1, FAST_MODE_PLUS, I2C_MASTER_1_SDA_IO, I2C_MASTER_1_SCL_IO);
@@ -91,58 +83,43 @@ static void daq_task(void *arg)
     // TODO: be rid of debugging
     int last_ticks = 0;
 
-    // wait for timer trigger via a queue addition
     uint32_t intr_status;
     while (1)
     {
-        // TODO: be rid of debugging
-        int ticks = xTaskGetTickCount();
-        printf("%d\n", ticks - last_ticks);
-        last_ticks = ticks;
-
-        // wait for 1 kHz timer
+        // wait for 1 kHz timer alarm
         xQueueReceive(timer_queue, &intr_status, portMAX_DELAY);
 
+        // TODO: be rid of debugging
+        int ticks = xTaskGetTickCount();
+        /*printf("%d\n", ticks - last_ticks);*/
+        last_ticks = ticks;
+
         // flasher if loggin
+        // TODO: fix flasher
         if (ENABLE_LOGGING)
             flasher_on();
         else
             flasher_off();
 
-        // rpm
-        if (RPM_FLAG)
-        {
-            int ticks = xTaskGetTickCount();
-            RPM_FLAG = 0;
-            rpm = RPMFromTicks(ticks - last_rpm_ticks);
-            printf("rpm: %f\n", rpm);
-            last_rpm_ticks = ticks;
-        }
+        // TODO: check full speed buffers
 
-        // mph
-        if (MPH_FLAG)
-        {
-            int ticks = xTaskGetTickCount();
-            MPH_FLAG = 0;
-            mph = MPHFromTicks(ticks - last_mph_ticks);
-            printf("mph: %f\n", mph);
-            last_mph_ticks = ticks;
-        }
-
+        // TODO: get imu board from shop
         // imu
         int16_t gyro_x, gyro_y, gyro_z, xl_x, xl_y, xl_z;
-        imu_read_gyro_xl(&imu, &gyro_x, &gyro_y, &gyro_z, &xl_x, &xl_y, &xl_z);
+        /*imu_read_gyro_xl(&imu, &gyro_x, &gyro_y, &gyro_z, &xl_x, &xl_y, &xl_z);*/
         /*printf("%d, \t%d, \t%d, \t%d, \t%d, \t%d\n", gyro_x, gyro_y, gyro_z, xl_x, xl_y, xl_z);*/
 
         // display
         // TODO: display value cycle button
-        int disp_val = (int) rpm;
+        uint16_t disp_val;
+        xQueueReceive(rpm_queue, &disp_val, portMAX_DELAY);
+        printf("%d\n", disp_val);
 
         int ones = disp_val % 10;
         int tens = (disp_val /= 10) % 10;
         int hundreds = (disp_val /= 10) % 10;
         int thousands = (disp_val /= 10) % 10;
-        /*display_4_digits(&display, ones, tens, hundreds, thousands);*/
+        display_4_digits(&display, thousands, hundreds, tens, ones);
     }
     // per FreeRTOS, tasks MUST be deleted before breaking out of its implementing funciton
     vTaskDelete(NULL);
@@ -151,10 +128,7 @@ static void daq_task(void *arg)
 // initialize the daq timer and start the daq task
 void app_main()
 {
-    // init queues
     timer_queue = xQueueCreate(1, sizeof(uint32_t));
-    rpm_queue = xQueueCreate(5, sizeof(float));
-    mph_queue = xQueueCreate(5, sizeof(float));
 
     // start daq timer and daq task
     daq_timer_init();
