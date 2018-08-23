@@ -93,6 +93,32 @@ int i2c_write_4_bytes(int port_num, uint8_t slave_address, uint8_t reg,
     return I2C_SUCCESS;
 }
 
+// read one byte from the register of an I2C device
+int i2c_read_byte(int port_num, uint8_t slave_address, int reg, uint8_t *data)
+{
+  int ret;
+
+  i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+  i2c_master_start(cmd);
+  i2c_master_write_byte(cmd, ( slave_address << 1 ) | WRITE_BIT, ACK_CHECK_EN);
+  i2c_master_write_byte(cmd, reg, ACK);
+  i2c_master_start(cmd);
+  i2c_master_write_byte(cmd, ( slave_address << 1 ) | READ_BIT, ACK_CHECK_EN);
+  i2c_master_read_byte(cmd, data, NACK);
+  i2c_master_stop(cmd);
+  ret = i2c_master_cmd_begin(port_num, cmd, I2C_TASK_LENGTH / portTICK_RATE_MS);
+  i2c_cmd_link_delete(cmd);
+
+  if (ret != ESP_OK)
+  {
+    printf("i2c_read_byte -- failure on port: %d, slave: %d, reg: %d\n",
+           port_num, slave_address, reg);
+    return I2C_READ_FAILED;
+  }
+  else
+    return I2C_SUCCESS;
+}
+
 // read two consecutive bytes from the register of an I2C device
 int i2c_read_2_bytes(int port_num, uint8_t slave_address, int reg, uint16_t *data)
 {

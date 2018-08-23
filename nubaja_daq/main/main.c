@@ -16,6 +16,8 @@
 #define DAQ_TIMER_IDX   0              // index of daq timer
 #define DAQ_TIMER_HZ    1000           // frequency of the daq timer in Hz
 
+#define DISPLAY_REFRESH_RATE 4         // refresh rate of the 7-seg in Hz
+
 xQueueHandle timer_queue;              // queue to time the daq task
 
 // interrupt for the daq timer
@@ -35,7 +37,7 @@ void IRAM_ATTR daq_timer_isr(void *para)
     TIMERG0.hw_timer[DAQ_TIMER_IDX].config.alarm_en = TIMER_ALARM_EN;
 
     // send the counter value to the queue to trigger the daq task
-    xQueueSendFromISR(timer_queue, &intr_status, NULL);
+    xQueueOverwriteFromISR(timer_queue, &intr_status, NULL);
 }
 
 static void daq_timer_init()
@@ -75,10 +77,13 @@ static void daq_task(void *arg)
     // init display
     i2c_master_config(PORT_1, FAST_MODE_PLUS, I2C_MASTER_1_SDA_IO, I2C_MASTER_1_SCL_IO);
     AS1115 display = init_as1115(PORT_1, AS1115_SLAVE_ADDR);
+    int display_throttle_counter = 0;
 
     // init imu
     i2c_master_config(PORT_0, FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO);
     LSM6DSM imu = init_lsm6dsm(PORT_0, IMU_SLAVE_ADDR);
+
+    // TODO: spi & sd card (dual data buffer)
 
     // TODO: be rid of debugging
     int last_ticks = 0;
@@ -101,25 +106,30 @@ static void daq_task(void *arg)
         else
             flasher_off();
 
-        // TODO: check full speed buffers
+        // TODO: check full data buffer
 
-        // TODO: get imu board from shop
+        // TODO: data storage
         // imu
         int16_t gyro_x, gyro_y, gyro_z, xl_x, xl_y, xl_z;
-        /*imu_read_gyro_xl(&imu, &gyro_x, &gyro_y, &gyro_z, &xl_x, &xl_y, &xl_z);*/
+        imu_read_gyro_xl(&imu, &gyro_x, &gyro_y, &gyro_z, &xl_x, &xl_y, &xl_z);
         /*printf("%d, \t%d, \t%d, \t%d, \t%d, \t%d\n", gyro_x, gyro_y, gyro_z, xl_x, xl_y, xl_z);*/
 
         // display
         // TODO: display value cycle button
-        uint16_t disp_val;
-        xQueueReceive(rpm_queue, &disp_val, portMAX_DELAY);
-        printf("%d\n", disp_val);
-
-        int ones = disp_val % 10;
-        int tens = (disp_val /= 10) % 10;
-        int hundreds = (disp_val /= 10) % 10;
-        int thousands = (disp_val /= 10) % 10;
-        display_4_digits(&display, thousands, hundreds, tens, ones);
+        ++display_throttle_counter;
+        if (display_throttle_counter >= DAQ_TIMER_HZ / DISPLAY_REFRESH_RATE)
+        {
+            display_throttle_counter = 0;
+            uint16_t disp_val;
+            if(xQueueReceive(rpm_queue, &disp_val, 0) == pdPASS)
+            {
+                int ones = disp_val % 10;
+                int tens = (disp_val /= 10) % 10;
+                int hundreds = (disp_val /= 10) % 10;
+                int thousands = (disp_val /= 10) % 10;
+                display_4_digits(&display, thousands, hundreds, tens, ones);
+            }
+        }
     }
     // per FreeRTOS, tasks MUST be deleted before breaking out of its implementing funciton
     vTaskDelete(NULL);

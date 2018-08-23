@@ -43,7 +43,7 @@ static void mph_isr_handler(void *arg)
   timer_get_counter_time_sec(SPEED_TIMER_GROUP, SPEED_TIMER_IDX, &time);
   uint16_t mph = 60.0 / (time - last_mph_time) * 60 * TIRE_DIAMETER / INCHES_IN_A_MILE;
   if (mph <= MAX_MPH)
-    xQueueSendFromISR(mph_queue, &mph, NULL);
+    xQueueOverwriteFromISR(mph_queue, &mph, NULL);
   last_mph_time = time;
 }
 
@@ -53,7 +53,7 @@ static void rpm_isr_handler(void *arg)
   timer_get_counter_time_sec(SPEED_TIMER_GROUP, SPEED_TIMER_IDX, &time);
   uint16_t rpm = 60.0 / (time - last_rpm_time);
   if (rpm <= MAX_RPM)
-    xQueueSendFromISR(rpm_queue, &rpm, NULL);
+    xQueueOverwriteFromISR(rpm_queue, &rpm, NULL);
   last_rpm_time = time;
 }
 
@@ -85,8 +85,8 @@ void configure_gpio()
 {
     // setup timer and queues for speeds
     speed_timer_init();
-    rpm_queue = xQueueCreate(10, sizeof(uint16_t));
-    mph_queue = xQueueCreate(10, sizeof(uint16_t));
+    rpm_queue = xQueueCreate(1, sizeof(uint16_t));
+    mph_queue = xQueueCreate(1, sizeof(uint16_t));
 
     // config rising-edge interrupt GPIO pins (rpm, mph, and logging)
     gpio_config_t io_conf;

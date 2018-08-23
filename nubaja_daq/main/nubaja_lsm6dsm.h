@@ -3,6 +3,7 @@
 
 #include "nubaja_i2c.h"
 
+//#define IMU_SLAVE_ADDR  0x69
 #define IMU_SLAVE_ADDR  0x6a
 #define OUTX_L_G        0x22
 #define OUTX_H_G        0x23
