@@ -3,7 +3,6 @@
 
 #include "nubaja_i2c.h"
 
-//#define IMU_SLAVE_ADDR  0x69
 #define IMU_SLAVE_ADDR  0x6a
 #define OUTX_L_G        0x22
 #define OUTX_H_G        0x23
@@ -52,12 +51,12 @@ LSM6DSM init_lsm6dsm(int port_num, int slave_address)
   uint8_t HP_SLOPE_XL_EN = 0b0;
   uint8_t LOW_PASS_ON_6D = 0b0;
   uint8_t CTRL8_XL_CONFIG =
-    ( LPF2_XL_EN | HPCF_XL | HP_REF_MODE | INPUT_COMPOSITE | HP_SLOPE_XL_EN | 0 | LOW_PASS_ON_6D );
+    ( LPF2_XL_EN | HPCF_XL | HP_REF_MODE | INPUT_COMPOSITE | HP_SLOPE_XL_EN | LOW_PASS_ON_6D );
 
   uint8_t ODR_G = 0x80;
   uint8_t FS_G = 0x04;
   uint8_t FS_125 = 0b0;
-  uint8_t CTRL2_G_CONFIG = ( ODR_G | FS_G | FS_125 | 0 );
+  uint8_t CTRL2_G_CONFIG = ( ODR_G | FS_G | FS_125 );
 
   i2c_write_byte(port_num, slave_address, CTRL1_XL, CTRL1_XL_CONFIG);
   i2c_write_byte(port_num, slave_address, CTRL8_XL, CTRL8_XL_CONFIG);

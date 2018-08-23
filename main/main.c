@@ -121,7 +121,7 @@ static void daq_task(void *arg)
         {
             display_throttle_counter = 0;
             uint16_t disp_val;
-            if(xQueueReceive(rpm_queue, &disp_val, 0) == pdPASS)
+            if(xQueuePeek(rpm_queue, &disp_val, 0) == pdPASS)
             {
                 int ones = disp_val % 10;
                 int tens = (disp_val /= 10) % 10;
