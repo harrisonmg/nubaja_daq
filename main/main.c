@@ -1,3 +1,7 @@
+// TODO: rid
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 #include <stdio.h>
 #include "esp_types.h"
 #include "freertos/FreeRTOS.h"
@@ -99,8 +103,9 @@ static void daq_task(void *arg)
         /*printf("%d\n", ticks - last_ticks);*/
         last_ticks = ticks;
 
-        // flasher if loggin
-        // TODO: fix flasher
+        // flasher if logging
+        // TODO: enable logging button
+        flasher_on();
         if (ENABLE_LOGGING)
             flasher_on();
         else

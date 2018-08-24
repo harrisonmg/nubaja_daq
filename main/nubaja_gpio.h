@@ -6,9 +6,10 @@
 
 #define MPH_GPIO            26             // wheel rpm hall effect sensor
 #define RPM_GPIO            27             // engine rpm measurement circuit
+// TODO: find pin for logging toggle button
 #define LOGGING_GPIO        32             // button to start / stop logging
 #define GPIO_INPUT_PIN_SEL  ( (1ULL<<MPH_GPIO) | (1ULL<<RPM_GPIO) | (1ULL<<LOGGING_GPIO) )
-#define FLASHER_GPIO        13             // flashing light TODO: switch back to flash pin
+#define FLASHER_GPIO        32             // flashing light
 #define TIRE_DIAMETER       22             // inches
 #define INCHES_IN_A_MILE    63360
 
