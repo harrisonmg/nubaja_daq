@@ -41,19 +41,19 @@ AS1115 init_as1115(int port_num, int slave_address)
 */
 void display_one_digit(AS1115 *dev, uint8_t digit, uint8_t value)
 {
-    i2c_write_byte(dev->port_num, dev->port_num, digit, value);
+  i2c_write_byte(dev->port_num, dev->port_num, digit, value);
 }
 
 // write 4 digits to an AS1115 display
 void display_4_digits(AS1115 *dev, uint8_t digit_0, uint8_t digit_1, uint8_t digit_2, uint8_t digit_3)
 {
-    i2c_write_4_bytes(dev->port_num, dev->slave_address, DIGIT_0, digit_0, digit_1, digit_2, digit_3);
+  i2c_write_4_bytes(dev->port_num, dev->slave_address, DIGIT_0, digit_0, digit_1, digit_2, digit_3);
 }
 
 // disable an AS1115 display
 void display_disable(AS1115 *dev)
 {
-    i2c_write_byte(dev->port_num, dev->slave_address, 0xc, 0x80);  // sets shutdown register for normal operation
+  i2c_write_byte(dev->port_num, dev->slave_address, 0xc, 0x80);  // sets shutdown register for normal operation
 }
 
 #endif  // NUBAJA_AS1115_H_

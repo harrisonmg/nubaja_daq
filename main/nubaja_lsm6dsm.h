@@ -39,6 +39,7 @@ LSM6DSM init_lsm6dsm(int port_num, int slave_address)
   dev.slave_address = slave_address;
 
   uint8_t ODR_XL = 0x90;
+
   uint8_t FS_XL = 0x04;
   uint8_t LPF1_BW_SEL = 0b0;
   uint8_t BWO_XL = 0b0;

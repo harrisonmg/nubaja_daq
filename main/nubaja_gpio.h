@@ -6,8 +6,9 @@
 
 #define MPH_GPIO            26             // wheel rpm hall effect sensor
 #define RPM_GPIO            27             // engine rpm measurement circuit
-// TODO: find pin for logging toggle button
+// TODO: find pins for buttons
 #define LOGGING_GPIO        32             // button to start / stop logging
+#define DISPLAY_GPIO        32             // button to cycle display data
 #define GPIO_INPUT_PIN_SEL  ( (1ULL<<MPH_GPIO) | (1ULL<<RPM_GPIO) | (1ULL<<LOGGING_GPIO) )
 #define FLASHER_GPIO        32             // flashing light
 #define TIRE_DIAMETER       22             // inches
@@ -27,15 +28,16 @@ double last_rpm_time = 0;
 double last_mph_time = 0;
 
 int ENABLE_LOGGING = 0;
+int CYCLE_DISPLAY_DATA = 0;
 
 void flasher_on()
 {
-    gpio_set_level(FLASHER_GPIO, 1);
+  gpio_set_level(FLASHER_GPIO, 1);
 }
 
 void flasher_off()
 {
-    gpio_set_level(FLASHER_GPIO, 0);
+  gpio_set_level(FLASHER_GPIO, 0);
 }
 
 static void mph_isr_handler(void *arg)
@@ -60,53 +62,64 @@ static void rpm_isr_handler(void *arg)
 
 static void logging_isr_handler(void *arg)
 {
-    ENABLE_LOGGING = !ENABLE_LOGGING;
+  ENABLE_LOGGING = !ENABLE_LOGGING;
+}
+
+static void display_isr_handler(void *arg)
+{
+  CYCLE_DISPLAY_DATA = 1;
 }
 
 static void speed_timer_init()
 {
-    // select and initialize basic parameters of the timer
-    timer_config_t config;
-    config.divider = SPEED_TIMER_DIVIDER;
-    config.counter_dir = TIMER_COUNT_UP;
-    config.counter_en = TIMER_PAUSE;
-    config.alarm_en = TIMER_ALARM_DIS;
-    config.intr_type = TIMER_INTR_LEVEL;
-    config.auto_reload = TIMER_AUTORELOAD_DIS;
-    timer_init(SPEED_TIMER_GROUP, SPEED_TIMER_IDX, &config);
+  // select and initialize basic parameters of the timer
+  timer_config_t config;
+  config.divider = SPEED_TIMER_DIVIDER;
+  config.counter_dir = TIMER_COUNT_UP;
+  config.counter_en = TIMER_PAUSE;
+  config.alarm_en = TIMER_ALARM_DIS;
+  config.intr_type = TIMER_INTR_LEVEL;
+  config.auto_reload = TIMER_AUTORELOAD_DIS;
+  timer_init(SPEED_TIMER_GROUP, SPEED_TIMER_IDX, &config);
 
-    // timer's counter will initially start from value below
-    timer_set_counter_value(SPEED_TIMER_GROUP, SPEED_TIMER_IDX, 0x00000000ULL);
+  // timer's counter will initially start from value below
+  timer_set_counter_value(SPEED_TIMER_GROUP, SPEED_TIMER_IDX, 0x00000000ULL);
 
-    timer_start(SPEED_TIMER_GROUP, SPEED_TIMER_IDX);
+  timer_start(SPEED_TIMER_GROUP, SPEED_TIMER_IDX);
 }
 
 // configure gpio pins for input and ISRs, and the flasher pin for output
 void configure_gpio()
 {
-    // setup timer and queues for speeds
-    speed_timer_init();
-    rpm_queue = xQueueCreate(1, sizeof(uint16_t));
-    mph_queue = xQueueCreate(1, sizeof(uint16_t));
+  // setup timer and queues for speeds
+  speed_timer_init();
+  rpm_queue = xQueueCreate(1, sizeof(uint16_t));
+  mph_queue = xQueueCreate(1, sizeof(uint16_t));
 
-    // config rising-edge interrupt GPIO pins (rpm, mph, and logging)
-    gpio_config_t io_conf;
-    io_conf.intr_type = GPIO_PIN_INTR_POSEDGE;  // interrupt of rising edge
-    io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;  // bit mask of the pins
-    io_conf.mode = GPIO_MODE_INPUT;  // set as input mode
-    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    gpio_config(&io_conf);
+  // config rising-edge interrupt GPIO pins (rpm, mph, and logging)
+  gpio_config_t io_conf;
+  io_conf.intr_type = GPIO_PIN_INTR_POSEDGE;  // interrupt of rising edge
+  io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;  // bit mask of the pins
+  io_conf.mode = GPIO_MODE_INPUT;  // set as input mode
+  io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+  io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+  gpio_config(&io_conf);
 
-    // ISRs
-    gpio_install_isr_service(0); // install gpio isr service
-    gpio_isr_handler_add(RPM_GPIO, mph_isr_handler, NULL);
-    gpio_isr_handler_add(MPH_GPIO, rpm_isr_handler, NULL);
-    gpio_isr_handler_add(LOGGING_GPIO, logging_isr_handler, NULL);
+  // ISRs
+  gpio_install_isr_service(0); // install gpio isr service
 
-    // flasher
-    gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
-    flasher_off();
+  // wheel hall-effect sensor
+  gpio_isr_handler_add(RPM_GPIO, mph_isr_handler, NULL);
+  // engine comparator circuit
+  gpio_isr_handler_add(MPH_GPIO, rpm_isr_handler, NULL);
+  // logging toggle button
+  gpio_isr_handler_add(LOGGING_GPIO, logging_isr_handler, NULL);
+  // display data cycle button
+  gpio_isr_handler_add(DISPLAY_GPIO, display_isr_handler, NULL);
+
+  // flasher
+  gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
+  flasher_off();
 }
 
 #endif // NUBAJA_GPIO_H_
