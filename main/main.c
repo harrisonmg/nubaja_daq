@@ -19,8 +19,6 @@
 
 #define DISPLAY_REFRESH_RATE    4      // refresh rate of the 7-seg in Hz
 
-#define LOGGING_QUEUE_SIZE      5000   // data logging queue size
-
 xQueueHandle timer_queue;              // queue to time the daq task
 xQueueHandle logging_queue_1, logging_queue_2;  // queues to store logging data
 
@@ -87,6 +85,8 @@ static void daq_task(void *arg)
   i2c_master_config(PORT_0, FAST_MODE, I2C_MASTER_0_SDA_IO,I2C_MASTER_0_SCL_IO);
   LSM6DSM imu = init_lsm6dsm(PORT_0, IMU_SLAVE_ADDR);
 
+  // init sd
+  init_sd();
   xQueueHandle current_logging_queue = logging_queue_1;
 
   // TODO: be rid of debugging
@@ -100,18 +100,30 @@ static void daq_task(void *arg)
 
     // TODO: be rid of debugging
     int ticks = xTaskGetTickCount();
-    //printf("%d\n", ticks - last_ticks);
+    //if (ticks - last_ticks != 1)
+      //printf("%d, %d\n", ticks, ticks - last_ticks);
     last_ticks = ticks;
+
+    // get button flags
+    uint8_t buttons = xEventGroupGetBitsFromISR(button_eg);
+    uint8_t logging_enabled = buttons & ENABLE_LOGGING_BIT;
+    uint8_t data_to_log = buttons & DATA_TO_LOG_BIT;
+    uint8_t cycle_display = buttons & CYCLE_DISPLAY_BIT;
 
     // flasher if logging
     // TODO: enable logging button
-    if (ENABLE_LOGGING)
+    if (logging_enabled)
       flasher_on();
     else
       flasher_off();
 
     // create data struct and populate with this cycle's data
-    data_point dp;
+    data_point dp =
+    {
+      .rpm = 0,    .mph = 0,    .temp = 0,
+      .gyro_x = 0, .gyro_y = 0, .gyro_z = 0,
+      .xl_x = 0,   .xl_y = 0,   .xl_z = 0
+    };
 
     // imu
     imu_read_gyro_xl(&imu, &(dp.gyro_x), &(dp.gyro_y), &(dp.gyro_z),
@@ -120,40 +132,45 @@ static void daq_task(void *arg)
     xQueuePeek(rpm_queue, &(dp.rpm), 0);
     xQueuePeek(mph_queue, &(dp.mph), 0);
     // TODO: temp
-    dp.temp = 0;
+    dp.temp = ticks;
 
     // push the struct to the queue
     // if the queue is full, switch queues and send the full for writing to SD
-    if (xQueueSend(current_logging_queue, &dp, 0) == errQUEUE_FULL)
+    if ((logging_enabled && xQueueSend(current_logging_queue, &dp, 0) == errQUEUE_FULL)
+        || (!logging_enabled && data_to_log))
     {
       printf("queue full, writing and switiching...\n");
       if (current_logging_queue == logging_queue_1)
       {
         current_logging_queue = logging_queue_2;
-        xTaskCreatePinnedToCore(write_logging_queue_to_sd,
-                "write_logging_queue_1_to_sd", 2048, (void *) logging_queue_1,
-                (configMAX_PRIORITIES-2), NULL, 1);
+        //xTaskCreatePinnedToCore(write_logging_queue_to_sd,
+                //"write_lq_1_to_sd", 2048, (void *) logging_queue_1,
+                //(configMAX_PRIORITIES-2), NULL, 1);
       }
       else
       {
         current_logging_queue = logging_queue_1;
-        xTaskCreatePinnedToCore(write_logging_queue_to_sd,
-                "write_logging_queue_2_to_sd", 2048, (void *) logging_queue_2,
-                (configMAX_PRIORITIES-2), NULL, 1);
+        //xTaskCreatePinnedToCore(write_logging_queue_to_sd,
+                //"write_lq_2_to_sd", 2048, (void *) logging_queue_2,
+                //(configMAX_PRIORITIES-2), NULL, 1);
       }
 
-
-      // reset, though queue should be empty
+      // reset, though queue should be empty after writing
       xQueueReset(current_logging_queue);
-      xQueueSend(current_logging_queue, &dp, 0);
+
+      // if writing data after logging disabled, clear DATA_TO_LOG
+      // else add dp to new current buffer
+      if (!logging_enabled)
+        xEventGroupClearBits(button_eg, DATA_TO_LOG_BIT);
+      else
+        xQueueSend(current_logging_queue, &dp, 0);
     }
 
     // display
-    // check for display data cycle button
-    if (CYCLE_DISPLAY_DATA)
+    if (cycle_display)
     {
       display_data = (display_data + 1) % 3;
-      CYCLE_DISPLAY_DATA = 0;
+      xEventGroupClearBits(button_eg, CYCLE_DISPLAY_BIT);
     }
 
     ++display_throttle_counter;

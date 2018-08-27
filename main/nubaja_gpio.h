@@ -2,15 +2,17 @@
 #define NUBAJA_GIPO_H_
 
 #include "freertos/queue.h"
+#include "freertos/event_groups.h"
 #include "driver/gpio.h"
 
 #define MPH_GPIO            26             // wheel rpm hall effect sensor
 #define RPM_GPIO            27             // engine rpm measurement circuit
 // TODO: find pins for buttons
-#define LOGGING_GPIO        32             // button to start / stop logging
-#define DISPLAY_GPIO        32             // button to cycle display data
-#define GPIO_INPUT_PIN_SEL  ( (1ULL<<MPH_GPIO) | (1ULL<<RPM_GPIO) | (1ULL<<LOGGING_GPIO) )
-#define FLASHER_GPIO        32             // flashing light
+#define LOGGING_GPIO        39             // button to start / stop logging
+#define DISPLAY_GPIO        25             // button to cycle display data
+#define GPIO_INPUT_PIN_SEL  ((1ULL<<MPH_GPIO) | (1ULL<<RPM_GPIO) \
+                            | (1ULL<<LOGGING_GPIO) | (1ULL<<DISPLAY_GPIO))
+#define FLASHER_GPIO        32             // flashing indicator light
 #define TIRE_DIAMETER       22             // inches
 #define INCHES_IN_A_MILE    63360
 
@@ -27,8 +29,11 @@ xQueueHandle mph_queue;                    // queue for wheel speed values
 double last_rpm_time = 0;
 double last_mph_time = 0;
 
-int ENABLE_LOGGING = 0;
-int CYCLE_DISPLAY_DATA = 0;
+// button event group bits
+#define ENABLE_LOGGING_BIT  (1 << 0)
+#define DATA_TO_LOG_BIT     (1 << 1)
+#define CYCLE_DISPLAY_BIT   (1 << 2)
+EventGroupHandle_t button_eg;       // button press event group (logging, display)
 
 void flasher_on()
 {
@@ -62,12 +67,20 @@ static void rpm_isr_handler(void *arg)
 
 static void logging_isr_handler(void *arg)
 {
-  ENABLE_LOGGING = !ENABLE_LOGGING;
+  if (xEventGroupGetBitsFromISR(button_eg) & ENABLE_LOGGING_BIT)
+  {
+    xEventGroupClearBitsFromISR(button_eg, ENABLE_LOGGING_BIT);
+  }
+  else
+  {
+    xEventGroupSetBitsFromISR(button_eg,
+        ENABLE_LOGGING_BIT | DATA_TO_LOG_BIT, NULL);
+  }
 }
 
 static void display_isr_handler(void *arg)
 {
-  CYCLE_DISPLAY_DATA = 1;
+  xEventGroupSetBitsFromISR(button_eg, CYCLE_DISPLAY_BIT, NULL);
 }
 
 static void speed_timer_init()
@@ -96,6 +109,11 @@ void configure_gpio()
   rpm_queue = xQueueCreate(1, sizeof(uint16_t));
   mph_queue = xQueueCreate(1, sizeof(uint16_t));
 
+  // setup button event group
+  button_eg = xEventGroupCreate();
+  xEventGroupClearBits(button_eg,
+      ENABLE_LOGGING_BIT | DATA_TO_LOG_BIT | CYCLE_DISPLAY_BIT);
+
   // config rising-edge interrupt GPIO pins (rpm, mph, and logging)
   gpio_config_t io_conf;
   io_conf.intr_type = GPIO_PIN_INTR_POSEDGE;  // interrupt of rising edge
@@ -113,8 +131,10 @@ void configure_gpio()
   // engine comparator circuit
   gpio_isr_handler_add(MPH_GPIO, rpm_isr_handler, NULL);
   // logging toggle button
+  // TODO: hardware pulldown
   gpio_isr_handler_add(LOGGING_GPIO, logging_isr_handler, NULL);
   // display data cycle button
+  // TODO: hardware pulldown
   gpio_isr_handler_add(DISPLAY_GPIO, display_isr_handler, NULL);
 
   // flasher
