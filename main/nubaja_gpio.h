@@ -16,8 +16,8 @@
 #define TIRE_DIAMETER       22             // inches
 #define INCHES_IN_A_MILE    63360
 
-#define SPEED_TIMER_GROUP   TIMER_GROUP_0  // group of speed timer
-#define SPEED_TIMER_IDX     1              // index of speed timer
+#define SPEED_TIMER_GROUP   TIMER_GROUP_1  // group of speed timer
+#define SPEED_TIMER_IDX     0              // index of speed timer
 #define SPEED_TIMER_DIVIDER 100            // speed timer prescale divider
 
 #define MAX_RPM             4500           // cut off wacky high errors
@@ -33,7 +33,7 @@ double last_mph_time = 0;
 #define ENABLE_LOGGING_BIT  (1 << 0)
 #define DATA_TO_LOG_BIT     (1 << 1)
 #define CYCLE_DISPLAY_BIT   (1 << 2)
-EventGroupHandle_t button_eg;       // button press event group (logging, display)
+EventGroupHandle_t button_eg;  // button press event group (logging, display)
 
 void flasher_on()
 {
