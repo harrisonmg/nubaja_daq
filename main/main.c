@@ -84,13 +84,10 @@ static void daq_task(void *arg)
   xQueueHandle current_logging_queue = logging_queue_1;
 
   // TODO: be rid of debugging
-  int ticks = 0, last_ticks = 0;
+  //int ticks = 0, last_ticks = 0;
 
   // button vars
   uint8_t buttons, logging_enabled, data_to_log;
-
-  // TODO
-  xEventGroupSetBitsFromISR(button_eg, ENABLE_LOGGING_BIT | DATA_TO_LOG_BIT, NULL);
 
   uint32_t intr_status;
   while (1)
@@ -99,10 +96,10 @@ static void daq_task(void *arg)
     xQueueReceive(daq_timer_queue, &intr_status, portMAX_DELAY);
 
     // TODO: be rid of debugging
-    ticks = xTaskGetTickCount();
+    //ticks = xTaskGetTickCount();
     //if (ticks - last_ticks != 1)
       //printf("%d, %d\n", ticks, ticks - last_ticks);
-    last_ticks = ticks;
+    //last_ticks = ticks;
 
     // get button flags
     buttons = xEventGroupGetBitsFromISR(button_eg);

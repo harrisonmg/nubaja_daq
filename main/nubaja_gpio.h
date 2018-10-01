@@ -7,7 +7,7 @@
 
 #define MPH_GPIO            26             // wheel rpm hall effect sensor
 #define RPM_GPIO            27             // engine rpm measurement circuit
-// TODO: find pins for buttons
+// TODO: finalize pins for buttons
 #define LOGGING_GPIO        39             // button to start / stop logging
 #define DISPLAY_GPIO        25             // button to cycle display data
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<MPH_GPIO) | (1ULL<<RPM_GPIO) \

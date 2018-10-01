@@ -9,9 +9,6 @@
 #include "driver/sdspi_host.h"
 #include "sdmmc_cmd.h"
 
-// TODO
-#include "nubaja_gpio.h"
-
 #define SD_MISO 19
 #define SD_MOSI 18
 #define SD_CLK  14
@@ -54,7 +51,7 @@ static void write_logging_queue_to_sd(void *arg)
   xQueueHandle lq = (xQueueHandle) arg;
   data_point dp;
   // num fields * num chars for each value + comma / return
-  // int16_t can be -35,~~~, so max 6 chars per val
+  // int16_t can be -35,xxx, so max 6 chars per val
   int line_size = 9 * 7;
   // num lines * line size + char for null term
   int buff_size = LOGGING_QUEUE_SIZE * line_size + 1;
