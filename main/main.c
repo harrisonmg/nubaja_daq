@@ -129,7 +129,7 @@ static void daq_task(void *arg)
     xQueuePeek(mph_queue, &(dp.mph), 0);
 
     // TODO: temp
-    dp.temp = ticks;
+    dp.temp = 0;
 
     // push struct to current dp queue for display
     xQueueOverwrite(current_dp_queue, &dp);
