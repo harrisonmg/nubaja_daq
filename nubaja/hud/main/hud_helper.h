@@ -50,13 +50,10 @@
 #define ESP_INTR_FLAG_DEFAULT               0
 #define MPH_SCALE                           3.927 // TIRE DIAMETER (22") * PI * 3600 / 63360                                            
 #define RPM_SCALE                           60 //RPM = 60 / period
-#define FLASHER_GPIO                        25
+#define FLASHER_GPIO                        32
 #define H                                   1
 #define L                                   0
-//ADC 
-#define X_ACCEL                             ADC1_CHANNEL_0 // A4 on adafruit feather 
-#define Y_ACCEL                             ADC1_CHANNEL_3 // A3 on adafruit feather 
-#define Z_ACCEL                             ADC1_CHANNEL_6 // A2 on adafruit feather 
+
 //THERMISTOR CONFIGS 
 #define THERM_M                             0.024                    
 #define THERM_B                             -0.5371 //(y=mx + b, linear fit to Vout vs. temperature of thermistor circuit)
@@ -66,8 +63,8 @@
 //TIMER CONFIGS
 #define TIMER_DIVIDER                       16  //  Hardware timer clock divider
 #define TIMER_SCALE                         (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define CONTROL_LOOP_PERIOD                 .005   // control loop period for timer group 0 timer 0 in secondss
-#define PROGRAM_LENGTH                      600 // program length for timer group 0 timer 1 in seconds
+#define CONTROL_LOOP_PERIOD                 .001   // control loop period for timer group 0 timer 0 in secondss
+#define PROGRAM_LENGTH                      60 // program length for timer group 0 timer 1 in seconds
 
   
 

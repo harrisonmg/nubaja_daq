@@ -33,11 +33,10 @@ int err_buffer_idx = 0;
 
 uint64_t old_time = 0;
 uint64_t old_time_RPM = 0;
-int program_len = 600;
+int program_len = 60;
 char *DHCP_IP;
 
 int disp_count = 0;
-float avg_rpm = 0;
 
 /*
  * configures all necessary modules using respective config functions
@@ -77,9 +76,7 @@ void config() {
         
         //adc config
         adc1_config_width(ADC_WIDTH_BIT_12);
-        adc1_config_channel_atten(X_ACCEL, ATTENUATION);
-        adc1_config_channel_atten(Y_ACCEL, ATTENUATION);
-        adc1_config_channel_atten(Z_ACCEL, ATTENUATION);
+        adc1_config_channel_atten(TEMP, ATTENUATION);
         
         //GPIO config
         config_gpio();
@@ -124,7 +121,7 @@ void control_dyno(timer_event_t evt) {
                 old_time = curr_time; 
                 // display_speed(PORT_1, v_car);
                 // printf("speed: %f intr: %08x\n",v_car,gpio_num);
-                add_32b_to_buffer(f_buf,v_car,buffer_idx );
+                add_32b_to_buffer(f_buf,v_car );
                 buffer_newline(f_buf); 
                 
 
@@ -137,20 +134,25 @@ void control_dyno(timer_event_t evt) {
                 float RPM = RPM_SCALE / period_RPM;
                 old_time_RPM = curr_time_RPM; 
                 disp_count++;
-                // avg_rpm = avg_rpm + RPM / disp_count;
-                if (disp_count > 10) {
+                if (disp_count > 5) {
                     disp_count = 0;
                     display_RPM(PORT_1, RPM);
-                    // avg_rpm = 0;
                 }
+                
                 // printf("RPM: %f intr: %08x\n",RPM,gpio_num);                 
-                add_32b_to_err_buffer(err_buf,RPM,err_buffer_idx);
-                buffer_newline(err_buf); 
+                add_32b_to_err_buffer(err_buf,RPM);
+                err_buffer_newline(err_buf); 
 
                 
-            } 
-             
+            }              
         }
+
+        // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
+        // add_12b_to_buffer(f_buf,adc_raw); 
+        // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
+        // float temp = (adc_v - THERM_B) / THERM_M;
+        // printf("temp: %f\n",temp);                 
+        // display_temp(PORT_1,temp);
     }
 }
 
@@ -161,24 +163,12 @@ void control_dyno(timer_event_t evt) {
 void control_inertia() {
 
     if ( SENSOR_ENABLE ) {
-
-        // read_adc1(3,X_ACCEL,Y_ACCEL,Z_ACCEL);
         
         // itg_3200_read(PORT_0, GYRO_SLAVE_ADDR, XH);
         // LSM6DSM_read(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
         // LSM6DSM_read(PORT_0, IMU_SLAVE_ADDR, OUTX_L_XL);
-        LSM6DSM_read_both(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);
-        
-        // uint16_t adc_raw = adc1_get_raw(TEMP);  //read ADC (thermistor)
-        // add_12b_to_buffer(f_buf,adc_raw); 
-        // float adc_v = (float) adc_raw * ADC_SCALE; //convert ADC counts to temperature//this will change when a thermistor is actually spec'd
-        // float temp = (adc_v - THERM_B) / THERM_M;
+        LSM6DSM_read_both(PORT_0, IMU_SLAVE_ADDR, OUTX_L_G);      
 
-        // uint8_t temp_l = (uint32_t) temp % 10; 
-        // uint8_t temp_h = ( (uint32_t) temp / 10) % 10; 
-        // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_2,temp_l);
-        // AS1115_display_write(AS1115_SLAVE_ADDR,DIGIT_3,temp_h);    
-        
     }
 }
 

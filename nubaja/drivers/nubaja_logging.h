@@ -261,28 +261,28 @@ void add_s_16b_to_buffer (char buf[],int16_t i_to_add) {
  * appends 32b float to the end of the buffer
  * adds 8 hex digits to the end of the buffer
  */
-void add_32b_to_buffer (char buf[],float f_to_add, int idx) {
+void add_32b_to_buffer (char buf[],float f_to_add) {
     char formatted_string [33]; //number of bits + 1
     uint32_t i_to_add = (uint32_t) f_to_add;
     sprintf(formatted_string,"%08x",i_to_add);
     strcat(buf,formatted_string);
     strcat(buf," ");
-    idx+=33;
-    if (idx >= SIZE) {
-       idx = 0;
+    buffer_idx+=33;
+    if (buffer_idx >= SIZE) {
+       buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
     }    
 }
 
-void add_32b_to_err_buffer (char buf[],float f_to_add, int idx) {
+void add_32b_to_err_buffer (char buf[],float f_to_add) {
     char formatted_string [33]; //number of bits + 1
     uint32_t i_to_add = (uint32_t) f_to_add;
     sprintf(formatted_string,"%08x",i_to_add);
     strcat(buf,formatted_string);
     strcat(buf," ");
-    idx+=33;
-    if (idx >= SIZE) {
-       idx = 0;
+    err_buffer_idx+=33;
+    if (err_buffer_idx >= SIZE) {
+       err_buffer_idx = 0;
        ERROR_HANDLE_ME(err_to_file(buf,0)); 
     }    
 }
@@ -308,6 +308,17 @@ void buffer_newline(char buf[]) {
     if (buffer_idx >= SIZE) {
        buffer_idx = 0;
        ERROR_HANDLE_ME(data_to_file(buf,0)); 
+    } 
+}
+
+void err_buffer_newline(char buf[]) {
+    char newline [] = {'\n'}; //number of bits + 1
+    strcat(buf,newline);
+    strcat(buf," ");
+    err_buffer_idx+=strlen(newline);
+    if (err_buffer_idx >= SIZE) {
+       err_buffer_idx = 0;
+       ERROR_HANDLE_ME(err_to_file(buf,0)); 
     } 
 }
 

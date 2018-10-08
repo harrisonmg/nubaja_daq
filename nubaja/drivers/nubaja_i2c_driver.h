@@ -23,8 +23,8 @@
 //I2C MODULE
 #define I2C_MASTER_0_SDA_IO                 23               /*!< gpio number for I2C master data  */
 #define I2C_MASTER_0_SCL_IO                 22               /*!< gpio number for I2C master clock */
-#define I2C_MASTER_1_SDA_IO                 21               /*!< gpio number for I2C master data  */
-#define I2C_MASTER_1_SCL_IO                 17               /*!< gpio number for I2C master clock */
+#define I2C_MASTER_1_SDA_IO                 17               /*!< gpio number for I2C master data  */
+#define I2C_MASTER_1_SCL_IO                 21               /*!< gpio number for I2C master clock */
 #define PORT_0                              I2C_NUM_0        /*!< I2C port number for master dev */
 #define PORT_1                              I2C_NUM_1        /*!< I2C port number for master dev */
 #define I2C_MASTER_TX_BUF_DISABLE           0                /*!< I2C master do not need buffer */
