@@ -15,7 +15,7 @@
 
 #define DAQ_TIMER_GROUP       TIMER_GROUP_0  // group of daq timer
 #define DAQ_TIMER_IDX         0              // index of daq timer
-#define DAQ_TIMER_HZ          1000           // frequency of the daq timer in Hz
+#define DAQ_TIMER_HZ          100            // frequency of the daq timer in Hz
 
 #define DISPLAY_REFRESH_RATE  4              // 4 Hz
 

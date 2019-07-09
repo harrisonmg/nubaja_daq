@@ -7,12 +7,14 @@
 
 #define MPH_GPIO            26             // wheel rpm hall effect sensor
 #define RPM_GPIO            27             // engine rpm measurement circuit
-// TODO: finalize pins for buttons
 #define LOGGING_GPIO        39             // button to start / stop logging
-#define DISPLAY_GPIO        25             // button to cycle display data
+//#define DISPLAY_GPIO        25             // button to cycle display data
+
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<MPH_GPIO) | (1ULL<<RPM_GPIO) \
-                            | (1ULL<<LOGGING_GPIO) | (1ULL<<DISPLAY_GPIO))
-#define FLASHER_GPIO        32             // flashing indicator light
+                            | (1ULL<<LOGGING_GPIO) //| (1ULL<<DISPLAY_GPIO))
+
+#define FLASHER_GPIO        32             // flashing indicator light (not input)
+
 #define TIRE_DIAMETER       22             // inches
 #define INCHES_IN_A_MILE    63360
 
@@ -131,11 +133,10 @@ void configure_gpio()
   // engine comparator circuit
   gpio_isr_handler_add(MPH_GPIO, rpm_isr_handler, NULL);
   // logging toggle button
-  // TODO: hardware pulldown
   gpio_isr_handler_add(LOGGING_GPIO, logging_isr_handler, NULL);
+
   // display data cycle button
-  // TODO: hardware pulldown
-  gpio_isr_handler_add(DISPLAY_GPIO, display_isr_handler, NULL);
+  //gpio_isr_handler_add(DISPLAY_GPIO, display_isr_handler, NULL);
 
   // flasher
   gpio_set_direction(FLASHER_GPIO, GPIO_MODE_OUTPUT);
