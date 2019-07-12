@@ -7,11 +7,11 @@
 
 #define MPH_GPIO            26             // wheel rpm hall effect sensor
 #define RPM_GPIO            27             // engine rpm measurement circuit
-#define LOGGING_GPIO        39             // button to start / stop logging
+#define LOGGING_GPIO        16             // button to start / stop logging
 //#define DISPLAY_GPIO        25             // button to cycle display data
 
-#define GPIO_INPUT_PIN_SEL  ((1ULL<<MPH_GPIO) | (1ULL<<RPM_GPIO) \
-                            | (1ULL<<LOGGING_GPIO) //| (1ULL<<DISPLAY_GPIO))
+#define GPIO_INPUT_PIN_SEL  ((1ULL << MPH_GPIO) | (1ULL << RPM_GPIO))
+                            //| (1ULL << LOGGING_GPIO)) //| (1ULL << DISPLAY_GPIO))
 
 #define FLASHER_GPIO        32             // flashing indicator light (not input)
 
@@ -118,11 +118,17 @@ void configure_gpio()
 
   // config rising-edge interrupt GPIO pins (rpm, mph, and logging)
   gpio_config_t io_conf;
-  io_conf.intr_type = GPIO_PIN_INTR_POSEDGE;  // interrupt of rising edge
   io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;  // bit mask of the pins
+  io_conf.intr_type = GPIO_PIN_INTR_POSEDGE;  // interrupt of rising edge
   io_conf.mode = GPIO_MODE_INPUT;  // set as input mode
   io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
   io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+  gpio_config(&io_conf);
+
+  // TODO be rid of
+  io_conf.pin_bit_mask =  1ULL << LOGGING_GPIO;  // just for logging switch (instead of button)
+  io_conf.intr_type = GPIO_PIN_INTR_DISABLE;  // interrupt of any edge
+  io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
   gpio_config(&io_conf);
 
   // ISRs
@@ -133,7 +139,7 @@ void configure_gpio()
   // engine comparator circuit
   gpio_isr_handler_add(MPH_GPIO, rpm_isr_handler, NULL);
   // logging toggle button
-  gpio_isr_handler_add(LOGGING_GPIO, logging_isr_handler, NULL);
+  //gpio_isr_handler_add(LOGGING_GPIO, logging_isr_handler, NULL);
 
   // display data cycle button
   //gpio_isr_handler_add(DISPLAY_GPIO, display_isr_handler, NULL);

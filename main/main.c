@@ -87,7 +87,7 @@ static void daq_task(void *arg)
   //int ticks = 0, last_ticks = 0;
 
   // button vars
-  uint8_t buttons, logging_enabled, data_to_log;
+  uint8_t buttons, logging_enabled, data_to_log = 0;  // TODO be rid of
 
   uint32_t intr_status;
   while (1)
@@ -103,12 +103,15 @@ static void daq_task(void *arg)
 
     // get button flags
     buttons = xEventGroupGetBitsFromISR(button_eg);
-    logging_enabled = buttons & ENABLE_LOGGING_BIT;
-    data_to_log = buttons & DATA_TO_LOG_BIT;
+    logging_enabled = !gpio_get_level(LOGGING_GPIO); //buttons & ENABLE_LOGGING_BIT;
+    //data_to_log = buttons & DATA_TO_LOG_BIT;
 
     // flasher if logging
     if (logging_enabled)
+    {
+      data_to_log = 1;  // TODO be rid of
       flasher_on();
+    }
     else
       flasher_off();
 
@@ -139,7 +142,7 @@ static void daq_task(void *arg)
     if ((logging_enabled && xQueueSend(current_logging_queue, &dp, 0) == errQUEUE_FULL)
         || (!logging_enabled && data_to_log))
     {
-      printf("daq_task -- queue full, writing and switiching...\n");
+      printf("daq_task -- writing queue to SD and switiching...\n");
       if (current_logging_queue == logging_queue_1)
       {
         current_logging_queue = logging_queue_2;
@@ -162,7 +165,10 @@ static void daq_task(void *arg)
       // if writing data after logging disabled, clear DATA_TO_LOG
       // else add dp to new current buffer
       if (!logging_enabled)
+      {
+        data_to_log = 0;  // TODO be rid of
         xEventGroupClearBits(button_eg, DATA_TO_LOG_BIT);
+      }
       else
         xQueueSend(current_logging_queue, &dp, 0);
     }
@@ -245,7 +251,7 @@ void app_main()
   // start daq timer and tasks
   daq_timer_init();
 
-  xTaskCreatePinnedToCore(daq_task, "daq_task", 2048,
+  xTaskCreatePinnedToCore(daq_task, "daq_task", 3000,
                           NULL, (configMAX_PRIORITIES-1), NULL, 0);
   xTaskCreatePinnedToCore(display_task, "display_task", 2048,
                           NULL, (configMAX_PRIORITIES-2), NULL, 1);

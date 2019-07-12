@@ -14,7 +14,7 @@
 #define SD_CLK  14
 #define SD_CS   15
 
-#define LOGGING_QUEUE_SIZE  1000   // data logging queue size
+#define LOGGING_QUEUE_SIZE  300  // data logging queue size
 
 #define WRITING_DATA_BIT (1 << 0)
 EventGroupHandle_t writing_eg;  // event group to signify writing data
