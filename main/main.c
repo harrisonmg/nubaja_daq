@@ -131,15 +131,22 @@ static void daq_task(void *arg)
     xQueuePeek(rpm_queue, &(dp.rpm), 0);
     xQueuePeek(mph_queue, &(dp.mph), 0);
 
-    // TODO: temp
+    // TODO temp
     dp.temp = 0;
+
+    // TODO fix disgusting hack
+    if (!logging_enabled && data_to_log)
+    {
+        // to mark between tests, use temp val
+        dp.temp = 69;
+    }
 
     // push struct to current dp queue for display
     xQueueOverwrite(current_dp_queue, &dp);
 
     // push struct to logging queue
     // if the queue is full, switch queues and send the full for writing to SD
-    if ((logging_enabled && xQueueSend(current_logging_queue, &dp, 0) == errQUEUE_FULL)
+    if ((xQueueSend(current_logging_queue, &dp, 0) == errQUEUE_FULL && logging_enabled)
         || (!logging_enabled && data_to_log))
     {
       printf("daq_task -- writing queue to SD and switiching...\n");
@@ -182,7 +189,7 @@ static void display_task(void *arg)
   // init display
   i2c_master_config(PORT_1, FAST_MODE_PLUS, I2C_MASTER_1_SDA_IO, I2C_MASTER_1_SCL_IO);
   AS1115 display = init_as1115(PORT_1, AS1115_SLAVE_ADDR);
-  uint8_t display_data = 0, cycle_display = 0,
+  uint8_t display_data = 1, cycle_display = 0,
           ones, tens, hundreds, thousands;
   uint16_t disp_val = 0;
 

@@ -5,8 +5,8 @@
 #include "freertos/event_groups.h"
 #include "driver/gpio.h"
 
-#define MPH_GPIO            26             // wheel rpm hall effect sensor
-#define RPM_GPIO            27             // engine rpm measurement circuit
+#define MPH_GPIO            27             // wheel rpm hall effect sensor
+#define RPM_GPIO            26             // engine rpm measurement circuit
 #define LOGGING_GPIO        16             // button to start / stop logging
 //#define DISPLAY_GPIO        25             // button to cycle display data
 
@@ -17,6 +17,7 @@
 
 #define TIRE_DIAMETER       22             // inches
 #define INCHES_IN_A_MILE    63360
+#define MPH_CALC_CONST      3.9269908
 
 #define SPEED_TIMER_GROUP   TIMER_GROUP_1  // group of speed timer
 #define SPEED_TIMER_IDX     0              // index of speed timer
@@ -51,7 +52,7 @@ static void mph_isr_handler(void *arg)
 {
   double time;
   timer_get_counter_time_sec(SPEED_TIMER_GROUP, SPEED_TIMER_IDX, &time);
-  uint16_t mph = 60.0 / (time - last_mph_time) * 60 * TIRE_DIAMETER / INCHES_IN_A_MILE;
+  uint16_t mph = MPH_CALC_CONST / (time - last_mph_time);
   if (mph <= MAX_MPH)
     xQueueOverwriteFromISR(mph_queue, &mph, NULL);
   last_mph_time = time;
